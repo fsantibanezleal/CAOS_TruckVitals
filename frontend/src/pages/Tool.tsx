@@ -4,9 +4,9 @@
 // The comparison the product exists to make is on screen at all times: the same detector, on the raw
 // channel and on the within-regime residual, against the same fleet threshold and the same true onset.
 
-import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Callout, Tabs, type TabDef } from '@fasl-work/caos-app-shell';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router';
+import { Tabs, type TabDef } from '@fasl-work/caos-app-shell';
 import {
   loadFleetIndex, loadFleetTrace, type FleetIndex, type FleetTrace,
 } from '../lib/artifacts.ts';
@@ -17,8 +17,10 @@ import {
 import TraceChart from '../viz/TraceChart.tsx';
 import { usePalette } from '../viz/theme.ts';
 import PanelBoundary from '../viz/PanelBoundary.tsx';
+import { useChromeHeight } from '../lib/chrome.ts';
 
 export default function Tool() {
+  useChromeHeight();
   const t = useT();
   const lang = useLang();
   const p = usePalette();
@@ -186,46 +188,53 @@ function SignalPanel({ trace, channel, detector }: { trace: FleetTrace; channel:
   const t = useT();
   const lang = useLang();
   const p = usePalette();
+  const [cursor, setCursor] = useState<{ x: number | null; raw: number | null; res: number | null }>(
+    { x: null, raw: null, res: null });
+  const onRaw = useCallback((x: number | null, v: (number | null)[]) =>
+    setCursor((c) => ({ ...c, x, raw: v[0] ?? null })), []);
+  const onRes = useCallback((x: number | null, v: (number | null)[]) =>
+    setCursor((c) => ({ ...c, x, res: v[0] ?? null })), []);
   const arms = useMemo(() => armsForChannel(trace, channel), [trace, channel]);
-  const bands = { regime: trace.monitored.regime, t: trace.monitored.t };
+  const bands = useMemo(() => ({ regime: trace.monitored.regime, t: trace.monitored.t }), [trace]);
   const d = trace.detectors[detector];
+  // Stable series identities. A fresh array literal on every render is a new dependency, and the chart
+  // effect would tear down and rebuild the plot each time the cursor readout updated.
+  const rawSeries = useMemo(
+    () => [{ label: t('arm_raw'), values: arms.raw, color: p.raw, width: 1.2 }],
+    [arms.raw, p.raw, t]);
+  const resSeries = useMemo(
+    () => [{ label: t('arm_residual'), values: arms.residual, color: p.residual, width: 1.2 }],
+    [arms.residual, p.residual, t]);
 
   return (
     <div className="tv-stage">
-      <Readout trace={trace} detector={detector} />
+      <Readout trace={trace} detector={detector} cursor={cursor} note={lang === 'es'
+        ? 'Arriba el canal crudo, abajo el residuo dentro del régimen. Las bandas son regímenes aprendidos del ciclo de acarreo.'
+        : 'Raw channel above, within-regime residual below. The bands are regimes learned from the haul cycle.'} />
       <TraceChart
+        onCursor={onRaw}
         t={arms.t}
-        series={[{ label: t('arm_raw'), values: arms.raw, color: p.raw, width: 1.2 }]}
+        series={rawSeries}
         onsetT={trace.onset_t}
         alarmTimes={d?.raw.alarm_times}
         bands={bands}
-        height={190}
+        fill
         yLabel={label(CHANNEL_LABEL, channel, lang)}
         ariaLabel={`raw ${channel}`}
       />
       <TraceChart
+        onCursor={onRes}
         t={arms.t}
-        series={[{ label: t('arm_residual'), values: arms.residual, color: p.residual, width: 1.2 }]}
+        series={resSeries}
         onsetT={trace.onset_t}
         alarmTimes={d?.residual.alarm_times}
         bands={bands}
-        height={190}
+        fill
         yLabel={`${label(CHANNEL_LABEL, channel, lang)}, z`}
         xLabel={t('min_since_start')}
         ariaLabel={`residual ${channel}`}
       />
-      <MarkerKey />
-      <div className="tv-cap">
-        {lang === 'es'
-          ? 'Arriba el canal crudo; abajo el residuo dentro del régimen. Las bandas de color son los regímenes '
-            + 'aprendidos del ciclo de acarreo, no etiquetas inyectadas: el mismo camión cargado subiendo y '
-            + 'vacío bajando son dos regímenes distintos, y la mayor parte de lo que se mueve en el canal '
-            + 'crudo es ese ciclo, no la falla.'
-          : 'The raw channel above, the within-regime residual below. The coloured bands are the regimes '
-            + 'learned from the haul cycle rather than injected labels: the same truck loaded on a ramp and '
-            + 'empty on the return is two regimes, and most of what moves in the raw channel is that cycle, '
-            + 'not the fault.'}
-      </div>
+
     </div>
   );
 }
@@ -236,45 +245,52 @@ function DetectorPanel({ trace, detector }: { trace: FleetTrace; detector: strin
   const t = useT();
   const lang = useLang();
   const p = usePalette();
+  const [cursor, setCursor] = useState<{ x: number | null; raw: number | null; res: number | null }>(
+    { x: null, raw: null, res: null });
+  const onRaw = useCallback((x: number | null, v: (number | null)[]) =>
+    setCursor((c) => ({ ...c, x, raw: v[0] ?? null })), []);
+  const onRes = useCallback((x: number | null, v: (number | null)[]) =>
+    setCursor((c) => ({ ...c, x, res: v[0] ?? null })), []);
   const d = trace.detectors[detector];
+  const rawSeries = useMemo(
+    () => (d ? [{ label: `${detector}, ${t('arm_raw')}`, values: d.raw.statistic, color: p.raw }] : []),
+    [d, detector, p.raw, t]);
+  const resSeries = useMemo(
+    () => (d ? [{ label: `${detector}, ${t('arm_residual')}`, values: d.residual.statistic, color: p.residual }] : []),
+    [d, detector, p.residual, t]);
   if (!d) return <div className="tv-cap">{t('load_failed')}</div>;
 
   return (
     <div className="tv-stage">
-      <Readout trace={trace} detector={detector} />
+      <Readout trace={trace} detector={detector} cursor={cursor} note={lang === 'es'
+        ? 'El umbral es el de FLOTA al presupuesto compartido, no ajustado a este camión.'
+        : 'The threshold is the FLEET threshold at the shared budget, not fitted to this truck.'} />
       <TraceChart
+        onCursor={onRaw}
         t={trace.monitored.t}
-        series={[{ label: `${detector}, ${t('arm_raw')}`, values: d.raw.statistic, color: p.raw }]}
+        series={rawSeries}
         threshold={d.raw.threshold}
         thresholdLabel={t('threshold')}
         onsetT={trace.onset_t}
         alarmTimes={d.raw.alarm_times}
-        height={190}
+        fill
         yLabel={t('statistic')}
         ariaLabel={`${detector} raw statistic`}
       />
       <TraceChart
+        onCursor={onRes}
         t={trace.monitored.t}
-        series={[{ label: `${detector}, ${t('arm_residual')}`, values: d.residual.statistic, color: p.residual }]}
+        series={resSeries}
         threshold={d.residual.threshold}
         thresholdLabel={t('threshold')}
         onsetT={trace.onset_t}
         alarmTimes={d.residual.alarm_times}
-        height={190}
+        fill
         yLabel={t('statistic')}
         xLabel={t('min_since_start')}
         ariaLabel={`${detector} residual statistic`}
       />
-      <MarkerKey />
-      <Callout variant="honest">
-        {lang === 'es'
-          ? 'El umbral dibujado es el umbral de FLOTA al presupuesto compartido de falsas alarmas, no un '
-            + 'umbral ajustado a este camión. Un umbral por camión se ajustaría al mismo registro que juzga, '
-            + 'que es la forma más común en que este tipo de gráfico se favorece a sí mismo.'
-          : 'The threshold drawn is the FLEET threshold at the shared false-alarm budget, not a threshold '
-            + 'fitted to this truck. A per-truck threshold would be fitted on the very record it is judging, '
-            + 'which is the most common way this kind of chart flatters itself.'}
-      </Callout>
+
     </div>
   );
 }
@@ -427,9 +443,14 @@ function FleetPanel({ index, current, onSelect }: {
 
 /* ----------------------------------------------------------- shared pieces */
 
-function Readout({ trace, detector }: { trace: FleetTrace; detector: string }) {
+function Readout({ trace, detector, cursor, note }: {
+  trace: FleetTrace; detector: string;
+  cursor?: { x: number | null; raw: number | null; res: number | null };
+  note?: string;
+}) {
   const t = useT();
   const lang = useLang();
+  const p = usePalette();
   const r = delayOf(trace, detector, 'raw');
   const s = delayOf(trace, detector, 'residual');
   const faster = fasterArm(trace, detector);
@@ -463,19 +484,29 @@ function Readout({ trace, detector }: { trace: FleetTrace; detector: string }) {
         <dt>{t('coverage')}</dt>
         <dd>{(trace.monitored.regime_coverage * 100).toFixed(0)}%</dd>
       </div>
+      <div className="tv-keys">
+        <span><i style={{ borderTopColor: p.onset, borderTopWidth: 2 }} />{t('onset')}</span>
+        <span><i style={{ borderTopColor: p.threshold, borderTopStyle: 'dashed' }} />{t('threshold')}</span>
+        <span><i style={{ borderTopColor: p.alarm, borderTopWidth: 2 }} />{t('alarms')}</span>
+        <span><i className="band" style={{ background: p.regimes[1] }} />{t('regime_band')}</span>
+      </div>
+      {cursor && (
+        <div>
+          <dt>{lang === 'es' ? 'bajo el cursor' : 'at the cursor'}</dt>
+          <dd>
+            {cursor.x == null
+              ? <span className="tv-muted">{lang === 'es' ? 'pase el cursor' : 'hover a chart'}</span>
+              : (<>
+                {fmt(cursor.x)} {t('minutes')}
+                {' '}<span style={{ color: p.raw }}>{fmt(cursor.raw, 2, '-')}</span>
+                {' / '}<span style={{ color: p.residual }}>{fmt(cursor.res, 2, '-')}</span>
+              </>)}
+          </dd>
+        </div>
+      )}
+      {note && <div className="tv-keynote" title={note}>{note}</div>}
     </dl>
   );
 }
 
-function MarkerKey() {
-  const t = useT();
-  const p = usePalette();
-  return (
-    <div className="tv-keys">
-      <span><i style={{ borderTopColor: p.onset, borderTopWidth: 2 }} />{t('onset')}</span>
-      <span><i style={{ borderTopColor: p.threshold, borderTopStyle: 'dashed' }} />{t('threshold')}</span>
-      <span><i style={{ borderTopColor: p.alarm, borderTopWidth: 2 }} />{t('alarms')}</span>
-      <span><i className="band" style={{ background: p.regimes[1] }} />{t('regime_band')}</span>
-    </div>
-  );
-}
+

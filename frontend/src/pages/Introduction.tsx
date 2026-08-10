@@ -1,5 +1,6 @@
 import { Callout, Cite, Equation } from '@fasl-work/caos-app-shell';
 import { useLang } from '../lib/i18n.ts';
+import { MechanismHeadline, OnsetNull } from '../viz/Headline.tsx';
 
 export default function Introduction() {
   const es = useLang() === 'es';
@@ -81,30 +82,9 @@ export default function Introduction() {
             + 'real gain, THAT is the finding and it ships as such.'}
       </p>
 
-      <Callout variant="strong" title={es ? 'El resultado principal' : 'The headline result'}>
-        {es
-          ? 'En NASA C-MAPSS, con el mismo detector y el mismo presupuesto de falsas alarmas, la tasa de '
-            + 'detección cae de 0.96 en el subconjunto de una sola condición operativa a 0.05 en el de seis '
-            + 'condiciones. El condicionamiento por régimen la devuelve a 0.98. La caída no es por más '
-            + 'ruido ni por más canales: ambos confundidores fueron eliminados y se documentan en '
-            + 'Metodología.'
-          : 'On NASA C-MAPSS, at the same detector and the same false-alarm budget, detection rate falls '
-            + 'from 0.96 on the single-operating-condition subset to 0.05 on the six-condition one. Regime '
-            + 'conditioning restores it to 0.98. The collapse is not more noise and not more channels: both '
-            + 'confounds were removed, and how is documented under Methodology.'}
-      </Callout>
+      <MechanismHeadline es={es} />
 
-      <Callout variant="honest" title={es ? 'Y un resultado NULO, del mismo protocolo' : 'And a NULL result, from the same protocol'}>
-        {es
-          ? 'La misma idea NO mejora la localización del inicio en el tiempo. Medida de forma pareada sobre '
-            + 'cinco semillas contra un nivel de azar, la diferencia es -0.08 +/- 0.66 y el condicionamiento '
-            + 'gana en 2 de 5 semillas. La primera corrida de esa medición dio 2.40x y fue publicada aquí '
-            + 'antes de repetirla. Está corregida, y la corrección se documenta en vez de borrarse.'
-          : 'The same idea does NOT improve onset localisation in time. Measured paired over five seeds '
-            + 'against a chance level, the difference is -0.08 +/- 0.66 and conditioning is ahead in 2 of 5 '
-            + 'seeds. The first run of that measurement gave 2.40x and was published here before it was '
-            + 'repeated. It is corrected, and the correction is documented rather than deleted.'}
-      </Callout>
+      <OnsetNull es={es} />
 
       <h2>{es ? 'Qué es real y qué es sintético' : 'What is real and what is synthetic'}</h2>
       <p>

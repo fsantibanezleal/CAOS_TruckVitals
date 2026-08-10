@@ -7,11 +7,14 @@
    Shell header (~57px) + footer (~70px) + page padding => ~150px of chrome above the stage. */
 .tv-layout {
   display: grid;
-  grid-template-columns: 290px 1fr;
-  gap: 1.2rem;
+  /* The rail holds three short controls; every pixel it does not need is width the instrument does. */
+  grid-template-columns: 258px 1fr;
+  gap: 0.85rem;
   align-items: stretch;
-  height: calc(100dvh - 150px);
-  min-height: 460px;
+  /* --tv-chrome is measured at runtime by useChromeHeight; the fallback is a safe over-estimate,
+     because guessing LOW clips the footer and guessing high only wastes a little space. */
+  height: calc(100dvh - var(--tv-chrome, 320px));
+  min-height: 420px;
 }
 /* min-width/min-height 0 on EVERY ancestor of a scrollable row. Grid and flex items default to
    min-*: auto and refuse to shrink below their content, so one nowrap row silently widens the whole
@@ -47,24 +50,37 @@
 .chip.on { background: var(--color-accent); color: var(--color-accent-fg, #fff); border-color: transparent; font-weight: 600; }
 
 /* --- the instrument -------------------------------------------------------------------------- */
-.tv-stage { display: flex; flex-direction: column; gap: 0.5rem; min-height: 0; }
+.tv-stage { display: flex; flex-direction: column; gap: 0.2rem; min-height: 0; height: 100%; }
+.tv-stage > * { margin: 0; }
+/* The chart hosts are the flex children that grow. Everything else in the stage (readout, key, caption)
+   keeps its natural height, so the instrument gets whatever is left, which is most of it. ADR-0071
+   requires at least 50% of the viewport on an App route and this is what delivers it. */
+.tv-stage > .tv-chart { flex: 1 1 0; min-height: 120px; }
+.tv-stage > .tv-readout, .tv-stage > .tv-keys, .tv-stage > .tv-cap, .tv-stage > .callout { flex: 0 0 auto; }
 .tv-chart { width: 100%; }
+/* Belt and braces for the same collision: whatever uPlot renders stays inside its host. */
+.tv-chart .uplot { max-width: 100%; }
+.tv-stage > .tv-chart, .tv-focus-stage > .tv-chart { overflow: hidden; }
 .tv-chart .u-legend { font-size: 0.76rem; }
 .tv-chart .u-legend .u-marker { width: 10px; height: 10px; }
-.tv-cap { font-size: 0.78rem; color: var(--color-fg-subtle); line-height: 1.55; }
+.tv-cap { font-size: 0.78rem; color: var(--color-fg-subtle); line-height: 1.5; }
+/* Inside the workbench stage the caption is a single clamped line: it is context, not content,
+   and three wrapped lines of it cost the instrument more than they explain. */
+.tv-stage > .tv-cap { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical;
+  overflow: hidden; }
 .tv-muted { color: var(--color-fg-faint); }
 
 /* the readout strip above the charts: the numbers a reader would otherwise have to eyeball off the axis */
-.tv-readout { display: flex; flex-wrap: wrap; gap: 0.5rem 1.4rem; align-items: baseline;
-  padding: 0.45rem 0.7rem; border: 1px solid var(--color-border); border-radius: 10px; background: var(--color-surface); }
+.tv-readout { display: flex; flex-wrap: wrap; gap: 0.15rem 1.2rem; align-items: baseline;
+  padding: 0.22rem 0.55rem; border: 1px solid var(--color-border); border-radius: 10px; background: var(--color-surface); }
 .tv-readout dt { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-fg-faint); }
-.tv-readout dd { margin: 0; font-size: 0.95rem; font-variant-numeric: tabular-nums; font-weight: 600; color: var(--color-fg); }
+.tv-readout dd { margin: 0; font-size: 0.88rem; font-variant-numeric: tabular-nums; font-weight: 600; color: var(--color-fg); }
 .tv-readout > div { display: flex; flex-direction: column; gap: 0.1rem; }
 .tv-readout .good { color: var(--color-ok, #1a7f37); }
 .tv-readout .bad { color: var(--color-danger, #cf222e); }
 
 /* legend for the marker semantics, since they are drawn on the canvas rather than as uPlot series */
-.tv-keys { display: flex; flex-wrap: wrap; gap: 0.9rem; font-size: 0.74rem; color: var(--color-fg-subtle); }
+.tv-keys { display: flex; flex-wrap: nowrap; align-items: center; min-width: 0; gap: 0.9rem; font-size: 0.74rem; color: var(--color-fg-subtle); }
 .tv-keys span { display: inline-flex; align-items: center; gap: 0.35rem; }
 .tv-keys i { width: 14px; height: 0; border-top-width: 2px; border-top-style: solid; display: inline-block; }
 .tv-keys i.band { height: 10px; border: 1px solid var(--color-border); border-radius: 2px; }
@@ -96,3 +112,29 @@ table.tv-table td.lose { color: var(--color-danger, #cf222e); }
 
 .tv-err { border: 1px solid var(--color-danger, #cf222e); border-radius: 10px; padding: 0.7rem 0.9rem;
   font-size: 0.85rem; color: var(--color-fg); background: color-mix(in srgb, var(--color-danger, #cf222e) 7%, transparent); }
+
+/* --- reclaiming the App route's vertical budget -------------------------------------------------
+   A workbench is not prose, and the shell's reading padding is sized for prose. At 1600x900 the header,
+   footer and page padding together took 31% of the viewport before the instrument drew anything, which
+   makes the ADR-0071 floor (>=50% for the primary visualization) arithmetically unreachable no matter
+   how the charts are sized. The padding is the part that is ours to give back. */
+.page-body.wide { padding-top: 0.45rem; padding-bottom: 0.45rem; }
+.page-body.wide > .tv-layout { margin-top: 0; }
+/* The tab strip is chrome too. One row, and a tighter one on the workbench than on a prose page. */
+.tv-main .tablist { padding-bottom: 0.1rem; margin-bottom: 0.25rem; }
+.tv-main .tablist .tab { padding-top: 0.22rem; padding-bottom: 0.22rem; font-size: 0.86rem; }
+
+/* the one-line note that rides along the marker key row */
+.tv-keynote { color: var(--color-fg-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  min-width: 0; flex: 1 1 auto; }
+
+/* On the workbench only: the shell's footer margin is reading space, and this route is not reading. */
+html.tv-workbench .site-footer { margin-top: 12px; }
+
+/* The readout is one line, not five stacked pairs. Label and value sit inline; at 52px stacked it cost
+   the instrument more than it told the reader. */
+.tv-readout > div { flex-direction: row; align-items: baseline; gap: 0.35rem; }
+/* the marker key rides inside the readout strip, so the stage carries one furniture row */
+.tv-readout .tv-keys { gap: 0.7rem; }
+.tv-readout .tv-keynote { flex: 1 1 200px; }
+.tv-readout dt::after { content: ':'; }

@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" width="900" class="arch-svg" role="img" aria-label="What an adversarial review broke, what survived it, and what the headline became">
+  <style>
+    .arch-svg text { font-family: var(--font-sans, Inter, "Segoe UI", system-ui, sans-serif); }
+    .arch-svg .mono { font-family: var(--font-mono, ui-monospace, Consolas, monospace); font-size: 10px; fill: var(--color-fg-subtle); }
+    .arch-svg .bx { fill: var(--color-surface-2, var(--color-surface)); stroke: var(--color-border); stroke-width: 1.2; }
+    .arch-svg .bx-hi { stroke: var(--color-accent); stroke-width: 1.6; }
+    .arch-svg .bx-bad { stroke: var(--color-bad, #cf222e); stroke-width: 1.4; }
+    .arch-svg .ttl { fill: var(--color-fg); font-size: 13px; font-weight: 700; }
+    .arch-svg .it { fill: var(--color-fg); font-size: 11px; font-weight: 600; }
+    .arch-svg .sub { fill: var(--color-fg-subtle); font-size: 10px; }
+    .arch-svg .mu { fill: var(--color-fg-faint); font-size: 9.5px; }
+    .arch-svg .cd { fill: var(--color-accent); font-size: 9.5px; }
+    .arch-svg .bad { fill: var(--color-bad, #cf222e); font-size: 10px; font-weight: 600; }
+    .arch-svg .good { fill: var(--color-good, #1a7f37); font-size: 10px; font-weight: 600; }
+    .arch-svg .flow { fill: none; stroke: var(--color-fg-faint); stroke-width: 1.4; }
+  </style>
+
+  <text class="ttl" x="24" y="28">A review commissioned to refute this product's headline</text>
+  <text class="sub" x="24" y="46">Eight attacks. The mechanism survived every one. Three of the four published numbers did not.</text>
+
+  <!-- survived -->
+  <rect class="bx bx-hi" x="24" y="72" width="420" height="150" rx="10"/>
+  <text class="good" x="38" y="96">SURVIVED</text>
+  <text class="sub" x="38" y="118">Shuffled-context placebo: keep the cluster geometry, destroy the</text>
+  <text class="sub" x="38" y="134">meaning. Recovery collapses. A strong positive control.</text>
+  <text class="sub" x="38" y="156">Detector-free measurement: the effect size holds with no threshold,</text>
+  <text class="sub" x="38" y="172">no alarm convention and no budget anywhere in it.</text>
+  <text class="sub" x="38" y="194">Unit selection, RUL cap, and four different detectors: direction</text>
+  <text class="sub" x="38" y="210">unchanged, magnitudes vary by up to 3x.</text>
+
+  <!-- broken -->
+  <rect class="bx bx-bad" x="462" y="72" width="414" height="150" rx="10"/>
+  <text class="bad" x="476" y="96">BROKEN</text>
+  <text class="sub" x="476" y="118">The raw arm got a third of the residual arm's healthy data,</text>
+  <text class="sub" x="476" y="134">and the difference was reported as the cost of regimes.</text>
+  <text class="sub" x="476" y="156">The threshold was chosen on the data it then scored, while the</text>
+  <text class="sub" x="476" y="172">code accepted a calibration argument it never read.</text>
+  <text class="sub" x="476" y="194">The recovery number came from an arm with n_regimes = 1:</text>
+  <text class="sub" x="476" y="210">a global regression with no segmentation in it at all.</text>
+
+  <!-- outcome -->
+  <rect class="bx" x="24" y="248" width="852" height="152" rx="10"/>
+  <text class="it" x="42" y="272">What the headline became</text>
+  <text class="sub" x="42" y="294">An EFFECT SIZE, not a detector score. How large is the fault's signature against the spread across regimes,</text>
+  <text class="sub" x="42" y="312">and against the spread within one? No threshold rule or alarm convention can move it.</text>
+  <text class="cd" x="42" y="338">Six operating conditions: 0.16 sigma pooled, 11.95 sigma within regime.</text>
+  <text class="cd" x="42" y="356">One operating condition: exactly 1.00, because the two denominators are the same quantity.</text>
+  <text class="mu" x="42" y="380">That control was not designed. It is what the identical code returns on data with nothing to condition on,</text>
+  <text class="mu" x="42" y="394">and a number away from 1.00 there would mean the measurement is broken.</text>
+</svg>

@@ -1,5 +1,6 @@
 // App strings, EN and ES. Spanish is neutral standard Spanish (no voseo), which is the only exception to
 // the English-everywhere rule: these are user-facing UI strings, not repo content.
+import { useCallback } from 'react';
 import { useShellLang } from '@fasl-work/caos-app-shell';
 
 export type Dict = Record<string, { en: string; es: string }>;
@@ -44,13 +45,20 @@ export const S: Dict = {
   tie: { en: 'neither', es: 'ninguno' },
 };
 
+/** The translator, STABLE across renders for a given language.
+ *
+ *  Returning a fresh arrow function each render made this hook a dependency that always changed. Every
+ *  `useMemo` keyed on it recomputed, every memoised chart series was a new array, and the chart effect
+ *  tore down and rebuilt uPlot 146 times a second. The page then never settled and stopped accepting
+ *  clicks at all, which surfaced as a Playwright click timeout rather than as anything that looked like
+ *  a performance bug. */
 export function useT() {
   const lang = useShellLang();
-  return (key: string) => {
+  return useCallback((key: string) => {
     const e = S[key];
     if (!e) return key;
     return lang === 'es' ? e.es : e.en;
-  };
+  }, [lang]);
 }
 
 export function useLang(): 'en' | 'es' {

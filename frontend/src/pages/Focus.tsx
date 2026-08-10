@@ -5,7 +5,7 @@
 // makes arithmetically impossible. Everything needed to read the chart moves into one thin bar.
 
 import { useEffect, useState } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router';
 import { loadFleetIndex, loadFleetTrace, type FleetIndex, type FleetTrace } from '../lib/artifacts.ts';
 import { CHANNEL_LABEL, FAULT_LABEL, label, useLang, useT } from '../lib/i18n.ts';
 import { armsForChannel, delayOf, fasterArm, fmt } from '../lib/trace.ts';
@@ -94,7 +94,7 @@ export default function Focus() {
           onsetT={trace.onset_t}
           alarmTimes={d.raw.alarm_times}
           bands={view === 'signal' ? { regime: trace.monitored.regime, t: trace.monitored.t } : null}
-          height={260}
+          fill
           yLabel={view === 'detector' ? t('statistic') : label(CHANNEL_LABEL, channel, lang)}
           ariaLabel="focus raw arm"
         />
@@ -106,7 +106,7 @@ export default function Focus() {
           onsetT={trace.onset_t}
           alarmTimes={d.residual.alarm_times}
           bands={view === 'signal' ? { regime: trace.monitored.regime, t: trace.monitored.t } : null}
-          height={260}
+          fill
           yLabel={view === 'detector' ? t('statistic') : `${label(CHANNEL_LABEL, channel, lang)}, z`}
           xLabel={t('min_since_start')}
           ariaLabel="focus residual arm"

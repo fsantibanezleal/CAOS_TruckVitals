@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router';
 import { Truck } from 'lucide-react';
 import { AppShell, applyTheme, CitationsProvider, readTheme, type ShellConfig } from '@fasl-work/caos-app-shell';
 import '@fasl-work/caos-app-shell/styles.css';
@@ -33,18 +33,14 @@ const config: ShellConfig = {
   architecture,
   footer: {
     provenance: {
-      en: 'Engine: regimecpd (PyPI, MIT). Data: NASA C-MAPSS (public domain), SCANIA APS (UCI, CC BY 4.0), '
-        + 'SCANIA Component X (doi:10.5878/jvb5-d390, CC BY 4.0), and a synthetic haul-truck fleet (MIT).',
-      es: 'Motor: regimecpd (PyPI, MIT). Datos: NASA C-MAPSS (dominio público), SCANIA APS (UCI, CC BY 4.0), '
-        + 'SCANIA Component X (doi:10.5878/jvb5-d390, CC BY 4.0) y una flota sintética de camiones (MIT).',
+      en: 'Engine: regimecpd (PyPI, MIT). Data: NASA C-MAPSS, SCANIA APS and Component X (CC BY 4.0), '
+        + 'and a synthetic haul-truck fleet (MIT).',
+      es: 'Motor: regimecpd (PyPI, MIT). Datos: NASA C-MAPSS, SCANIA APS y Component X (CC BY 4.0), '
+        + 'y una flota sintética de camiones (MIT).',
     },
     disclaimer: {
-      en: 'Every number is replayed from a committed artifact, computed offline by the pipeline in this '
-        + 'repo. The haul-truck fleet is SYNTHETIC and is labelled as such everywhere; no measurement from '
-        + 'a real truck appears in this product.',
-      es: 'Cada número se reproduce desde un artefacto versionado, calculado sin conexión por el pipeline '
-        + 'de este repositorio. La flota de camiones es SINTÉTICA y está etiquetada como tal en todas '
-        + 'partes; ninguna medición de un camión real aparece en este producto.',
+      en: 'Every number is replayed from a committed artifact. The haul-truck fleet is SYNTHETIC.',
+      es: 'Cada número se reproduce desde un artefacto versionado. La flota de camiones es SINTÉTICA.',
     },
   },
 };

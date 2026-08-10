@@ -1,118 +1,68 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 470" width="900" class="arch-svg" role="img" aria-label="The web-app flow: from user controls through the live engine to the six pages">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 380" width="900" class="arch-svg" role="img" aria-label="The offline pipeline writes committed artifacts; the build overlays them; the site only replays them">
   <style>
     .arch-svg text { font-family: var(--font-sans, Inter, "Segoe UI", system-ui, sans-serif); }
-    .arch-svg .mono { font-family: var(--font-mono, ui-monospace, Consolas, monospace); }
-    .arch-svg .bx { fill: var(--color-surface-2); stroke: var(--color-border); stroke-width: 1.2; }
-    .arch-svg .bx-hi { stroke: var(--color-accent); }
-    .arch-svg .bx-good { stroke: var(--color-good); }
-    .arch-svg .grp { fill: none; stroke: var(--color-border); stroke-dasharray: 5 4; }
+    .arch-svg .mono { font-family: var(--font-mono, ui-monospace, Consolas, monospace); font-size: 10px; fill: var(--color-fg-subtle); }
+    .arch-svg .bx { fill: var(--color-surface-2, var(--color-surface)); stroke: var(--color-border); stroke-width: 1.2; }
+    .arch-svg .bx-hi { stroke: var(--color-accent); stroke-width: 1.6; }
     .arch-svg .ttl { fill: var(--color-fg); font-size: 13px; font-weight: 700; }
+    .arch-svg .it { fill: var(--color-fg); font-size: 11px; font-weight: 600; }
     .arch-svg .sub { fill: var(--color-fg-subtle); font-size: 10px; }
-    .arch-svg .it { fill: var(--color-fg); font-size: 10.5px; }
+    .arch-svg .mu { fill: var(--color-fg-faint); font-size: 9.5px; }
     .arch-svg .cd { fill: var(--color-accent); font-size: 9.5px; }
-    .arch-svg .mu { fill: var(--color-fg-subtle); font-size: 10px; }
-    .arch-svg .flow { fill: none; stroke: var(--color-fg-faint); stroke-width: 1.5; }
-    .arch-svg .flow-hi { stroke: var(--color-accent); stroke-width: 1.7; }
-    .arch-svg .lbl { fill: var(--color-fg-subtle); font-size: 9.5px; }
-    .arch-svg .pg { fill: var(--color-accent); font-size: 10px; font-weight: 600; }
+    .arch-svg .flow { fill: none; stroke: var(--color-fg-faint); stroke-width: 1.6; marker-end: url(#tvArrow); }
   </style>
   <defs>
-    <marker id="wf-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0,0 L8,4 L0,8 z" fill="var(--color-fg-faint)"/>
-    </marker>
-    <marker id="wf-arrow-hi" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0,0 L8,4 L0,8 z" fill="var(--color-accent)"/>
+    <marker id="tvArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--color-fg-faint)"/>
     </marker>
   </defs>
 
-  <text class="ttl" x="22" y="30">Web-app flow, the App page recomputes live</text>
-  <text class="sub" x="22" y="47">no round-trip to a server: the engine + inference run in the browser on every control change</text>
+  <text class="ttl" x="24" y="28">Nothing is computed in the browser</text>
+  <text class="sub" x="24" y="46">Every number on every page is replayed from a committed artifact. There is no second copy typed into a page.</text>
 
-  <!-- input -->
-  <rect class="bx bx-hi" x="14" y="70" width="190" height="120" rx="10"/>
-  <text class="it" x="28" y="92">Inputs</text>
-  <text class="mu" x="28" y="110">• case selector (built-in)</text>
-  <text class="mu" x="28" y="126">• drop your own data</text>
-  <text class="mu" x="28" y="142">• sliders / toggles</text>
-  <text class="cd mono" x="28" y="166">Tool.tsx · cases.ts</text>
-  <text class="mu" x="28" y="182">every page reacts to the case</text>
+  <rect class="bx" x="24" y="76" width="180" height="120" rx="10"/>
+  <text class="it" x="38" y="100">1. Offline pipeline</text>
+  <text class="mono" x="38" y="120">data-pipeline/run_*.py</text>
+  <text class="sub" x="38" y="140">Python, a pinned engine,</text>
+  <text class="sub" x="38" y="154">real datasets on disk.</text>
+  <text class="mu" x="38" y="176">Minutes to hours. Never</text>
+  <text class="mu" x="38" y="188">on a page load.</text>
 
-  <!-- engine -->
-  <rect class="bx bx-hi" x="244" y="70" width="200" height="120" rx="10"/>
-  <text class="it" x="258" y="92">Live engine (TS)</text>
-  <text class="mu" x="258" y="110">re-run, no server call</text>
-  <text class="cd mono" x="258" y="130">src/&lt;domain&gt;/*.ts</text>
-  <text class="mu" x="258" y="150">+ onnxruntime-web inference</text>
-  <text class="cd mono" x="258" y="170">src/lib/ort.ts</text>
-  <text class="mu" x="258" y="186">classical baseline ⇄ learned toggle</text>
+  <path class="flow" d="M210,136 L246,136"/>
 
-  <!-- viz -->
-  <rect class="bx bx-good" x="484" y="70" width="200" height="120" rx="10"/>
-  <text class="it" x="498" y="92">Interactive viz</text>
-  <text class="mu" x="498" y="110">reads values back, reacts</text>
-  <text class="cd mono" x="498" y="130">viz/*.tsx · uPlot · three</text>
-  <text class="mu" x="498" y="150">overlays, charts, gauges</text>
-  <text class="mu" x="498" y="170">hover = value readout</text>
-  <text class="mu" x="498" y="186">marks OOD / uncertain live</text>
+  <rect class="bx bx-hi" x="252" y="76" width="180" height="120" rx="10"/>
+  <text class="it" x="266" y="100">2. Committed artifacts</text>
+  <text class="mono" x="266" y="120">data/artifacts/*.json</text>
+  <text class="sub" x="266" y="140">Strict JSON, gated: a bare</text>
+  <text class="sub" x="266" y="154">NaN fails the test suite.</text>
+  <text class="cd" x="266" y="176">The single source of every</text>
+  <text class="cd" x="266" y="188">number on this site.</text>
 
-  <!-- baked data feeds engine -->
-  <rect class="bx" x="724" y="70" width="162" height="120" rx="10"/>
-  <text class="it" x="738" y="92">Baked artifacts</text>
-  <text class="cd mono" x="738" y="112">/case-results.json</text>
-  <text class="cd mono" x="738" y="128">/data/manifests</text>
-  <text class="cd mono" x="738" y="144">/*.onnx</text>
-  <text class="mu" x="738" y="166">overlaid by</text>
-  <text class="cd mono" x="738" y="180">copy-data.mjs</text>
+  <path class="flow" d="M438,136 L474,136"/>
 
-  <path class="flow-hi" d="M204,130 H242" marker-end="url(#wf-arrow-hi)"/>
-  <path class="flow-hi" d="M444,130 H482" marker-end="url(#wf-arrow-hi)"/>
-  <path class="flow" d="M724,130 H686" marker-end="url(#wf-arrow)"/>
-  <text class="lbl" x="700" y="122">seeds + models</text>
+  <rect class="bx" x="480" y="76" width="180" height="120" rx="10"/>
+  <text class="it" x="494" y="100">3. Build overlay</text>
+  <text class="mono" x="494" y="120">copy-data.mjs</text>
+  <text class="sub" x="494" y="140">Copies artifacts into</text>
+  <text class="mono" x="494" y="154">public/data/</text>
+  <text class="mu" x="494" y="176">A missing artifact FAILS</text>
+  <text class="mu" x="494" y="188">the build, never renders blank.</text>
 
-  <!-- 6 pages -->
-  <rect class="grp" x="14" y="214" width="872" height="120" rx="10"/>
-  <text class="pg" x="28" y="234">Six sibling pages, identical across every product (ADR-0057)</text>
-  <rect class="bx bx-hi" x="28" y="246" width="132" height="72" rx="7"/>
-  <text class="it" x="40" y="266">App / Tool</text>
-  <text class="mu" x="40" y="282">live engine + controls</text>
-  <text class="cd mono" x="40" y="300">pages/Tool.tsx</text>
-  <rect class="bx" x="172" y="246" width="132" height="72" rx="7"/>
-  <text class="it" x="184" y="266">Introduction</text>
-  <text class="mu" x="184" y="282">problem + context</text>
-  <text class="cd mono" x="184" y="300">Introduction.tsx</text>
-  <rect class="bx" x="316" y="246" width="132" height="72" rx="7"/>
-  <text class="it" x="328" y="266">Methodology</text>
-  <text class="mu" x="328" y="282">method tabs + eqs</text>
-  <text class="cd mono" x="328" y="300">Methodology.tsx</text>
-  <rect class="bx" x="460" y="246" width="132" height="72" rx="7"/>
-  <text class="it" x="472" y="266">Implementation</text>
-  <text class="mu" x="472" y="282">pipeline + contracts</text>
-  <text class="cd mono" x="472" y="300">Implementation.tsx</text>
-  <rect class="bx" x="604" y="246" width="132" height="72" rx="7"/>
-  <text class="it" x="616" y="266">Experiments</text>
-  <text class="mu" x="616" y="282">per-case results</text>
-  <text class="cd mono" x="616" y="300">Experiments.tsx</text>
-  <rect class="bx bx-good" x="748" y="246" width="126" height="72" rx="7"/>
-  <text class="it" x="760" y="266">Benchmark</text>
-  <text class="mu" x="760" y="282">cross-case + real data</text>
-  <text class="cd mono" x="760" y="300">Benchmark.tsx</text>
+  <path class="flow" d="M666,136 L702,136"/>
 
-  <!-- build/deploy -->
-  <rect class="grp" x="14" y="352" width="872" height="100" rx="10"/>
-  <text class="pg" x="28" y="372">Build &amp; deploy, typed mirror gates, static output, GitHub Pages</text>
-  <rect class="bx bx-good" x="28" y="384" width="200" height="54" rx="7"/>
-  <text class="it" x="40" y="404">Contract-type mirror</text>
-  <text class="cd mono" x="40" y="422">src/lib/contract.types.ts</text>
-  <rect class="bx" x="248" y="384" width="200" height="54" rx="7"/>
-  <text class="it" x="260" y="404">copy-data overlay</text>
-  <text class="cd mono" x="260" y="422">predev / prebuild hook</text>
-  <rect class="bx" x="468" y="384" width="200" height="54" rx="7"/>
-  <text class="it" x="480" y="404">vite build (tsc strict)</text>
-  <text class="cd mono" x="480" y="422">frontend/dist</text>
-  <rect class="bx bx-hi" x="688" y="384" width="186" height="54" rx="7"/>
-  <text class="it" x="700" y="404">GitHub Pages</text>
-  <text class="cd mono" x="700" y="422">&lt;slug&gt;.fasl-work.com</text>
-  <path class="flow" d="M228,411 H246" marker-end="url(#wf-arrow)"/>
-  <path class="flow" d="M448,411 H466" marker-end="url(#wf-arrow)"/>
-  <path class="flow" d="M668,411 H686" marker-end="url(#wf-arrow)"/>
+  <rect class="bx" x="708" y="76" width="168" height="120" rx="10"/>
+  <text class="it" x="722" y="100">4. Static site</text>
+  <text class="sub" x="722" y="120">React, uPlot, no server.</text>
+  <text class="sub" x="722" y="140">The App fetches ONE truck</text>
+  <text class="sub" x="722" y="154">at a time; the index is 1 kB.</text>
+  <text class="mu" x="722" y="176">Fetch, parse, draw. That is</text>
+  <text class="mu" x="722" y="188">the whole runtime.</text>
+
+  <rect class="bx" x="24" y="228" width="852" height="128" rx="10"/>
+  <text class="it" x="42" y="252">Why this shape, and not a live compute</text>
+  <text class="sub" x="42" y="274">A number typed into a page is a number that can disagree with the pipeline and still render. An earlier version of</text>
+  <text class="sub" x="42" y="292">this site asserted its headline figures as literals in prose. When an adversarial review moved those numbers, the</text>
+  <text class="sub" x="42" y="310">prose went on claiming the old ones, because prose cannot notice.</text>
+  <text class="sub" x="42" y="332">Rendering from the artifact makes that impossible: if the pipeline moves, the page moves, and if an artifact is</text>
+  <text class="sub" x="42" y="350">missing the page says so instead of showing a stale figure.</text>
 </svg>

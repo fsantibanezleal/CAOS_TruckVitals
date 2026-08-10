@@ -68,7 +68,15 @@ const FALLBACK: Palette = {
 export function usePalette(): Palette {
   const [palette, setPalette] = useState<Palette>(() => readPalette());
   useEffect(() => {
-    const update = () => setPalette(readPalette());
+    // Only replace the palette when a COLOUR actually changed. `readPalette` builds a fresh object every
+    // call, so an unconditional setState changes its identity on every observer callback, every consumer
+    // re-renders, and every chart that depends on it is torn down and rebuilt. Combined with the chrome
+    // measurement that reacts to layout, that produced a page which never came to rest and never
+    // accepted a click.
+    const update = () => setPalette((prev) => {
+      const next = readPalette();
+      return JSON.stringify(prev) === JSON.stringify(next) ? prev : next;
+    });
     update();
     const obs = new MutationObserver(update);
     obs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class'] });

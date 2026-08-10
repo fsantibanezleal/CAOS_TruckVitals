@@ -170,6 +170,41 @@ export interface ComponentX {
   honest_limits: string[];
 }
 
+
+export interface MechanismSubset {
+  n_conditions: number;
+  n_units: number;
+  n_regimes_used: number;
+  regime_sizes: number[];
+  n_channels: number;
+  n_channels_usable: number;
+  n_channels_regime_locked: number;
+  median_d_pooled: number;
+  d_pooled_p10: number;
+  d_pooled_p90: number;
+  median_d_within_regime: number;
+  d_within_p10: number;
+  d_within_p90: number;
+  ratio: number;
+  ratio_is_unit_invariant: boolean;
+  ratio_note: string;
+}
+
+export interface Mechanism {
+  schema: string;
+  generated_utc: string;
+  regimecpd_version: string;
+  config: Record<string, unknown>;
+  pairs: Array<{
+    single_condition: string;
+    multi_condition: string;
+    n_channels: number;
+    channels: string[];
+    subsets: Record<string, MechanismSubset>;
+  }>;
+  honest_limits: string[];
+}
+
 const base = () => import.meta.env.BASE_URL || '/';
 
 async function getJSON<T>(rel: string): Promise<T> {
@@ -180,6 +215,7 @@ async function getJSON<T>(rel: string): Promise<T> {
 
 export const loadFleetIndex = () => getJSON<FleetIndex>('data/fleet/index.json');
 export const loadFleetTrace = (unitId: string) => getJSON<FleetTrace>(`data/fleet/${unitId}.json`);
+export const loadMechanism = () => getJSON<Mechanism>('data/cmapss_mechanism.json');
 export const loadCmapss = () => getJSON<CmapssContrast>('data/cmapss_regime_contrast.json');
 export const loadSynthetic = () => getJSON<SyntheticBenchmark>('data/synthetic_benchmark.json');
 export const loadOnsetSweep = () => getJSON<OnsetSeedSweep>('data/onset_seed_sweep.json');
