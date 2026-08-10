@@ -1,0 +1,4 @@
+# Live lane. The engine is a PUBLISHED, PINNED dependency, never vendored into this repo:
+# conventions/no-internal-packages.md. This product declares no package of its own.
+regimecpd==0.9.1
+numpy>=1.24
