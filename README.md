@@ -177,21 +177,66 @@ clustered and resolved at inference by specification. Theirs partitions the **fl
 regime conditioning partitions the **timeline**. The two compose without interacting, so there is no
 overlap, and this product does not claim that nobody has tried conditioning a Scania model on context.
 
-## Onset-time error, against a chance baseline
+## Onset-time error: a NULL result, and how the chance baseline produced it
 
 The synthetic lane is the only one where the true onset exists, so onset error is measurable. Taking the
-nearest changepoint is optimistic, so the **chance level for the same number of changepoints** is reported
-beside it, and that is the number to read:
+nearest changepoint is optimistic, so the **chance level for the same number of changepoints** is
+computed beside it. That column is what makes this section honest, and what turns an apparent win into a
+null.
 
-| arm | onset error | chance level | skill | changepoints |
+Two runs at different fleet sizes, same protocol:
+
+| run | arm | onset error | chance level | **skill** | changepoints |
+|---|---|---|---|---|---|
+| 20 units | raw | 131.0 min | 141.6 min | 1.08x | 3.5 |
+| 20 units | conditioned | 17.5 min | 42.0 min | **2.40x** | 14 |
+| 36 units | raw | 121.5 min | 236.2 min | **1.94x** | 2 |
+| 36 units | conditioned | 52.5 min | 50.6 min | **0.96x** | 13 |
+
+**The skill ordering flips between the two runs.** At 36 units the conditioned arm has a *smaller* raw
+error (52.5 against 121.5) and *no skill at all* (0.96, at chance), because its advantage is entirely
+explained by producing thirteen changepoints against two.
+
+**Conclusion: regime conditioning does not reliably improve onset LOCALISATION.** This sub-claim is a
+null, and it is reported as one. The chance-corrected skill hovers around 1 for both arms and the
+ordering is not stable to fleet size.
+
+This does **not** touch the headline: detection rate at a matched false-alarm budget is a different
+measurement, made on different data, and it is stable (see below and the C-MAPSS table above). Reporting
+the raw error alone would have made this look like a 2.4x win in one run and a 2.3x win in the other, in
+opposite directions, and neither would have been true.
+
+## The ladder on the synthetic lane: conditioning never hurts, and sometimes transforms
+
+Six rungs, both arms, all at the same false-alarm budget (all achieved 0 per truck-month), 36 trucks of
+which 16 develop a fault at a known time:
+
+| detector | raw detection | raw delay | conditioned detection | conditioned delay |
 |---|---|---|---|---|
-| raw channels | 131.0 min | 141.6 min | **1.08x** | 3.5 |
-| regime-conditioned | 17.5 min | 42.0 min | **2.40x** | 14 |
+| Shewhart | 0.75 | 190 min | **1.00** | **86 min** |
+| CUSUM | 1.00 | 119 min | 1.00 | **105 min** |
+| EWMA | 1.00 | 113 min | 1.00 | **90 min** |
+| Page-Hinkley | 1.00 | 199 min | 1.00 | **184 min** |
+| PCA SPE | 0.75 | 211 min | 0.75 | **86 min** |
+| **PCA T-squared** | **0.06** | 532 min | **1.00** | **150 min** |
 
-Raw-channel onset estimation is **no better than scattering the same number of changepoints at random**.
-Regime conditioning is 2.4 times better than chance. Without the chance column the residual arm would
-appear 7.5 times more accurate, which would have been an artefact of it producing four times as many
-changepoints.
+Conditioning is never worse on either axis, and on Hotelling T-squared it is the difference between
+detecting 6% of faults and detecting all of them. That is the expected direction: T-squared measures
+position within the normal correlation structure, and on a load-varying machine the raw structure is
+dominated by the duty cycle.
+
+A **trivial baseline** is scored alongside, and it is deliberately generous: a fixed threshold on the one
+channel each fault moves first, *told the answer*. It reaches 0.75 detection at 123 min, beaten by
+Shewhart on residuals (1.00 at 86 min). So the lane is not trivially easy.
+
+**Attribution is scored, not judged by eye**: does the method name a channel the fault was actually
+injected into? Top-2 hit rate **0.44** over 16 faulty trucks, and it is uneven: tyre leak 4/4, brake drag
+2/4, strut leak 1/4, cooling loss **0/4**. That is a weak result and it is published as one. Contribution
+plots smear onto correlated channels, which is exactly what the engine's documentation warns about.
+
+BOCPD, KSWIN and ADWIN are **excluded from this matrix for runtime, not for results** (each is a
+per-sample Python loop that dominates a fleet-scale run). They are implemented, tested and measured in
+the engine. The exclusion is recorded in the artifact rather than left silent.
 
 ## Status
 
