@@ -67,7 +67,7 @@ which is deliberate.
 |---|---|---|---|---|
 | **Regime contrast** | NASA C-MAPSS | US government work | the central claim, measured under a controlled contrast | anything truck-specific: it is a simulated turbofan |
 | **Failure window** | SCANIA Component X, DOI [10.5878/jvb5-d390](https://doi.org/10.5878/jvb5-d390) | CC BY 4.0 | 5-class time-window prediction over 33,641 vehicles, graded cost | continuous-channel onset: these are per-readout histograms and accumulative counters |
-| **Cost** | SCANIA APS, UCI, DOI [10.24432/C51S51](https://doi.org/10.24432/C51S51) | CC BY 4.0 | a published cost matrix (**FP 10, FN 500**) and a published leaderboard | time series: one aggregated snapshot per truck |
+| **Cost** | SCANIA APS, UCI, DOI [10.24432/C51S51](https://doi.org/10.24432/C51S51) | CC BY 4.0 | a published cost matrix (**FP 10, FN 500**) and a published leaderboard, both verified in the dataset's own description file | time series: one aggregated snapshot per truck, 170 anonymised features |
 | **Synthetic** | ours, physically grounded | MIT | onset-time error against ground truth that exists by construction; named channels (tyre, strut, brake) | anything about real trucks. Labelled synthetic everywhere |
 
 **No redistributable continuous-channel truck telemetry with named physical channels exists.** The
@@ -109,16 +109,56 @@ The evidence that it deserved to be a package rather than product plumbing is st
 headline experiment validates it on a **turbofan**. An engine demonstrated to work outside its product's
 domain, inside that product's own evidence, is by demonstration not product-specific.
 
+## The cost lane: the metric everyone reports selects the more expensive decision
+
+SCANIA APS ships a published cost matrix (**a miss costs 50 times a false alarm**) and a published
+leaderboard, both verified in the dataset's own description file. That makes it the one lane where this
+product can report a number a planner decides on.
+
+The threshold is chosen on out-of-fold training predictions, never on the test set. Test-set results:
+
+| decision rule | threshold | total cost | false positives | false negatives | F1 |
+|---|---|---|---|---|---|
+| default 0.5 | 0.500 | 53,830 | 33 | 107 | 0.793 |
+| **F1-optimal** | 0.391 | **47,890** | 39 | 95 | **0.807** |
+| **cost-optimal** | 0.006 | **11,670** | 367 | 16 | 0.652 |
+
+The F1-optimal rule has the **best F1 and the second-worst cost**. Optimising the metric almost everyone
+reports costs **4.1 times** more than optimising the one the customer pays. That is the finding, and it
+needs the published cost matrix to be sayable at all.
+
+Reference point, not a like-for-like comparison: the IDA 2016 challenge winner scored 9,920 with 542 false
+positives and 9 false negatives, under challenge conditions this run does not reproduce.
+
+## Onset-time error, against a chance baseline
+
+The synthetic lane is the only one where the true onset exists, so onset error is measurable. Taking the
+nearest changepoint is optimistic, so the **chance level for the same number of changepoints** is reported
+beside it, and that is the number to read:
+
+| arm | onset error | chance level | skill | changepoints |
+|---|---|---|---|---|
+| raw channels | 131.0 min | 141.6 min | **1.08x** | 3.5 |
+| regime-conditioned | 17.5 min | 42.0 min | **2.40x** | 14 |
+
+Raw-channel onset estimation is **no better than scattering the same number of changepoints at random**.
+Regime conditioning is 2.4 times better than chance. Without the chance column the residual arm would
+appear 7.5 times more accurate, which would have been an artefact of it producing four times as many
+changepoints.
+
 ## Status
 
-**v0.01.000, under construction.** What exists and is verified:
+**v0.01.000, under construction.** Built and verified:
 
-- The C-MAPSS lane and the controlled contrast above, baked to
+- The **C-MAPSS lane** and the controlled contrast above, baked to
   `data/artifacts/cmapss_regime_contrast.json` with bootstrap intervals over units and a budget sweep.
-- The physically grounded synthetic fleet generator, with an emergent confound and a known onset time.
+- The **APS cost lane**, baked to `data/artifacts/aps_cost.json` with the full cost curve.
+- The **synthetic lane**: a physically grounded fleet with an emergent confound and a known onset time,
+  the method ladder on both arms, onset error against chance, a deliberately generous trivial baseline,
+  and scored attribution.
 
-Not yet built: the SCANIA Component X and APS lanes, the full benchmark matrix, and the web surface.
-Those are tracked in the plan and are not represented here as done.
+Not built: the SCANIA Component X lane (access is being verified) and the web surface. Neither is
+represented here as done.
 
 ## Licence
 
