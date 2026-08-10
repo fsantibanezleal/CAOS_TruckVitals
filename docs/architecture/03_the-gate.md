@@ -1,6 +1,6 @@
 # The live-vs-precompute gate
 
-`data-pipeline/pipeline/core/gate.py :: classify_lane()`. A case runs **live** in the browser (Pyodide) iff , 
+`data-pipeline/truckvitals/core/gate.py :: classify_lane()`. A case runs **live** in the browser (Pyodide) iff , 
 by MEASUREMENT, never by hand-wave:
 
 - it is **pure-Python**, AND

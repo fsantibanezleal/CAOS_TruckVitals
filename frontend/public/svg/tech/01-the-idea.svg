@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 430" width="900" class="arch-svg" role="img" aria-label="The same signal read against a pooled spread and against a within-regime spread: the fault is invisible in one and obvious in the other">
+  <!-- Hand-authored for TruckVitals. Every colour is a shell CSS variable, so the diagram repaints with the
+       active light/dark theme when inlined into the SPA (ADR-0058). -->
+  <style>
+    .arch-svg text { font-family: var(--font-sans, Inter, "Segoe UI", system-ui, sans-serif); }
+    .arch-svg .mono { font-family: var(--font-mono, ui-monospace, Consolas, monospace); }
+    .arch-svg .bx { fill: var(--color-surface-2, var(--color-surface)); stroke: var(--color-border); stroke-width: 1.2; }
+    .arch-svg .ttl { fill: var(--color-fg); font-size: 13px; font-weight: 700; }
+    .arch-svg .it { fill: var(--color-fg); font-size: 11px; font-weight: 600; }
+    .arch-svg .sub { fill: var(--color-fg-subtle); font-size: 10px; }
+    .arch-svg .mu { fill: var(--color-fg-faint); font-size: 9.5px; }
+    .arch-svg .flow { fill: none; stroke: var(--color-fg-faint); stroke-width: 1.6; }
+    .arch-svg .sig { fill: none; stroke: var(--color-fg-subtle); stroke-width: 1.6; }
+    .arch-svg .res { fill: none; stroke: var(--color-accent); stroke-width: 1.8; }
+    .arch-svg .band-a { fill: var(--color-accent); opacity: 0.10; }
+    .arch-svg .band-b { fill: var(--color-fg-faint); opacity: 0.10; }
+    .arch-svg .onset { stroke: var(--color-bad, #cf222e); stroke-width: 2; }
+    .arch-svg .lim { stroke: var(--color-fg-faint); stroke-width: 1; stroke-dasharray: 4 3; }
+  </style>
+
+  <text class="ttl" x="24" y="28">One signal, two denominators</text>
+  <text class="sub" x="24" y="46">The haul cycle moves every channel. Whether the fault is visible depends entirely on what you divide by.</text>
+
+  <!-- regime bands across both panels -->
+  <g>
+    <rect class="band-b" x="60" y="70" width="90" height="130"/>
+    <rect class="band-a" x="150" y="70" width="70" height="130"/>
+    <rect class="band-b" x="220" y="70" width="95" height="130"/>
+    <rect class="band-a" x="315" y="70" width="70" height="130"/>
+    <rect class="band-b" x="385" y="70" width="90" height="130"/>
+    <rect class="band-a" x="475" y="70" width="70" height="130"/>
+    <rect class="band-b" x="545" y="70" width="95" height="130"/>
+    <rect class="band-a" x="640" y="70" width="70" height="130"/>
+    <rect class="band-b" x="710" y="70" width="130" height="130"/>
+  </g>
+
+  <text class="it" x="24" y="66">RAW CHANNEL</text>
+  <text class="mu" x="700" y="66">coloured bands are operating regimes</text>
+
+  <!-- raw signal: dominated by the regime square wave, fault barely bends it -->
+  <path class="sig" d="M60,180 L150,180 L150,100 L220,100 L220,180 L315,180 L315,100 L385,100 L385,180 L475,180
+                       L475,100 L545,100 L545,178 L640,176 L640,96 L710,92 L710,172 L840,168"/>
+  <line class="onset" x1="545" y1="70" x2="545" y2="200"/>
+  <text class="mu" x="551" y="84">true onset</text>
+  <text class="sub" x="60" y="218">Fault signature: 0.16 sigma of the pooled spread. Invisible.</text>
+
+  <!-- panel 2 -->
+  <text class="it" x="24" y="262">WITHIN-REGIME RESIDUAL</text>
+  <line class="lim" x1="60" y1="330" x2="840" y2="330"/>
+  <text class="mu" x="24" y="334">0</text>
+  <path class="res" d="M60,330 L150,329 L220,331 L315,330 L385,329 L475,331 L545,328
+                       L590,315 L640,296 L690,276 L740,258 L790,244 L840,232"/>
+  <line class="onset" x1="545" y1="266" x2="545" y2="396"/>
+  <text class="sub" x="60" y="414">Same fault, same channel, same data: 11.95 sigma of the within-regime spread. Unmissable.</text>
+
+  <!-- the arrow between panels -->
+  <path class="flow" d="M866,150 C886,150 886,330 866,330"/>
+  <text class="mu" x="852" y="244" text-anchor="middle" transform="rotate(90 852 244)">divide by the right spread</text>
+</svg>

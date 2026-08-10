@@ -12,19 +12,19 @@ pass ``--output`` so they cannot mutate committed scientific evidence.
 from __future__ import annotations
 
 import argparse
-import json
 import platform
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import regimecpd as rc  # noqa: E402
-from pipeline.lanes.cmapss import SUBSETS, _informative_sensors, load_subset  # noqa: E402
-from pipeline.lanes.regime_experiment import build_outcomes, score_arm  # noqa: E402
+import regimecpd as rc
+from truckvitals.jsonio import write_json
+from truckvitals.lanes.cmapss import SUBSETS, _informative_sensors, load_subset
+from truckvitals.lanes.regime_experiment import build_outcomes, score_arm
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CANONICAL = REPO_ROOT / "data" / "artifacts"
@@ -32,11 +32,67 @@ CANONICAL = REPO_ROOT / "data" / "artifacts"
 PAIRS = (("FD001", "FD002"), ("FD003", "FD004"))
 ARMS = (
     ("raw", "raw", {}),
+    # The two arms that genuinely condition on an operating REGIME: one using the condition C-MAPSS
+    # declares, one discovering six clusters from the context. These are what a recovery claim may cite.
     ("residual", "residual-observed", {"discrete_regimes": True}),
     ("residual", "residual-clustered", {"discrete_regimes": False, "n_regimes": 6}),
-    ("residual", "residual-regression",
+    # NOT regime conditioning, and named so it cannot be read as such. n_regimes=1 is a SINGLE global
+    # regression of each sensor on the context, with no segmentation anywhere in it: one cluster holding
+    # every sample, which is why its regime_coverage is exactly 1.0.
+    #
+    # This arm produced the 0.877 that an earlier version of this product's headline attributed to
+    # "regime conditioning". An adversarial review caught it. It is kept because a global context
+    # regression is a genuinely useful baseline, and because the honest comparison is informative: on
+    # FD004 it beats both real regime arms (0.877 against 0.658 and 0.726), which says the recovery there
+    # owes more to removing the context's LINEAR effect than to segmenting the timeline.
+    ("residual", "context-regression-global",
      {"discrete_regimes": False, "n_regimes": 1, "residual_method": "linear"}),
 )
+
+#: Arms that may be cited as evidence for regime conditioning. `context-regression-global` is excluded
+#: by construction, and the contrast block in the artifact is computed from this tuple rather than from
+#: whichever arm scored highest, which is what let a non-regime arm carry the headline before.
+REGIME_ARMS = ("residual-observed", "residual-clustered")
+
+
+def _contrast(pair: dict) -> dict:
+    """The claim this pair supports, computed HERE rather than read off the table by a human.
+
+    A previous version of this product's headline was assembled by eye from the arm table, and the arm
+    that scored highest on one pair turned out not to condition on a regime at all. Computing the claim
+    in code, from `REGIME_ARMS` only, makes that failure mode structural rather than a matter of care.
+
+    `recovery` is the WORST of the qualifying regime arms, not the best. With two arms measuring the same
+    mechanism, reporting the maximum is a two-way multiple comparison and inflates the claim; the minimum
+    is the number that survives regardless of which regime definition a reader prefers.
+    """
+    by = {(a["subset"], a["arm"]): a for a in pair["arms"]}
+    single, multi = pair["single_condition"], pair["multi_condition"]
+    single_raw = by.get((single, "raw"))
+    multi_raw = by.get((multi, "raw"))
+    regime = [by[(multi, a)] for a in REGIME_ARMS if (multi, a) in by]
+    others = [a for a in pair["arms"] if a["subset"] == multi and a["arm"] not in REGIME_ARMS
+              and a["arm"] != "raw"]
+
+    worst = min(regime, key=lambda a: a["detection_rate"]) if regime else None
+    best = max(regime, key=lambda a: a["detection_rate"]) if regime else None
+    return {
+        "single_condition_raw": single_raw["detection_rate"] if single_raw else None,
+        "multi_condition_raw": multi_raw["detection_rate"] if multi_raw else None,
+        "regime_conditioned_worst": worst["detection_rate"] if worst else None,
+        "regime_conditioned_worst_arm": worst["arm"] if worst else None,
+        "regime_conditioned_best": best["detection_rate"] if best else None,
+        "regime_conditioned_best_arm": best["arm"] if best else None,
+        "non_regime_arms": {a["arm"]: a["detection_rate"] for a in others},
+        "eligible_arms": list(REGIME_ARMS),
+        "note": (
+            "`regime_conditioned_worst` is the number to quote: it is the weaker of the two arms that "
+            "genuinely condition on an operating regime, so it does not depend on choosing the more "
+            "flattering regime definition. `non_regime_arms` are reported beside it and are NOT evidence "
+            "for regime conditioning; context-regression-global is a single global regression on the "
+            "context with no segmentation at all."
+        ),
+    }
 
 
 def budget_curve(outcomes, budgets_per_1000):
@@ -79,7 +135,7 @@ def main() -> None:
     budgets = [0.25, 0.5, 1.0, 2.0, 5.0, 10.0]
     payload = {
         "schema": "truckvitals.cmapss-regime-contrast/v1",
-        "generated_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "generated_utc": datetime.now(UTC).isoformat(timespec="seconds"),
         "regimecpd_version": rc.__version__,
         "python": platform.python_version(),
         "numpy": np.__version__,
@@ -94,8 +150,11 @@ def main() -> None:
 
     for single, multi in PAIRS:
         subs = {n: load_subset(args.data, n) for n in (single, multi)}
-        common = tuple(sorted(set(_informative_sensors(subs[single].units)) &
-                              set(_informative_sensors(subs[multi].units))))
+        # Channel selection sees the BASELINE window only. Over the whole record it would read the
+        # faulty region, contradicting the protocol's own ordering guarantee.
+        baseline = args.fit_cycles + args.calib_cycles
+        common = tuple(sorted(set(_informative_sensors(subs[single].units, baseline_cycles=baseline)) &
+                              set(_informative_sensors(subs[multi].units, baseline_cycles=baseline))))
         pair = {
             "single_condition": single, "multi_condition": multi,
             "fault_modes": subs[single].n_fault_modes,
@@ -131,10 +190,11 @@ def main() -> None:
                     "regime_coverage": r.regime_coverage,
                     "budget_curve": budget_curve(outs, budgets),
                 })
+        pair["contrast"] = _contrast(pair)
         payload["pairs"].append(pair)
 
     path = out_dir / "cmapss_regime_contrast.json"
-    path.write_text(json.dumps(payload, indent=2, default=float), encoding="utf-8")
+    write_json(path, payload)
     print(f"wrote {path}")
 
     for pair in payload["pairs"]:

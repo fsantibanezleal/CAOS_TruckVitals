@@ -1,0 +1,434 @@
+{
+  "config": {
+    "n_healthy": 36,
+    "n_faulty": 24,
+    "n_cycles": 70,
+    "fit_frac": 0.3,
+    "calib_frac": 0.15,
+    "n_regimes": 6,
+    "budget_per_truck_month": 1.0,
+    "minutes_per_month": 43200.0,
+    "severity": 1.0,
+    "seed": 0,
+    "monitored_channels": [
+      "strut_fl_bar",
+      "strut_fr_bar",
+      "strut_rl_bar",
+      "strut_rr_bar",
+      "tyre_pressure_kpa",
+      "tyre_temp_c",
+      "brake_temp_c",
+      "engine_temp_c",
+      "fuel_rate_lph"
+    ],
+    "context_channels": [
+      "payload_t",
+      "grade_pct",
+      "speed_kmh"
+    ]
+  },
+  "arms": [
+    {
+      "detector": "shewhart",
+      "arm": "raw",
+      "n_units": 60,
+      "n_faulty": 24,
+      "threshold": 3.048225322993023,
+      "fa_per_truck_month": 0.6179196704428425,
+      "fa_ci": [
+        0.0,
+        1.8013109011877695
+      ],
+      "detection_rate": 0.7916666666666666,
+      "median_delay_min": 247.0,
+      "onset_error_min": null,
+      "attribution_top1": null,
+      "regime_coverage": null,
+      "note": ""
+    },
+    {
+      "detector": "shewhart",
+      "arm": "residual",
+      "n_units": 60,
+      "n_faulty": 24,
+      "threshold": 5.861384322356244,
+      "fa_per_truck_month": 0.6179196704428425,
+      "fa_ci": [
+        0.0,
+        1.8375100157332562
+      ],
+      "detection_rate": 1.0,
+      "median_delay_min": 143.0,
+      "onset_error_min": null,
+      "attribution_top1": null,
+      "regime_coverage": 0.9988662131519274,
+      "note": ""
+    },
+    {
+      "detector": "cusum",
+      "arm": "raw",
+      "n_units": 60,
+      "n_faulty": 24,
+      "threshold": 17.67786534372977,
+      "fa_per_truck_month": 0.6179196704428425,
+      "fa_ci": [
+        0.0,
+        2.0894587674671077
+      ],
+      "detection_rate": 1.0,
+      "median_delay_min": 150.5,
+      "onset_error_min": null,
+      "attribution_top1": null,
+      "regime_coverage": null,
+      "note": ""
+    },
+    {
+      "detector": "cusum",
+      "arm": "residual",
+      "n_units": 60,
+      "n_faulty": 24,
+      "threshold": 170.72030366963924,
+      "fa_per_truck_month": 0.6179196704428425,
+      "fa_ci": [
+        0.0,
+        1.9320790721249888
+      ],
+      "detection_rate": 1.0,
+      "median_delay_min": 152.5,
+      "onset_error_min": null,
+      "attribution_top1": null,
+      "regime_coverage": 0.9988662131519274,
+      "note": ""
+    },
+    {
+      "detector": "ewma",
+      "arm": "raw",
+      "n_units": 60,
+      "n_faulty": 24,
+      "threshold": 5.0991260538342225,
+      "fa_per_truck_month": 0.0,
+      "fa_ci": [
+        0.0,
+        0.0
+      ],
+      "detection_rate": 1.0,
+      "median_delay_min": 125.5,
+      "onset_error_min": null,
+      "attribution_top1": null,
+      "regime_coverage": null,
+      "note": ""
+    },
+    {
+      "detector": "ewma",
+      "arm": "residual",
+      "n_units": 60,
+      "n_faulty": 24,
+      "threshold": 12.344442094877856,
+      "fa_per_truck_month": 0.6179196704428425,
+      "fa_ci": [
+        0.0,
+        2.336755787871425
+      ],
+      "detection_rate": 1.0,
+      "median_delay_min": 108.5,
+      "onset_error_min": null,
+      "attribution_top1": null,
+      "regime_coverage": 0.9988662131519274,
+      "note": ""
+    },
+    {
+      "detector": "page-hinkley",
+      "arm": "raw",
+      "n_units": 60,
+      "n_faulty": 24,
+      "threshold": 126.08566162026342,
+      "fa_per_truck_month": 0.6179196704428425,
+      "fa_ci": [
+        0.0,
+        2.1826995216812293
+      ],
+      "detection_rate": 1.0,
+      "median_delay_min": 305.5,
+      "onset_error_min": null,
+      "attribution_top1": null,
+      "regime_coverage": null,
+      "note": ""
+    },
+    {
+      "detector": "page-hinkley",
+      "arm": "residual",
+      "n_units": 60,
+      "n_faulty": 24,
+      "threshold": 841.8897042884863,
+      "fa_per_truck_month": 0.0,
+      "fa_ci": [
+        0.0,
+        0.0
+      ],
+      "detection_rate": 1.0,
+      "median_delay_min": 289.0,
+      "onset_error_min": null,
+      "attribution_top1": null,
+      "regime_coverage": 0.9988662131519274,
+      "note": ""
+    },
+    {
+      "detector": "pca-spe",
+      "arm": "raw",
+      "n_units": 60,
+      "n_faulty": 24,
+      "threshold": 3.0958202531571652,
+      "fa_per_truck_month": 0.6179196704428425,
+      "fa_ci": [
+        0.0,
+        1.883480185169913
+      ],
+      "detection_rate": 0.75,
+      "median_delay_min": 312.0,
+      "onset_error_min": null,
+      "attribution_top1": null,
+      "regime_coverage": null,
+      "note": ""
+    },
+    {
+      "detector": "pca-spe",
+      "arm": "residual",
+      "n_units": 60,
+      "n_faulty": 24,
+      "threshold": 16.680606646742305,
+      "fa_per_truck_month": 0.6179196704428425,
+      "fa_ci": [
+        0.0,
+        2.0894587674671077
+      ],
+      "detection_rate": 0.7916666666666666,
+      "median_delay_min": 142.0,
+      "onset_error_min": null,
+      "attribution_top1": null,
+      "regime_coverage": 0.9988662131519274,
+      "note": ""
+    },
+    {
+      "detector": "pca-t2",
+      "arm": "raw",
+      "n_units": 60,
+      "n_faulty": 24,
+      "threshold": 27.24156589894619,
+      "fa_per_truck_month": 0.0,
+      "fa_ci": [
+        0.0,
+        0.0
+      ],
+      "detection_rate": 0.041666666666666664,
+      "median_delay_min": 1308.0,
+      "onset_error_min": null,
+      "attribution_top1": null,
+      "regime_coverage": null,
+      "note": ""
+    },
+    {
+      "detector": "pca-t2",
+      "arm": "residual",
+      "n_units": 60,
+      "n_faulty": 24,
+      "threshold": 64.98700894623764,
+      "fa_per_truck_month": 0.6179196704428425,
+      "fa_ci": [
+        0.0,
+        2.1826995216812293
+      ],
+      "detection_rate": 1.0,
+      "median_delay_min": 296.0,
+      "onset_error_min": null,
+      "attribution_top1": null,
+      "regime_coverage": 0.9988662131519274,
+      "note": ""
+    },
+    {
+      "detector": "bocpd",
+      "arm": "raw",
+      "n_units": 60,
+      "n_faulty": 24,
+      "threshold": 0.0025000000000000005,
+      "fa_per_truck_month": 0.0,
+      "fa_ci": [
+        0.0,
+        0.0
+      ],
+      "detection_rate": 0.0,
+      "median_delay_min": null,
+      "onset_error_min": null,
+      "attribution_top1": null,
+      "regime_coverage": null,
+      "note": ""
+    },
+    {
+      "detector": "bocpd",
+      "arm": "residual",
+      "n_units": 60,
+      "n_faulty": 24,
+      "threshold": 1.0000000000000004,
+      "fa_per_truck_month": 0.0,
+      "fa_ci": [
+        0.0,
+        0.0
+      ],
+      "detection_rate": 0.0,
+      "median_delay_min": null,
+      "onset_error_min": null,
+      "attribution_top1": null,
+      "regime_coverage": 0.9988662131519274,
+      "note": ""
+    },
+    {
+      "detector": "kswin",
+      "arm": "raw",
+      "n_units": 60,
+      "n_faulty": 24,
+      "threshold": 0.6333333333333334,
+      "fa_per_truck_month": 0.0,
+      "fa_ci": [
+        0.0,
+        0.0
+      ],
+      "detection_rate": 0.0,
+      "median_delay_min": null,
+      "onset_error_min": null,
+      "attribution_top1": null,
+      "regime_coverage": null,
+      "note": ""
+    },
+    {
+      "detector": "kswin",
+      "arm": "residual",
+      "n_units": 60,
+      "n_faulty": 24,
+      "threshold": 0.8555555555555555,
+      "fa_per_truck_month": 0.0,
+      "fa_ci": [
+        0.0,
+        0.0
+      ],
+      "detection_rate": 0.041666666666666664,
+      "median_delay_min": 111.0,
+      "onset_error_min": null,
+      "attribution_top1": null,
+      "regime_coverage": 0.9988662131519274,
+      "note": ""
+    },
+    {
+      "detector": "adwin",
+      "arm": "raw",
+      "n_units": 60,
+      "n_faulty": 24,
+      "threshold": 4.000000000000001,
+      "fa_per_truck_month": 0.0,
+      "fa_ci": [
+        0.0,
+        0.0
+      ],
+      "detection_rate": 0.0,
+      "median_delay_min": null,
+      "onset_error_min": null,
+      "attribution_top1": null,
+      "regime_coverage": null,
+      "note": ""
+    },
+    {
+      "detector": "adwin",
+      "arm": "residual",
+      "n_units": 60,
+      "n_faulty": 24,
+      "threshold": 4.0,
+      "fa_per_truck_month": 0.6179196704428425,
+      "fa_ci": [
+        0.0,
+        2.0525702557034005
+      ],
+      "detection_rate": 0.041666666666666664,
+      "median_delay_min": 755.0,
+      "onset_error_min": null,
+      "attribution_top1": null,
+      "regime_coverage": 0.9988662131519274,
+      "note": ""
+    }
+  ],
+  "onset_estimation": {
+    "raw": {
+      "n_units": 24,
+      "median_onset_error_min": 214.0,
+      "p90_onset_error_min": 437.0,
+      "median_changepoints": 2.0,
+      "median_chance_error_min": 367.3333333333333,
+      "skill_vs_chance": 1.7165109034267911,
+      "n_no_changepoint": 0,
+      "note": "skill_vs_chance is the chance-level error divided by the achieved error. A value at or below 1 means the segmentation locates the onset no better than scattering the same number of changepoints at random, which is the honest null for a metric that takes the NEAREST changepoint."
+    },
+    "residual": {
+      "n_units": 24,
+      "median_onset_error_min": 49.5,
+      "p90_onset_error_min": 116.7,
+      "median_changepoints": 20.5,
+      "median_chance_error_min": 51.28354978354979,
+      "skill_vs_chance": 1.0360313087585815,
+      "n_no_changepoint": 0,
+      "note": "skill_vs_chance is the chance-level error divided by the achieved error. A value at or below 1 means the segmentation locates the onset no better than scattering the same number of changepoints at random, which is the honest null for a metric that takes the NEAREST changepoint."
+    }
+  },
+  "trivial_baseline": {
+    "threshold": 2.882224360780299,
+    "fa_per_truck_month": 0.6179196704428425,
+    "detection_rate": 0.75,
+    "median_delay_min": 202.0,
+    "n_units": 60,
+    "n_faulty": 24,
+    "note": "a fixed threshold on the single channel each fault moves first, given the ground truth. Deliberately generous: it is told where to look."
+  },
+  "attribution": {
+    "top2_hit_rate": 0.4166666666666667,
+    "n_scored": 24,
+    "per_fault_kind": {
+      "strut_leak": {
+        "hits": 2,
+        "n": 6,
+        "truth": [
+          "strut_rl_bar"
+        ]
+      },
+      "tyre_leak": {
+        "hits": 6,
+        "n": 6,
+        "truth": [
+          "tyre_pressure_kpa",
+          "tyre_temp_c"
+        ]
+      },
+      "brake_drag": {
+        "hits": 2,
+        "n": 6,
+        "truth": [
+          "brake_temp_c",
+          "fuel_rate_lph"
+        ]
+      },
+      "cooling_loss": {
+        "hits": 0,
+        "n": 6,
+        "truth": [
+          "engine_temp_c"
+        ]
+      }
+    },
+    "note": "a hit means a channel the fault was actually injected into appears in the top two PCA SPE contributions at the peak. Contributions smear onto correlated channels, so this narrows a candidate set and does not identify a cause."
+  },
+  "schema": "truckvitals.synthetic-benchmark/v1",
+  "generated_utc": "2026-08-10T17:01:06+00:00",
+  "regimecpd_version": "0.09.001",
+  "python": "3.13.14",
+  "numpy": "2.5.2",
+  "honest_limits": [
+    "SYNTHETIC. Nothing here is calibrated against a real truck; magnitudes are physically plausible for a large rigid hauler and are not measurements.",
+    "The regime confound is emergent from the haul cycle rather than injected, which is what stops the comparison being circular, but the cycle itself is a model.",
+    "Onset error uses the NEAREST changepoint, which is optimistic. The chance level for the same number of changepoints is reported beside it and is the number to read."
+  ]
+}

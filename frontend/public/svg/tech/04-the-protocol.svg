@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" width="900" class="arch-svg" role="img" aria-label="The experiment protocol: a shared healthy window, cross-fitted thresholds, and both arms indistinguishable to the detector">
+  <style>
+    .arch-svg text { font-family: var(--font-sans, Inter, "Segoe UI", system-ui, sans-serif); }
+    .arch-svg .mono { font-family: var(--font-mono, ui-monospace, Consolas, monospace); font-size: 10px; fill: var(--color-fg-subtle); }
+    .arch-svg .bx { fill: var(--color-surface-2, var(--color-surface)); stroke: var(--color-border); stroke-width: 1.2; }
+    .arch-svg .bx-hi { stroke: var(--color-accent); stroke-width: 1.6; }
+    .arch-svg .ttl { fill: var(--color-fg); font-size: 13px; font-weight: 700; }
+    .arch-svg .it { fill: var(--color-fg); font-size: 11px; font-weight: 600; }
+    .arch-svg .sub { fill: var(--color-fg-subtle); font-size: 10px; }
+    .arch-svg .mu { fill: var(--color-fg-faint); font-size: 9.5px; }
+    .arch-svg .cd { fill: var(--color-accent); font-size: 9.5px; }
+    .arch-svg .healthy { fill: var(--color-accent); opacity: 0.13; }
+    .arch-svg .scored { fill: var(--color-fg-faint); opacity: 0.10; }
+    .arch-svg .onset { stroke: var(--color-bad, #cf222e); stroke-width: 2; }
+    .arch-svg .flow { fill: none; stroke: var(--color-fg-faint); stroke-width: 1.4; }
+  </style>
+
+  <text class="ttl" x="24" y="28">The split, and what each arm spends it on</text>
+  <text class="sub" x="24" y="46">Both arms consume the SAME healthy stretch. The residual arm spends part of it on a regime model; the raw arm has none.</text>
+
+  <!-- timeline -->
+  <rect class="healthy" x="60" y="74" width="360" height="34" rx="4"/>
+  <rect class="scored" x="420" y="74" width="420" height="34" rx="4"/>
+  <line class="onset" x1="600" y1="66" x2="600" y2="116"/>
+  <text class="mu" x="606" y="130">true onset</text>
+  <text class="it" x="60" y="66">HEALTHY</text>
+  <text class="it" x="424" y="66">SCORED</text>
+  <text class="mono" x="60" y="97">0</text>
+  <text class="mono" x="240" y="97">fit</text>
+  <text class="mono" x="392" y="97">calib</text>
+  <text class="mu" x="424" y="152">false alarms counted before the onset; detection measured after it</text>
+
+  <!-- residual arm -->
+  <rect class="bx bx-hi" x="24" y="176" width="410" height="106" rx="10"/>
+  <text class="it" x="38" y="200">Residual arm</text>
+  <text class="sub" x="38" y="220">[0, fit) regime model and residual model</text>
+  <text class="sub" x="38" y="238">[fit, calib) detector baseline</text>
+  <text class="cd" x="38" y="262">Total healthy consumed: the whole window.</text>
+
+  <!-- raw arm -->
+  <rect class="bx" x="452" y="176" width="424" height="106" rx="10"/>
+  <text class="it" x="466" y="200">Raw arm</text>
+  <text class="sub" x="466" y="220">[0, calib) detector baseline, all of it</text>
+  <text class="sub" x="466" y="238">no regime model to spend anything on</text>
+  <text class="cd" x="466" y="262">Total healthy consumed: the same window.</text>
+  <text class="mu" x="466" y="278">Until an adversarial review, this arm got only [fit, calib).</text>
+
+  <!-- the four rules -->
+  <rect class="bx" x="24" y="300" width="852" height="100" rx="10"/>
+  <text class="it" x="42" y="322">And four rules that make the comparison mean something</text>
+  <text class="sub" x="42" y="344">1. Both arms reach the detector as the SAME kind of object, so it cannot tell them apart.</text>
+  <text class="sub" x="42" y="362">2. Matched false-alarm BUDGET, not a matched threshold value: a z-scored residual and a channel in bar are different scales.</text>
+  <text class="sub" x="42" y="380">3. Alarms are EVENTS, not samples. An hour above the line is one alarm an operator answers, not sixty.</text>
+  <text class="sub" x="460" y="344">4. The bootstrap resamples UNITS. Consecutive cycles of one machine are not independent observations.</text>
+  <text class="mu" x="460" y="362">Thresholds are cross-fitted across units, so no threshold is chosen on the record it scores.</text>
+  <text class="mu" x="460" y="380">Channel selection reads the baseline window only, never the faulty region.</text>
+</svg>

@@ -1,6 +1,6 @@
 # The staged precompute pipeline
 
-`data-pipeline/pipeline/pipeline.py` orchestrates the **named stages** (frozen names/signatures, rework bodies):
+`data-pipeline/truckvitals/pipeline.py` orchestrates the **named stages** (frozen names/signatures, rework bodies):
 
 | Stage | Module | Does |
 |---|---|---|

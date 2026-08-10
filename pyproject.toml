@@ -14,5 +14,15 @@ line-length = 110
 target-version = "py311"
 
 [tool.ruff.lint]
-# S/I/R are the standard SIR compartment names; single-letter here is intentional domain notation, not ambiguous.
-ignore = ["E741"]
+ignore = [
+    # A runner has to extend sys.path before it can import the offline package, because these scripts are
+    # invoked BY PATH and the package is deliberately not installed (this repo declares no package of its
+    # own). Every import after that hack is E402 by construction. Set here rather than as per-line noqa
+    # comments: ruff versions disagree about whether E402 is on by default, so noqa markers were unused
+    # directives (RUF100) on one version and the only thing keeping CI green on another.
+    "E402",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# The lanes deliberately expose a few private helpers to the runners that bake their artifacts.
+"data-pipeline/run_*.py" = ["E501"]

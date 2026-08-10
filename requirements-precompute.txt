@@ -1,4 +1,4 @@
 # Offline lane: everything the canonical bake needs.
-regimecpd[learned]==0.9.1
+regimecpd[learned]==0.9.4
 numpy>=1.24
 scipy>=1.10
