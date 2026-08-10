@@ -214,11 +214,34 @@ which 16 develop a fault at a known time:
 | detector | raw detection | raw delay | conditioned detection | conditioned delay |
 |---|---|---|---|---|
 | Shewhart | 0.75 | 190 min | **1.00** | **86 min** |
-| CUSUM | 1.00 | 119 min | 1.00 | **105 min** |
+| CUSUM | 1.00 | 119 min | 1.00 | **106 min** |
 | EWMA | 1.00 | 113 min | 1.00 | **90 min** |
-| Page-Hinkley | 1.00 | 199 min | 1.00 | **184 min** |
-| PCA SPE | 0.75 | 211 min | 0.75 | **86 min** |
+| Page-Hinkley | 1.00 | 198 min | 1.00 | **184 min** |
+| PCA SPE | 0.75 | 210 min | 0.75 | **86 min** |
 | **PCA T-squared** | **0.06** | 532 min | **1.00** | **150 min** |
+| KSWIN | 0.06 | 159 min | **0.50** | **97 min** |
+| BOCPD | **0.00** | never fires | **0.00** | never fires |
+| ADWIN | **0.00** | never fires | **0.00** | never fires |
+
+### Two rungs detect nothing, and the engine's own documentation predicted both
+
+They are published as zeros rather than dropped from the table.
+
+**BOCPD** assumes the model parameters before and after a changepoint are **independent**. That suits a
+step change and suits a slow drift poorly: when the post-change state is nearly the pre-change state,
+evidence for a changepoint at any particular instant stays weak no matter how far the drift eventually
+travels. Every fault in this lane is a slow ramp over about a fifth of the record. The engine documents
+this limitation and warns that "BOCPD is not automatically the best rung" for gradual onset; here it is
+the worst.
+
+**ADWIN** reports a small integer count of channels flagging, so its alarm-budget curve has only `d + 1`
+points where the others have hundreds. At a budget of one false alarm per truck-month the only feasible
+threshold is one that never fires. The engine documents exactly this and says `delta` should be swept
+instead whenever ADWIN is compared against anything; putting it on a common budget is the wrong
+instrument for it, and this row is what that looks like.
+
+Both zeros are therefore coherence checks passing rather than surprises: a documented limitation showed
+up where the documentation said it would.
 
 Conditioning is never worse on either axis, and on Hotelling T-squared it is the difference between
 detecting 6% of faults and detecting all of them. That is the expected direction: T-squared measures
@@ -233,10 +256,6 @@ Shewhart on residuals (1.00 at 86 min). So the lane is not trivially easy.
 injected into? Top-2 hit rate **0.44** over 16 faulty trucks, and it is uneven: tyre leak 4/4, brake drag
 2/4, strut leak 1/4, cooling loss **0/4**. That is a weak result and it is published as one. Contribution
 plots smear onto correlated channels, which is exactly what the engine's documentation warns about.
-
-BOCPD, KSWIN and ADWIN are **excluded from this matrix for runtime, not for results** (each is a
-per-sample Python loop that dominates a fleet-scale run). They are implemented, tested and measured in
-the engine. The exclusion is recorded in the artifact rather than left silent.
 
 ## Status
 
