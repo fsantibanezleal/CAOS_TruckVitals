@@ -23,39 +23,89 @@ here: FD001 has one operating condition and FD002 has six, with the fault mode h
 FD004 repeats the contrast at two fault modes. Nobody here chose that structure, which is what makes it a
 controlled experiment rather than a demonstration.
 
-All arms at a **matched false-alarm budget** of about 1 per 1000 cycles, identical detector (CUSUM,
-k = 0.5), identical fit and calibration windows, common informative channels only.
+### 1. The mechanism, with no detector in it at all
+
+The strongest statement this product can make involves no detector, no threshold, no alarm convention
+and no budget, so none of those choices can be argued with. It is an effect size: how large is the
+fault's signature, measured against the spread across regimes and against the spread within one?
+
+| subset | operating conditions | fault signature, pooled | fault signature, within regime | ratio |
+|---|---|---|---|---|
+| FD001 | 1 | 2.81 sigma | 2.81 sigma | **1.00** |
+| FD002 | **6** | **0.16 sigma** | **11.95 sigma** | **90.2** |
+| FD003 | 1 | 2.79 sigma | 2.79 sigma | **1.00** |
+| FD004 | **6** | **0.17 sigma** | **10.17 sigma** | **62.3** |
+
+On six-condition data the fault moves the sensors by **a sixth of a standard deviation** of the spread
+the operating regime induces, which is invisible, and by **ten to twelve standard deviations** of the
+spread within a regime, which is unmissable. Same data, same channels, same fault. Only the denominator
+changes.
+
+**The single-condition subsets return exactly 1.00**, as they must: with one regime the two denominators
+are the same quantity. That negative control was not designed, it is what the identical code returns on
+data with nothing to condition on, and a number away from 1.00 there would mean the measurement is
+broken.
+
+### 2. Detection, where the choices start
+
+Same idea, now run through an actual detector, so every number below depends on the detector, the
+threshold rule and the budget. All arms at a **matched false-alarm budget** of about 1 per 1000 cycles,
+identical detector (CUSUM, k = 0.5), equal healthy data per arm, cross-fitted thresholds, common
+informative channels only.
 
 | pair | arm | detection rate | median delay |
 |---|---|---|---|
-| 1 fault mode | FD001 raw, **1 regime** | **0.96** | 59 |
-| | FD002 raw, **6 regimes** | **0.05** | 122 |
-| | FD002 regime-conditioned (observed) | **0.98** | 65 |
-| | FD002 regime-conditioned (clustered) | **0.98** | 65 |
-| 2 fault modes | FD003 raw, **1 regime** | **0.69** | 68 |
-| | FD004 raw, **6 regimes** | **0.06** | 59 |
-| | FD004 regime-conditioned (clustered) | **0.73** | 92 |
-| | FD004 regime-conditioned (regression) | **0.88** | 54 |
+| 1 fault mode | FD001 raw, **1 regime** | **0.93** | 46 |
+| | FD002 raw, **6 regimes** | **0.17** | 110 |
+| | FD002 regime-conditioned (observed) | **0.98** | 62 |
+| | FD002 regime-conditioned (clustered) | **0.98** | 62 |
+| 2 fault modes | FD003 raw, **1 regime** | **0.73** | 68 |
+| | FD004 raw, **6 regimes** | **0.24** | 107 |
+| | FD004 regime-conditioned (observed) | **0.70** | 96 |
+| | FD004 regime-conditioned (clustered) | **0.70** | 97 |
 
-Read the two things that matter:
+**What regime variation costs.** One operating condition to six, everything else held fixed: 0.93 to
+0.17, and 0.73 to 0.24.
 
-**What regime variation costs.** Going from one operating condition to six, with everything else held
-fixed, collapses detection from 0.96 to 0.05 and from 0.69 to 0.06. That is the confound this product
-exists to address, measured.
+**What conditioning recovers.** Back to 0.98 on the one-fault-mode pair, above the single-condition
+reference. Back to 0.70 on the two-fault-mode pair, which is **level with** the 0.73 reference and not
+above it. Recovery, not improvement, and the two-fault-mode case recovers less completely.
 
-**What conditioning recovers.** 0.05 back to 0.98, and 0.06 back to 0.88. On the two-fault-mode pair the
-conditioned arm beats the single-regime control (0.88 against 0.69), because conditioning also removes
-variation the control never had to deal with.
+**The price of not being told the regime is zero, twice.** C-MAPSS ships its operating conditions as
+columns; real truck telemetry does not. Discovering the regimes by clustering scores identically to being
+handed them, on both pairs (0.98 against 0.98, 0.70 against 0.70).
 
-**The price of not being told the regime is small.** C-MAPSS ships its operating conditions as columns;
-real truck telemetry does not. Discovering the regimes by clustering scores the same as being handed them
-(0.98 against 0.98 on FD002), and a single-regime regression on the context outperforms both on FD004.
+### What an adversarial review changed here
+
+An earlier version of this section reported 0.96 to 0.05 recovering to 0.98, and 0.69 to 0.06 recovering
+to 0.88. A review commissioned to refute it confirmed the mechanism through eight attacks, including a
+shuffled-context placebo, and **broke three of those four numbers**. All three causes were real defects,
+all three flattered the result, and each is fixed rather than annotated:
+
+| what was wrong | effect |
+|---|---|
+| The raw arm got 30 healthy cycles where the residual arm got 90, and the difference was reported as the cost of regimes | FD002 raw 0.046 to 0.161, FD004 raw 0.062 to 0.247; single-condition arms unchanged |
+| The threshold was chosen on the same data it was scored on, while `score_arm` accepted a `calibration` argument it never read | now cross-fitted over units |
+| `threshold_for_budget` stopped at the first budget violation, missing 14 qualifying thresholds below it, and the penalty fell almost entirely on the multi-condition arms | fixed in `regimecpd` 0.09.003 |
+| The 0.88 came from an arm with `n_regimes=1`: a global context regression with **no regime segmentation in it at all** | renamed `context-regression-global` and excluded from any recovery claim |
+
+The last one is the reason this README now leads with an effect size. The claim was assembled by eye from
+an arm table, and the arm that scored highest turned out not to be measuring the thing being claimed. The
+contrast is now computed in code from a fixed list of eligible arms, and it quotes the **worse** of the
+two regime arms rather than the better.
+
+**One claim was withdrawn entirely.** This product used to describe itself as reducing FALSE ALARMS.
+Neither lane demonstrates that: C-MAPSS measures detection at a fixed false-alarm budget, and on the
+synthetic lane the raw arm actually wins the false-alarm metric outright. No false-alarm-reduction claim
+is made anywhere in this repo.
 
 ### The honesty boundary
 
 C-MAPSS is a **simulated turbofan**, not a truck. The claim it supports is the MECHANISM, which is
-domain-general: regime variation inflates false alarms and conditioning removes much of it. It is not a
-claim about trucks, and nothing in this product presents it as one.
+domain-general: operating-regime variation buries a fault's signature in the pooled spread, and
+conditioning on the regime recovers it. It is not a claim about trucks, and nothing in this product
+presents it as one. It is also **not** a claim that false alarms fall; see above for why that one was
+withdrawn.
 
 The healthy/onset split uses the standard piecewise-linear RUL convention (RUL capped at 125). That is a
 **convention, not a measurement**. The false-alarm half of the comparison does not depend on it at all,
@@ -184,27 +234,34 @@ nearest changepoint is optimistic, so the **chance level for the same number of 
 computed beside it. That column is what makes this section honest, and what turns an apparent win into a
 null.
 
-Two runs at different fleet sizes, same protocol:
+The first run of this measurement, on a 20-unit fleet, gave the conditioned arm a skill of **2.40x** and
+that number was published here. A 36-unit run reversed it. Rather than pick one, the experiment was
+**repeated across five seeds at 36 units**, paired, which is what the question actually required:
 
-| run | arm | onset error | chance level | **skill** | changepoints |
-|---|---|---|---|---|---|
-| 20 units | raw | 131.0 min | 141.6 min | 1.08x | 3.5 |
-| 20 units | conditioned | 17.5 min | 42.0 min | **2.40x** | 14 |
-| 36 units | raw | 121.5 min | 236.2 min | **1.94x** | 2 |
-| 36 units | conditioned | 52.5 min | 50.6 min | **0.96x** | 13 |
+| seed | raw error | raw cps | **raw skill** | conditioned error | cond. cps | **cond. skill** |
+|---|---|---|---|---|---|---|
+| 0 | 122 min | 2 | 1.94x | 52 min | 13 | 0.96x |
+| 1 | 202 min | 3 | 0.94x | 55 min | 14 | 0.86x |
+| 2 | 141 min | 2 | 1.67x | 52 min | 12 | 1.10x |
+| 3 | 143 min | 3 | 1.24x | 34 min | 12 | 1.60x |
+| 4 | 203 min | 3 | 0.87x | 30 min | 12 | 1.75x |
+| | | | **1.33 +/- 0.47** | | | **1.26 +/- 0.40** |
 
-**The skill ordering flips between the two runs.** At 36 units the conditioned arm has a *smaller* raw
-error (52.5 against 121.5) and *no skill at all* (0.96, at chance), because its advantage is entirely
-explained by producing thirteen changepoints against two.
+**Paired difference (conditioned minus raw): -0.08 +/- 0.74. Conditioning is ahead in 2 of 5 seeds.**
 
-**Conclusion: regime conditioning does not reliably improve onset LOCALISATION.** This sub-claim is a
-null, and it is reported as one. The chance-corrected skill hovers around 1 for both arms and the
-ordering is not stable to fleet size.
+That is a null, stated precisely rather than as an absence of evidence. Both arms sit a little above
+chance with a spread that comfortably includes 1.0, and the difference between them is an order of
+magnitude smaller than the seed-to-seed variation within either.
+
+**Conclusion: regime conditioning does not improve onset LOCALISATION.** Note what the raw-error column
+would have said on its own: the conditioned arm beats the raw arm on every single seed, by 2 to 7 times.
+All of that is explained by producing 12 to 14 changepoints against 2 to 3, which is exactly what the
+chance column prices in. The original 2.40x was a small-fleet artefact on top of a seed spread wide
+enough to produce anything between 0.86 and 1.94.
 
 This does **not** touch the headline: detection rate at a matched false-alarm budget is a different
-measurement, made on different data, and it is stable (see below and the C-MAPSS table above). Reporting
-the raw error alone would have made this look like a 2.4x win in one run and a 2.3x win in the other, in
-opposite directions, and neither would have been true.
+measurement, on different data (see the C-MAPSS table above). Two sub-claims of the same product, one
+supported and one null, measured by the same protocol.
 
 ## The ladder on the synthetic lane: conditioning never hurts, and sometimes transforms
 

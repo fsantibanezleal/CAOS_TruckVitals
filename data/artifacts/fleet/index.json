@@ -1,0 +1,201 @@
+{
+  "schema": "truckvitals.fleet-traces/v1",
+  "generated_utc": "2026-08-10T17:17:02+00:00",
+  "regimecpd_version": "0.09.002",
+  "python": "3.13.14",
+  "numpy": "2.5.2",
+  "config": {
+    "n_healthy": 6,
+    "n_faulty": 8,
+    "n_cycles": 45,
+    "fit_frac": 0.3,
+    "calib_frac": 0.15,
+    "n_regimes": 6,
+    "budget_per_truck_month": 1.0,
+    "minutes_per_month": 43200.0,
+    "seed": 0,
+    "detectors": [
+      "cusum",
+      "ewma",
+      "pca-spe",
+      "pca-t2"
+    ],
+    "channels": [
+      "payload_t",
+      "grade_pct",
+      "speed_kmh",
+      "strut_fl_bar",
+      "strut_fr_bar",
+      "strut_rl_bar",
+      "strut_rr_bar",
+      "tyre_pressure_kpa",
+      "tyre_temp_c",
+      "brake_temp_c",
+      "engine_temp_c",
+      "fuel_rate_lph"
+    ],
+    "context_channels": [
+      "payload_t",
+      "grade_pct",
+      "speed_kmh"
+    ],
+    "monitored_channels": [
+      "strut_fl_bar",
+      "strut_fr_bar",
+      "strut_rl_bar",
+      "strut_rr_bar",
+      "tyre_pressure_kpa",
+      "tyre_temp_c",
+      "brake_temp_c",
+      "engine_temp_c",
+      "fuel_rate_lph"
+    ],
+    "n_units_generated": 14,
+    "n_units_kept": 14,
+    "n_units_dropped_fault_in_baseline": 0
+  },
+  "thresholds": {
+    "cusum": {
+      "raw": 18.606293116161154,
+      "residual": 110.60455111957046
+    },
+    "ewma": {
+      "raw": 5.254633267995806,
+      "residual": 10.890466239717998
+    },
+    "pca-spe": {
+      "raw": 3.104769282770249,
+      "residual": 13.451404553704073
+    },
+    "pca-t2": {
+      "raw": 24.619699013941574,
+      "residual": 56.91274961493924
+    }
+  },
+  "units": [
+    {
+      "unit_id": "H000",
+      "fault_kind": "none",
+      "onset_t": null,
+      "fault_channels": [],
+      "regime_coverage": 1.0
+    },
+    {
+      "unit_id": "H001",
+      "fault_kind": "none",
+      "onset_t": null,
+      "fault_channels": [],
+      "regime_coverage": 1.0
+    },
+    {
+      "unit_id": "H002",
+      "fault_kind": "none",
+      "onset_t": null,
+      "fault_channels": [],
+      "regime_coverage": 1.0
+    },
+    {
+      "unit_id": "H003",
+      "fault_kind": "none",
+      "onset_t": null,
+      "fault_channels": [],
+      "regime_coverage": 1.0
+    },
+    {
+      "unit_id": "H004",
+      "fault_kind": "none",
+      "onset_t": null,
+      "fault_channels": [],
+      "regime_coverage": 1.0
+    },
+    {
+      "unit_id": "H005",
+      "fault_kind": "none",
+      "onset_t": null,
+      "fault_channels": [],
+      "regime_coverage": 1.0
+    },
+    {
+      "unit_id": "F000_strut_leak",
+      "fault_kind": "strut_leak",
+      "onset_t": 1113.0,
+      "fault_channels": [
+        "strut_rl_bar"
+      ],
+      "regime_coverage": 1.0
+    },
+    {
+      "unit_id": "F001_tyre_leak",
+      "fault_kind": "tyre_leak",
+      "onset_t": 1113.0,
+      "fault_channels": [
+        "tyre_pressure_kpa",
+        "tyre_temp_c"
+      ],
+      "regime_coverage": 1.0
+    },
+    {
+      "unit_id": "F002_brake_drag",
+      "fault_kind": "brake_drag",
+      "onset_t": 1113.0,
+      "fault_channels": [
+        "brake_temp_c",
+        "fuel_rate_lph"
+      ],
+      "regime_coverage": 0.9929478138222849
+    },
+    {
+      "unit_id": "F003_cooling_loss",
+      "fault_kind": "cooling_loss",
+      "onset_t": 1113.0,
+      "fault_channels": [
+        "engine_temp_c"
+      ],
+      "regime_coverage": 1.0
+    },
+    {
+      "unit_id": "F004_strut_leak",
+      "fault_kind": "strut_leak",
+      "onset_t": 1113.0,
+      "fault_channels": [
+        "strut_rl_bar"
+      ],
+      "regime_coverage": 0.9943582510578279
+    },
+    {
+      "unit_id": "F005_tyre_leak",
+      "fault_kind": "tyre_leak",
+      "onset_t": 1113.0,
+      "fault_channels": [
+        "tyre_pressure_kpa",
+        "tyre_temp_c"
+      ],
+      "regime_coverage": 1.0
+    },
+    {
+      "unit_id": "F006_brake_drag",
+      "fault_kind": "brake_drag",
+      "onset_t": 1113.0,
+      "fault_channels": [
+        "brake_temp_c",
+        "fuel_rate_lph"
+      ],
+      "regime_coverage": 0.997179125528914
+    },
+    {
+      "unit_id": "F007_cooling_loss",
+      "fault_kind": "cooling_loss",
+      "onset_t": 1113.0,
+      "fault_channels": [
+        "engine_temp_c"
+      ],
+      "regime_coverage": 0.9844851904090268
+    }
+  ],
+  "honest_limits": [
+    "SYNTHETIC. Physically plausible magnitudes for a large rigid hauler, not measurements from one. Nothing on this page is calibrated against a real truck.",
+    "The threshold drawn on every trace is the FLEET threshold at the matched false-alarm budget, not a per-unit threshold. A per-unit threshold would be fitted on the record it is being judged on, which is the most common way this kind of chart flatters itself.",
+    "The regime confound is EMERGENT from the haul cycle, not injected. That is what stops the comparison being circular, and it also means the regime structure is a model of a cycle rather than an observation of one.",
+    "Units whose fault begins inside the baseline window are DROPPED, because there would be no healthy stretch to learn normal from. The count is in `config`."
+  ]
+}

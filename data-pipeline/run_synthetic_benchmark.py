@@ -18,6 +18,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import regimecpd as rc  # noqa: E402
+from pipeline.jsonio import write_json  # noqa: E402
 from pipeline.lanes.synthetic_benchmark import run_synthetic_benchmark  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -54,7 +55,7 @@ def main() -> None:
     ]
 
     path = out_dir / "synthetic_benchmark.json"
-    path.write_text(json.dumps(result, indent=2, default=float), encoding="utf-8")
+    write_json(path, result)
     print(f"wrote {path}\n")
 
     print(f"{'detector':14s} {'arm':9s} {'n':>3s} {'FA/month':>9s} {'det':>5s} {'delay':>7s} {'cov':>5s}")

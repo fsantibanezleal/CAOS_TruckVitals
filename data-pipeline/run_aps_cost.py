@@ -20,6 +20,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from pipeline.jsonio import write_json  # noqa: E402
 from pipeline.lanes.aps import (  # noqa: E402
     COST_FN,
     COST_FP,
@@ -129,7 +130,7 @@ def main() -> None:
         ],
     }
     path = out_dir / "aps_cost.json"
-    path.write_text(json.dumps(payload, indent=2, default=float), encoding="utf-8")
+    write_json(path, payload)
     print(f"wrote {path}\n")
 
     print(f"{'decision':16s} {'threshold':>10s} {'cost':>9s} {'FP':>6s} {'FN':>5s} {'F1':>6s}")

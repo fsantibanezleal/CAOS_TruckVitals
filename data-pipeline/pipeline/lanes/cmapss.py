@@ -99,15 +99,26 @@ class CMAPSSSubset:
         return unit["raw"][:, idx]
 
 
-def _informative_sensors(units: "list[dict]", tol: float = 1e-9) -> "tuple[str, ...]":
+def _informative_sensors(units: "list[dict]", tol: float = 1e-9,
+                         baseline_cycles: "int | None" = None) -> "tuple[str, ...]":
     """Sensors that actually vary. Several C-MAPSS channels are constant and carry no information.
 
     Kept as a function rather than a hard-coded list, because WHICH sensors are constant differs between
     subsets: a channel frozen under one operating condition moves under six. Hard-coding the FD001 answer
     and applying it to FD002 would silently drop informative channels from exactly the subset the
     comparison depends on.
+
+    ``baseline_cycles`` restricts the variance test to each unit's first N cycles. Passing it is what
+    keeps channel selection out of the faulty region: computed over the whole record, the criterion reads
+    data from after the onset, which contradicts the protocol's "nothing after calib informs any fit".
+    The leak is weak (the criterion is only "does this channel move at all", and a channel frozen while
+    healthy and moving while faulty is not a realistic C-MAPSS failure) but it is a leak, and closing it
+    costs nothing.
     """
-    stacked = np.vstack([u["raw"] for u in units])
+    if baseline_cycles is not None:
+        stacked = np.vstack([u["raw"][:baseline_cycles] for u in units])
+    else:
+        stacked = np.vstack([u["raw"] for u in units])
     keep = []
     for name in SENSOR_COLUMNS:
         col = stacked[:, ALL_COLUMNS.index(name)]

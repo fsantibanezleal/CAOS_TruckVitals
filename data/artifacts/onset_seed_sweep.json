@@ -1,0 +1,133 @@
+{
+  "schema": "truckvitals.onset-seed-sweep/v1",
+  "generated_utc": "2026-08-10T17:31:58+00:00",
+  "regimecpd_version": "0.09.002",
+  "python": "3.13.14",
+  "numpy": "2.5.2",
+  "config": {
+    "n_seeds": 5,
+    "n_healthy": 20,
+    "n_faulty": 16,
+    "n_cycles": 45,
+    "estimator": "PELT(min_size=30, cost=mean)",
+    "paired": true
+  },
+  "per_seed": [
+    {
+      "seed": 0,
+      "raw": {
+        "onset_error_min": 121.5,
+        "chance_error_min": 236.16666666666666,
+        "skill_vs_chance": 1.943758573388203,
+        "changepoints": 2.0,
+        "n_units": 16
+      },
+      "residual": {
+        "onset_error_min": 52.5,
+        "chance_error_min": 50.607142857142854,
+        "skill_vs_chance": 0.9639455782312925,
+        "changepoints": 13.0,
+        "n_units": 16
+      }
+    },
+    {
+      "seed": 1,
+      "raw": {
+        "onset_error_min": 202.0,
+        "chance_error_min": 188.93333333333334,
+        "skill_vs_chance": 0.9353135313531353,
+        "changepoints": 3.0,
+        "n_units": 16
+      },
+      "residual": {
+        "onset_error_min": 55.0,
+        "chance_error_min": 47.233333333333334,
+        "skill_vs_chance": 0.8587878787878788,
+        "changepoints": 14.0,
+        "n_units": 16
+      }
+    },
+    {
+      "seed": 2,
+      "raw": {
+        "onset_error_min": 141.0,
+        "chance_error_min": 236.16666666666666,
+        "skill_vs_chance": 1.6749408983451537,
+        "changepoints": 2.0,
+        "n_units": 16
+      },
+      "residual": {
+        "onset_error_min": 51.5,
+        "chance_error_min": 56.77083333333333,
+        "skill_vs_chance": 1.102346278317152,
+        "changepoints": 11.5,
+        "n_units": 16
+      }
+    },
+    {
+      "seed": 3,
+      "raw": {
+        "onset_error_min": 143.0,
+        "chance_error_min": 177.125,
+        "skill_vs_chance": 1.2386363636363635,
+        "changepoints": 3.0,
+        "n_units": 16
+      },
+      "residual": {
+        "onset_error_min": 34.0,
+        "chance_error_min": 54.5,
+        "skill_vs_chance": 1.6029411764705883,
+        "changepoints": 12.0,
+        "n_units": 16
+      }
+    },
+    {
+      "seed": 4,
+      "raw": {
+        "onset_error_min": 203.0,
+        "chance_error_min": 177.125,
+        "skill_vs_chance": 0.8725369458128078,
+        "changepoints": 3.0,
+        "n_units": 16
+      },
+      "residual": {
+        "onset_error_min": 30.0,
+        "chance_error_min": 52.55357142857143,
+        "skill_vs_chance": 1.7517857142857143,
+        "changepoints": 12.5,
+        "n_units": 16
+      }
+    }
+  ],
+  "skill_summary": {
+    "raw": {
+      "mean": 1.3330372625071327,
+      "sd": 0.46611019444702956,
+      "min": 0.8725369458128078,
+      "max": 1.943758573388203,
+      "n": 5
+    },
+    "residual": {
+      "mean": 1.2559613252185253,
+      "sd": 0.39776072193008677,
+      "min": 0.8587878787878788,
+      "max": 1.7517857142857143,
+      "n": 5
+    },
+    "paired_difference": {
+      "mean": -0.07707593728860754,
+      "sd": 0.7365200562161599,
+      "min": -0.9798129951569106,
+      "max": 0.8792487684729065,
+      "n": 5
+    },
+    "residual_ahead_in_seeds": 2
+  },
+  "verdict": "NULL. Regime conditioning does not improve onset LOCALISATION. The paired difference in chance-corrected skill is smaller than the seed-to-seed spread within either arm, and the conditioned arm is ahead in a minority of seeds. Both arms sit close enough to 1.0 that neither can be said to localise the onset better than a segmentation with the same number of changepoints placed at random.",
+  "honest_limits": [
+    "SYNTHETIC. The true onset exists by construction, which is exactly why this measurement is possible here and not on the real lanes.",
+    "Onset error uses the NEAREST changepoint, which is optimistic and scales with the number of changepoints. That is what the chance column corrects for and why raw error alone, on which the conditioned arm wins every seed, is the wrong number to read.",
+    "Five seeds is enough to show the difference is inside the noise and NOT enough to bound the effect tightly. The claim made is the null, not a bound on how small a real effect could be.",
+    "This says nothing about DETECTION at a matched false-alarm budget, which is a different measurement on different data."
+  ]
+}
