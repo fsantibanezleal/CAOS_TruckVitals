@@ -42,7 +42,11 @@ DETECTOR_LADDER = {
     "page-hinkley": lambda: rc.PageHinkley(delta=0.05),
     "pca-spe": lambda: rc.PCAMonitor(statistic="spe", variance_target=0.95),
     "pca-t2": lambda: rc.PCAMonitor(statistic="t2", variance_target=0.95),
-    "bocpd": lambda: rc.BOCPD(hazard_rate=400.0, statistic="short_run", warmup=40),
+    # max_runs is capped well below the default. The exact posterior grows one hypothesis per
+    # sample, and on a 3000-sample record with the default cap this rung alone dominates the whole
+    # benchmark. 200 is far above the hazard rate, so the truncated mass is negligible.
+    "bocpd": lambda: rc.BOCPD(hazard_rate=400.0, statistic="short_run", warmup=40,
+                              max_runs=200, prune_threshold=1e-4),
     "kswin": lambda: rc.KSWIN(window=240, recent=60),
     "adwin": lambda: rc.ADWIN(delta=0.002),
 }

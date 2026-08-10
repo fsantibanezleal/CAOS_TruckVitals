@@ -36,7 +36,7 @@ def main() -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     kw = dict(n_healthy=10, n_faulty=8, n_cycles=35) if args.quick else \
-        dict(n_healthy=36, n_faulty=24, n_cycles=70)
+        dict(n_healthy=20, n_faulty=16, n_cycles=45)
 
     result = run_synthetic_benchmark(budget_per_month=args.budget, seed=args.seed, **kw)
     result["schema"] = "truckvitals.synthetic-benchmark/v1"

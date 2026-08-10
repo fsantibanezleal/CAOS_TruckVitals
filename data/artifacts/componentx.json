@@ -1,0 +1,350 @@
+{
+  "schema": "truckvitals.componentx/v1",
+  "generated_utc": "2026-08-10T16:40:41+00:00",
+  "python": "3.13.14",
+  "numpy": "2.5.2",
+  "dataset": {
+    "doi": "10.5878/jvb5-d390",
+    "licence": "CC BY 4.0",
+    "n_train_vehicles": 23550,
+    "n_train_censored": 21278,
+    "n_train_repaired": 2272,
+    "n_validation_vehicles": 5046,
+    "n_features": 218,
+    "aggregate": "last_delta",
+    "train_class_counts": [
+      21288,
+      31,
+      70,
+      161,
+      2000
+    ],
+    "validation_class_counts": [
+      4910,
+      16,
+      14,
+      30,
+      76
+    ],
+    "structure_verified": "train_operational_readouts.csv has 1122452 rows and 107 columns, and train_tte.csv has 23550 rows, both exactly as the descriptor declares. The censored count of 21278 matches the descriptor's healthy-vehicle count, so 2272 vehicles were repaired, also exactly as declared."
+  },
+  "cost_matrix": [
+    [
+      0.0,
+      7.0,
+      8.0,
+      9.0,
+      10.0
+    ],
+    [
+      200.0,
+      0.0,
+      7.0,
+      8.0,
+      9.0
+    ],
+    [
+      300.0,
+      200.0,
+      0.0,
+      7.0,
+      8.0
+    ],
+    [
+      400.0,
+      300.0,
+      200.0,
+      0.0,
+      7.0
+    ],
+    [
+      500.0,
+      400.0,
+      300.0,
+      200.0,
+      0.0
+    ]
+  ],
+  "class_windows": {
+    "0": "more than 48 time steps before failure",
+    "1": "48 to 24 time steps",
+    "2": "24 to 12 time steps",
+    "3": "12 to 6 time steps",
+    "4": "6 to 0 time steps"
+  },
+  "results": {
+    "balanced:argmax": {
+      "class_weight": "balanced",
+      "decision": "argmax",
+      "total_cost": 38494.0,
+      "cost_per_vehicle": 7.628616726119699,
+      "balanced_accuracy": 0.2504566405831279,
+      "accuracy": 0.4748315497423702,
+      "confusion": [
+        [
+          2337,
+          2,
+          227,
+          197,
+          2147
+        ],
+        [
+          6,
+          0,
+          1,
+          0,
+          9
+        ],
+        [
+          5,
+          0,
+          0,
+          0,
+          9
+        ],
+        [
+          6,
+          0,
+          1,
+          0,
+          23
+        ],
+        [
+          14,
+          0,
+          2,
+          1,
+          59
+        ]
+      ],
+      "n_flagged_nonzero": 2678
+    },
+    "balanced:expected_cost": {
+      "class_weight": "balanced",
+      "decision": "expected_cost",
+      "total_cost": 49566.0,
+      "cost_per_vehicle": 9.82282996432818,
+      "balanced_accuracy": 0.2,
+      "accuracy": 0.015061434799841459,
+      "confusion": [
+        [
+          0,
+          0,
+          0,
+          0,
+          4910
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          16
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          14
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          30
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          76
+        ]
+      ],
+      "n_flagged_nonzero": 5046
+    },
+    "none:argmax": {
+      "class_weight": "none",
+      "decision": "argmax",
+      "total_cost": 48592.0,
+      "cost_per_vehicle": 9.629805786761791,
+      "balanced_accuracy": 0.23226390824311288,
+      "accuracy": 0.940943321442727,
+      "confusion": [
+        [
+          4733,
+          0,
+          11,
+          5,
+          161
+        ],
+        [
+          16,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          14,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          23,
+          0,
+          0,
+          0,
+          7
+        ],
+        [
+          60,
+          0,
+          0,
+          1,
+          15
+        ]
+      ],
+      "n_flagged_nonzero": 200
+    },
+    "none:expected_cost": {
+      "class_weight": "none",
+      "decision": "expected_cost",
+      "total_cost": 47458.0,
+      "cost_per_vehicle": 9.405073325406262,
+      "balanced_accuracy": 0.20736413334762566,
+      "accuracy": 0.07609988109393578,
+      "confusion": [
+        [
+          310,
+          0,
+          4,
+          0,
+          4596
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          16
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          14
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          30
+        ],
+        [
+          2,
+          0,
+          0,
+          0,
+          74
+        ]
+      ],
+      "n_flagged_nonzero": 4734
+    },
+    "never_flag": {
+      "class_weight": "n/a",
+      "decision": "always predict class 0",
+      "total_cost": 57400.0,
+      "cost_per_vehicle": 11.375346809353944,
+      "balanced_accuracy": 0.2,
+      "accuracy": 0.9730479587792311,
+      "confusion": [
+        [
+          4910,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          16,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          14,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          30,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          76,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "n_flagged_nonzero": 0
+    }
+  },
+  "published_scoreboard": [
+    {
+      "study": "Dimidov, Jafarnejad and Frank (2026)",
+      "model": "XGBoost on last observation",
+      "test_cost": 37733,
+      "reference": "arXiv:2606.12486"
+    },
+    {
+      "study": "Zhong and Wang (IDA 2024)",
+      "model": "Bi-LSTM",
+      "test_cost": 39123,
+      "reference": "IDA 2024, pp. 268-276"
+    },
+    {
+      "study": "Parton et al. (IDA 2024)",
+      "model": "GNN on visibility graphs",
+      "test_cost": 47612,
+      "reference": "IDA 2024, pp. 251-259, doi:10.1007/978-3-031-58553-1_20"
+    },
+    {
+      "study": "Carpentier, De Temmerman and Verbeke (IDA 2024)",
+      "model": "XGBoost on windowed tsfresh features, per-cohort models",
+      "test_cost": 49671,
+      "reference": "IDA 2024, pp. 260-267, doi:10.1007/978-3-031-58553-1_21"
+    }
+  ],
+  "best_published_balanced_accuracy": {
+    "value": 0.2428,
+    "uncertainty": 0.01,
+    "chance_level": 0.2,
+    "n_classes": 5,
+    "definition": "mean per-class recall over the five classes",
+    "source": "Dimidov, Jafarnejad and Frank, arXiv:2606.12486",
+    "reading": "roughly two percentage points above uniform guessing. The signal in this dataset is weak and methods separate on COST, not on accuracy. Any presentation implying the problem is solved is contradicted by the best published number."
+  },
+  "honest_limits": [
+    "Per-readout HISTOGRAMS and ACCUMULATIVE COUNTERS, not continuous channels. This lane supports failure-window prediction and does NOT support a continuous-channel onset story. Nothing here belongs on the same axis as the C-MAPSS or synthetic results.",
+    "Component identity withheld and variable names anonymised, so no actionable attribution.",
+    "Relative times rather than timestamps; repair and readout frequencies may have been modified; scaling perturbations applied to operational data and repair rates.",
+    "Sampling frequency uneven across vehicles; ECU resets can corrupt the accumulative counters; collection limited to vehicles with a complete workshop service history; a carefully selected subset rather than the full operational data.",
+    "These results are on the VALIDATION split. The published scoreboard is on the TEST split, so the comparison is indicative and not like for like.",
+    "The expected-cost decision is NOT uniformly better than argmax. Class weighting and a cost matrix encode the same asymmetry by two different mechanisms, and applying both double-counts it: with class_weight='balanced' the expected-cost rule degenerates to flagging every vehicle. Expected-cost decisions require CALIBRATED probabilities, and a class-weighted model's probabilities are not calibrated."
+  ]
+}

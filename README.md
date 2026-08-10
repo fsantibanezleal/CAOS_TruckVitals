@@ -130,6 +130,53 @@ needs the published cost matrix to be sayable at all.
 Reference point, not a like-for-like comparison: the IDA 2016 challenge winner scored 9,920 with 542 false
 positives and 9 false negatives, under challenge conditions this run does not reproduce.
 
+## The Component X lane: two ways to encode asymmetry, and why you must not use both
+
+SCANIA Component X (DOI 10.5878/jvb5-d390, CC BY 4.0) is obtainable by anonymous direct download; the
+exact commands are in the docs. All 11 files were fetched and the structure reproduced from the bytes:
+**1,122,452 readouts x 107 columns**, 23,550 vehicles, and a censored count of **21,278** that matches
+the descriptor's healthy-vehicle count exactly, leaving 2,272 repaired as declared.
+
+Its graded 5x5 cost matrix prices **how late a miss was**: false alarms cost 7 to 10, misses cost 200 to
+500 and rise the closer to failure they happen. That is the only public source in this product that
+prices the question the product is about.
+
+Measured on the validation split:
+
+| model | decision rule | total cost | balanced accuracy | vehicles flagged |
+|---|---|---|---|---|
+| class-weighted | **argmax** | **38,494** | 0.250 | 2,678 |
+| class-weighted | expected-cost | 49,566 | 0.200 | 5,046 (all of them) |
+| unweighted | argmax | 48,592 | 0.232 | 200 |
+| unweighted | expected-cost | 47,458 | 0.207 | 4,734 |
+| any | never flag | 57,400 | 0.200 | 0 |
+
+**The finding: the expected-cost decision is not uniformly better than argmax.** It helps on the
+unweighted model (47,458 against 48,592) and badly hurts on the class-weighted one (49,566 against
+38,494), where it degenerates to flagging every vehicle in the fleet.
+
+Class weighting and a cost matrix are two different mechanisms for encoding the same asymmetry, and
+applying both double-counts it. An expected-cost decision needs **calibrated** probabilities, and a
+class-weighted model's probabilities are not calibrated. This is an easy and expensive mistake, and it
+produces a decision rule that is defensible on paper and useless in practice.
+
+### The honesty anchor
+
+Best published balanced accuracy on this five-class problem is **0.2428**, against **0.20** for uniform
+guessing (Dimidov, Jafarnejad and Frank, arXiv:2606.12486). This run independently lands at 0.250, in the
+same place. **The signal here is roughly two points above chance**, methods separate on cost rather than
+accuracy, and any presentation implying the problem is solved is contradicted by the best published
+number. This product's best cost of 38,494 on validation sits inside the published test-split range of
+37,733 to 49,671, which is indicative and not a like-for-like comparison.
+
+### Prior art this lane cites rather than ignores
+
+Carpentier, De Temmerman and Verbeke (IDA 2024, doi:10.1007/978-3-031-58553-1_21) also condition a Scania
+model on context. Their full text was read: their "contextual" is a per-vehicle **cohort**, hierarchically
+clustered and resolved at inference by specification. Theirs partitions the **fleet**; this product's
+regime conditioning partitions the **timeline**. The two compose without interacting, so there is no
+overlap, and this product does not claim that nobody has tried conditioning a Scania model on context.
+
 ## Onset-time error, against a chance baseline
 
 The synthetic lane is the only one where the true onset exists, so onset error is measurable. Taking the
