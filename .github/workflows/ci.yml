@@ -22,8 +22,10 @@ jobs:
       - name: Tests
         run: pytest
       - name: Pipeline smoke (sandboxed; canonical artifacts are read-only)
-        run: python data-pipeline/run.py EX02_epidemic --output "${{ runner.temp }}/pipeline-smoke"
-      - name: CONTRACT 2, manifests <-> artifacts consistent (no drift)
+        run: |
+          python data-pipeline/run_synthetic_benchmark.py --quick             --output "${{ runner.temp }}/smoke"
+          python data-pipeline/run_fleet_traces.py --n-healthy 2 --n-faulty 2             --output "${{ runner.temp }}/smoke"
+      - name: The committed artifacts are present and browser-parseable
         run: python scripts/check_artifacts.py
 
   guards:

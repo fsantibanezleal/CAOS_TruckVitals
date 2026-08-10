@@ -15,20 +15,19 @@ estimate only, which is the quantity in dispute.
 from __future__ import annotations
 
 import argparse
-import json
 import platform
 import statistics
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import regimecpd as rc  # noqa: E402
-from pipeline.jsonio import write_json  # noqa: E402
-from pipeline.lanes.synthetic_benchmark import run_synthetic_benchmark  # noqa: E402
+import regimecpd as rc
+from truckvitals.jsonio import write_json
+from truckvitals.lanes.synthetic_benchmark import run_synthetic_benchmark
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CANONICAL = REPO_ROOT / "data" / "artifacts"
@@ -80,7 +79,7 @@ def main() -> None:
 
     payload = {
         "schema": "truckvitals.onset-seed-sweep/v1",
-        "generated_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "generated_utc": datetime.now(UTC).isoformat(timespec="seconds"),
         "regimecpd_version": rc.__version__,
         "python": platform.python_version(), "numpy": np.__version__,
         "config": {"n_seeds": args.seeds, "n_healthy": args.n_healthy, "n_faulty": args.n_faulty,
@@ -97,15 +96,15 @@ def main() -> None:
             "neither can be said to localise the onset better than a segmentation with the same number "
             "of changepoints placed at random."),
         "honest_limits": [
-            "SYNTHETIC. The true onset exists by construction, which is exactly why this measurement is "
-            "possible here and not on the real lanes.",
-            "Onset error uses the NEAREST changepoint, which is optimistic and scales with the number of "
+            ("SYNTHETIC. The true onset exists by construction, which is exactly why this measurement is "
+            "possible here and not on the real lanes."),
+            ("Onset error uses the NEAREST changepoint, which is optimistic and scales with the number of "
             "changepoints. That is what the chance column corrects for and why raw error alone, on which "
-            "the conditioned arm wins every seed, is the wrong number to read.",
-            "Five seeds is enough to show the difference is inside the noise and NOT enough to bound the "
-            "effect tightly. The claim made is the null, not a bound on how small a real effect could be.",
-            "This says nothing about DETECTION at a matched false-alarm budget, which is a different "
-            "measurement on different data.",
+            "the conditioned arm wins every seed, is the wrong number to read."),
+            ("Five seeds is enough to show the difference is inside the noise and NOT enough to bound the "
+            "effect tightly. The claim made is the null, not a bound on how small a real effect could be."),
+            ("This says nothing about DETECTION at a matched false-alarm budget, which is a different "
+            "measurement on different data."),
         ],
     }
 

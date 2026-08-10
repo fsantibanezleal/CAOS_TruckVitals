@@ -42,7 +42,7 @@ from __future__ import annotations
 
 import numpy as np
 
-__all__ = ["regime_key", "fleet_denominators", "measure_mechanism"]
+__all__ = ["fleet_denominators", "measure_mechanism", "regime_key"]
 
 #: Relative floor for calling a spread real, matching `regimecpd.scaling`. A channel whose spread sits
 #: below this fraction of its own magnitude is not standardisable; it is regime-locked or dead.
@@ -159,7 +159,7 @@ def measure_mechanism(subset, channels, *, healthy_cycles: int = 90, faulty_tail
         "n_units": len(rows),
         "n_regimes_used": int(n_reg),
         "regime_sizes": sorted(sizes),
-        "n_channels": int(len(channels)),
+        "n_channels": len(channels),
         "n_channels_usable": int(np.count_nonzero(usable)),
         "n_channels_regime_locked": int(np.count_nonzero(locked)),
         "median_d_pooled": float(np.median(dp)),

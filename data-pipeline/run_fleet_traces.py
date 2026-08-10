@@ -11,19 +11,18 @@ truck in the fleet.
 from __future__ import annotations
 
 import argparse
-import json
 import platform
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import regimecpd as rc  # noqa: E402
-from pipeline.jsonio import write_json  # noqa: E402
-from pipeline.lanes.fleet_traces import build_fleet_traces  # noqa: E402
+import regimecpd as rc
+from truckvitals.jsonio import write_json
+from truckvitals.lanes.fleet_traces import build_fleet_traces
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CANONICAL = REPO_ROOT / "data" / "artifacts"
@@ -51,23 +50,23 @@ def main() -> None:
 
     index = {
         "schema": "truckvitals.fleet-traces/v1",
-        "generated_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "generated_utc": datetime.now(UTC).isoformat(timespec="seconds"),
         "regimecpd_version": rc.__version__,
         "python": platform.python_version(), "numpy": np.__version__,
         "config": result["config"],
         "thresholds": result["thresholds"],
         "units": result["index"],
         "honest_limits": [
-            "SYNTHETIC. Physically plausible magnitudes for a large rigid hauler, not measurements from "
-            "one. Nothing on this page is calibrated against a real truck.",
-            "The threshold drawn on every trace is the FLEET threshold at the matched false-alarm "
+            ("SYNTHETIC. Physically plausible magnitudes for a large rigid hauler, not measurements from "
+            "one. Nothing on this page is calibrated against a real truck."),
+            ("The threshold drawn on every trace is the FLEET threshold at the matched false-alarm "
             "budget, not a per-unit threshold. A per-unit threshold would be fitted on the record it is "
-            "being judged on, which is the most common way this kind of chart flatters itself.",
-            "The regime confound is EMERGENT from the haul cycle, not injected. That is what stops the "
+            "being judged on, which is the most common way this kind of chart flatters itself."),
+            ("The regime confound is EMERGENT from the haul cycle, not injected. That is what stops the "
             "comparison being circular, and it also means the regime structure is a model of a cycle "
-            "rather than an observation of one.",
-            "Units whose fault begins inside the baseline window are DROPPED, because there would be no "
-            "healthy stretch to learn normal from. The count is in `config`.",
+            "rather than an observation of one."),
+            ("Units whose fault begins inside the baseline window are DROPPED, because there would be no "
+            "healthy stretch to learn normal from. The count is in `config`."),
         ],
     }
     write_json(fleet_dir / "index.json", index)
@@ -85,7 +84,8 @@ def main() -> None:
         parts = []
         for det in cfg["detectors"]:
             d = u["detectors"][det]
-            fmt = lambda a: ("-" if d[a]["delay_min"] is None else f"{d[a]['delay_min']:.0f}")  # noqa: E731
+            def fmt(arm, d=d):
+                return "-" if d[arm]["delay_min"] is None else f"{d[arm]['delay_min']:.0f}"
             parts.append(f"{det}:{fmt('raw')}|{fmt('residual')}")
         print(f"{row['unit_id']:10s} {row['fault_kind']:14s} {onset:>8s} "
               f"{row['regime_coverage']:5.2f}  {'  '.join(parts)}")

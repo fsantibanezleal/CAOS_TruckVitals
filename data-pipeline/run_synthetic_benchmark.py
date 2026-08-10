@@ -7,19 +7,18 @@
 from __future__ import annotations
 
 import argparse
-import json
 import platform
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import regimecpd as rc  # noqa: E402
-from pipeline.jsonio import write_json  # noqa: E402
-from pipeline.lanes.synthetic_benchmark import run_synthetic_benchmark  # noqa: E402
+import regimecpd as rc
+from truckvitals.jsonio import write_json
+from truckvitals.lanes.synthetic_benchmark import run_synthetic_benchmark
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CANONICAL = REPO_ROOT / "data" / "artifacts"
@@ -36,22 +35,22 @@ def main() -> None:
     out_dir = Path(args.output) if args.output else CANONICAL
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    kw = dict(n_healthy=10, n_faulty=8, n_cycles=35) if args.quick else \
-        dict(n_healthy=20, n_faulty=16, n_cycles=45)
+    kw = ({"n_healthy": 10, "n_faulty": 8, "n_cycles": 35} if args.quick
+          else {"n_healthy": 20, "n_faulty": 16, "n_cycles": 45})
 
     result = run_synthetic_benchmark(budget_per_month=args.budget, seed=args.seed, **kw)
     result["schema"] = "truckvitals.synthetic-benchmark/v1"
-    result["generated_utc"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    result["generated_utc"] = datetime.now(UTC).isoformat(timespec="seconds")
     result["regimecpd_version"] = rc.__version__
     result["python"] = platform.python_version()
     result["numpy"] = np.__version__
     result["honest_limits"] = [
-        "SYNTHETIC. Nothing here is calibrated against a real truck; magnitudes are physically plausible "
-        "for a large rigid hauler and are not measurements.",
-        "The regime confound is emergent from the haul cycle rather than injected, which is what stops "
-        "the comparison being circular, but the cycle itself is a model.",
-        "Onset error uses the NEAREST changepoint, which is optimistic. The chance level for the same "
-        "number of changepoints is reported beside it and is the number to read.",
+        ("SYNTHETIC. Nothing here is calibrated against a real truck; magnitudes are physically plausible "
+        "for a large rigid hauler and are not measurements."),
+        ("The regime confound is emergent from the haul cycle rather than injected, which is what stops "
+        "the comparison being circular, but the cycle itself is a model."),
+        ("Onset error uses the NEAREST changepoint, which is optimistic. The chance level for the same "
+        "number of changepoints is reported beside it and is the number to read."),
     ]
 
     path = out_dir / "synthetic_benchmark.json"

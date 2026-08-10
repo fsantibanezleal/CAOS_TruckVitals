@@ -7,18 +7,17 @@
 from __future__ import annotations
 
 import argparse
-import json
 import platform
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from pipeline.jsonio import write_json  # noqa: E402
-from pipeline.lanes.componentx import (  # noqa: E402
+from truckvitals.jsonio import write_json
+from truckvitals.lanes.componentx import (
     BEST_PUBLISHED_BALANCED_ACCURACY,
     CLASS_WINDOWS,
     COST_MATRIX,
@@ -104,14 +103,14 @@ def main() -> None:
 
     payload = {
         "schema": "truckvitals.componentx/v1",
-        "generated_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "generated_utc": datetime.now(UTC).isoformat(timespec="seconds"),
         "python": platform.python_version(), "numpy": np.__version__,
         "dataset": {
             "doi": "10.5878/jvb5-d390", "licence": "CC BY 4.0",
-            "n_train_vehicles": int(len(train.y)),
+            "n_train_vehicles": len(train.y),
             "n_train_censored": int(train.censored.sum()),
             "n_train_repaired": int((~train.censored).sum()),
-            "n_validation_vehicles": int(len(val.y)),
+            "n_validation_vehicles": len(val.y),
             "n_features": int(x_tr.shape[1]),
             "aggregate": args.aggregate,
             "train_class_counts": np.bincount(train.y, minlength=5).tolist(),
@@ -128,22 +127,22 @@ def main() -> None:
         "published_scoreboard": list(PUBLISHED_SCOREBOARD),
         "best_published_balanced_accuracy": BEST_PUBLISHED_BALANCED_ACCURACY,
         "honest_limits": [
-            "Per-readout HISTOGRAMS and ACCUMULATIVE COUNTERS, not continuous channels. This lane "
+            ("Per-readout HISTOGRAMS and ACCUMULATIVE COUNTERS, not continuous channels. This lane "
             "supports failure-window prediction and does NOT support a continuous-channel onset story. "
-            "Nothing here belongs on the same axis as the C-MAPSS or synthetic results.",
+            "Nothing here belongs on the same axis as the C-MAPSS or synthetic results."),
             "Component identity withheld and variable names anonymised, so no actionable attribution.",
-            "Relative times rather than timestamps; repair and readout frequencies may have been "
-            "modified; scaling perturbations applied to operational data and repair rates.",
-            "Sampling frequency uneven across vehicles; ECU resets can corrupt the accumulative "
+            ("Relative times rather than timestamps; repair and readout frequencies may have been "
+            "modified; scaling perturbations applied to operational data and repair rates."),
+            ("Sampling frequency uneven across vehicles; ECU resets can corrupt the accumulative "
             "counters; collection limited to vehicles with a complete workshop service history; a "
-            "carefully selected subset rather than the full operational data.",
-            "These results are on the VALIDATION split. The published scoreboard is on the TEST split, "
-            "so the comparison is indicative and not like for like.",
-            "The expected-cost decision is NOT uniformly better than argmax. Class weighting and a cost "
+            "carefully selected subset rather than the full operational data."),
+            ("These results are on the VALIDATION split. The published scoreboard is on the TEST split, "
+            "so the comparison is indicative and not like for like."),
+            ("The expected-cost decision is NOT uniformly better than argmax. Class weighting and a cost "
             "matrix encode the same asymmetry by two different mechanisms, and applying both "
             "double-counts it: with class_weight='balanced' the expected-cost rule degenerates to "
             "flagging every vehicle. Expected-cost decisions require CALIBRATED probabilities, and a "
-            "class-weighted model's probabilities are not calibrated.",
+            "class-weighted model's probabilities are not calibrated."),
         ],
     }
 

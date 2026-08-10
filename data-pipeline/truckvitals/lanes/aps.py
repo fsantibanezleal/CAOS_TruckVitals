@@ -30,7 +30,7 @@ From ``aps_failure_description.txt``, shipped with the dataset itself:
 That last line is malformed in the original, reusing one symbol for two different counts. The metric this
 lane actually computes, and the form the product should quote, is
 
-.. math:: \text{Total cost} = 10 \cdot \mathrm{FP} + 500 \cdot \mathrm{FN}
+.. math:: \text{Total cost} = 10 \\cdot \\mathrm{FP} + 500 \\cdot \\mathrm{FN}
 
 Reading the matrix carefully, because it is indexed by predicted ROW and true COLUMN: ``Cost_1`` sits at
 (predicted pos, true neg) and is therefore the cost of a FALSE POSITIVE; ``Cost_2`` sits at (predicted
@@ -74,8 +74,15 @@ from pathlib import Path
 
 import numpy as np
 
-__all__ = ["COST_FP", "COST_FN", "IDA2016_LEADERBOARD", "load_aps", "total_cost",
-           "cost_curve", "APSData"]
+__all__ = [
+    "COST_FN",
+    "COST_FP",
+    "IDA2016_LEADERBOARD",
+    "APSData",
+    "cost_curve",
+    "load_aps",
+    "total_cost",
+]
 
 # Verified in aps_failure_description.txt, shipped with the dataset.
 COST_FP = 10.0
@@ -97,7 +104,7 @@ class APSData:
     y_train: np.ndarray
     x_test: np.ndarray
     y_test: np.ndarray
-    feature_names: "tuple[str, ...]"
+    feature_names: tuple[str, ...]
     missing_fraction: np.ndarray
 
     @property
@@ -105,7 +112,7 @@ class APSData:
         return self.x_train.shape[1]
 
 
-def _read_csv(path: Path) -> "tuple[np.ndarray, np.ndarray, tuple[str, ...]]":
+def _read_csv(path: Path) -> tuple[np.ndarray, np.ndarray, tuple[str, ...]]:
     """Read one APS csv. The file carries a licence header before the real header row."""
     with path.open("r", encoding="utf-8", errors="replace") as fh:
         lines = fh.readlines()
@@ -124,7 +131,7 @@ def _read_csv(path: Path) -> "tuple[np.ndarray, np.ndarray, tuple[str, ...]]":
     return x, y, names
 
 
-def load_aps(root: "str | Path") -> APSData:
+def load_aps(root: str | Path) -> APSData:
     root = Path(root)
     x_tr, y_tr, names = _read_csv(root / "aps_failure_training_set.csv")
     x_te, y_te, names_te = _read_csv(root / "aps_failure_test_set.csv")
@@ -142,7 +149,7 @@ def load_aps(root: "str | Path") -> APSData:
     return APSData(x_tr, y_tr, x_te, y_te, names, missing)
 
 
-def total_cost(y_true: np.ndarray, y_pred: np.ndarray) -> "tuple[float, int, int]":
+def total_cost(y_true: np.ndarray, y_pred: np.ndarray) -> tuple[float, int, int]:
     """The challenge metric. Returns ``(total_cost, n_false_positives, n_false_negatives)``.
 
     Type 1 is a false positive (an unnecessary workshop check). Type 2 is a false negative (a faulty
@@ -156,7 +163,7 @@ def total_cost(y_true: np.ndarray, y_pred: np.ndarray) -> "tuple[float, int, int
 
 
 def cost_curve(y_true: np.ndarray, scores: np.ndarray,
-               thresholds: "np.ndarray | None" = None) -> "list[dict]":
+               thresholds: np.ndarray | None = None) -> list[dict]:
     """Total cost across decision thresholds, with the confusion counts that produce it.
 
     The curve rather than a single number, because the threshold IS the decision and quoting a cost

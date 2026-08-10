@@ -46,7 +46,14 @@ FORBIDDEN_PATH_NAME = (
 # Tracked TEXT content that must not survive instantiation (unambiguous template tokens only;
 # generic capability words like "Pyodide" are intentionally NOT listed, a product may truly use it).
 FORBIDDEN_CONTENT = (
-    "pipeline",
+    # NOT the bare word "pipeline". This guard's own rule is "unambiguous template tokens only; generic
+    # capability words are intentionally NOT listed", and "pipeline" is the ordinary English word for the
+    # offline stage of every product in this line. Banning it made the guard unpassable for any repo that
+    # describes its own data pipeline in prose, which is all of them. What the guard is actually for is
+    # the template's example PACKAGE surviving instantiation, so the tokens are its import and path forms.
+    "from pipeline.",
+    "import pipeline.",
+    "data-pipeline/pipeline/",
     "SIRChart",
     "CAOS product template",
     "PENDING-training",

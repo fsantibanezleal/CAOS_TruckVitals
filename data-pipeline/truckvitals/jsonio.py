@@ -20,7 +20,7 @@ import math
 from pathlib import Path
 from typing import Any
 
-__all__ = ["clean", "dumps", "write_json", "assert_strict_json"]
+__all__ = ["assert_strict_json", "clean", "dumps", "write_json"]
 
 
 def clean(obj: Any) -> Any:

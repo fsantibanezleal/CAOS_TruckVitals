@@ -52,7 +52,6 @@ predict any real truck's behaviour.
 """
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -116,7 +115,7 @@ class CycleSpec:
     bench_grade_pct: float = 1.0
 
 
-def _phase_profile(cycle: CycleSpec) -> "tuple[np.ndarray, np.ndarray, np.ndarray]":
+def _phase_profile(cycle: CycleSpec) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Per-sample payload fraction, road grade and phase id for one cycle.
 
     The loaded haul climbs the ramp; the empty return descends it. That asymmetry is the whole source of
@@ -198,8 +197,8 @@ class HaulTruckSimulator:
 
     burn_in_cycles: int = 3
 
-    def simulate(self, n_cycles: int, fault: "Fault | None" = None
-                 ) -> "tuple[np.ndarray, np.ndarray, dict]":
+    def simulate(self, n_cycles: int, fault: Fault | None = None
+                 ) -> tuple[np.ndarray, np.ndarray, dict]:
         """Return ``(t, x, meta)`` with ``x`` of shape ``(n, len(CHANNELS))``.
 
         Times are in minutes from the start of the record.
@@ -344,10 +343,10 @@ class HaulTruckSimulator:
 
 
 def build_fleet(n_healthy: int, n_faulty: int, n_cycles: int = 60,
-                fault_kinds: "tuple[str, ...]" = ("strut_leak", "tyre_leak", "brake_drag",
+                fault_kinds: tuple[str, ...] = ("strut_leak", "tyre_leak", "brake_drag",
                                                   "cooling_loss"),
                 onset_fraction: float = 0.55, severity: float = 1.0,
-                seed: int = 0) -> "list[dict]":
+                seed: int = 0) -> list[dict]:
     """A fleet of trucks, most healthy, some developing a fault at a known time.
 
     Healthy trucks are the majority on purpose. They are where the false-alarm rate is actually measured,

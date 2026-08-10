@@ -88,8 +88,16 @@ from pathlib import Path
 
 import numpy as np
 
-__all__ = ["COST_MATRIX", "CLASS_WINDOWS", "PUBLISHED_SCOREBOARD", "BEST_PUBLISHED_BALANCED_ACCURACY",
-           "load_component_x", "graded_cost", "class_from_rul", "ComponentXData"]
+__all__ = [
+    "BEST_PUBLISHED_BALANCED_ACCURACY",
+    "CLASS_WINDOWS",
+    "COST_MATRIX",
+    "PUBLISHED_SCOREBOARD",
+    "ComponentXData",
+    "class_from_rul",
+    "graded_cost",
+    "load_component_x",
+]
 
 # Verified from the descriptor preprint Table 1 (arXiv:2401.15199v2) and reproduced independently in
 # arXiv:2606.12486. Rows are TRUE class, columns PREDICTED.
@@ -151,14 +159,14 @@ class ComponentXData:
     x: np.ndarray
     y: np.ndarray
     vehicle_id: np.ndarray
-    feature_names: "tuple[str, ...]"
+    feature_names: tuple[str, ...]
     spec: np.ndarray
-    spec_names: "tuple[str, ...]"
+    spec_names: tuple[str, ...]
     censored: np.ndarray
     split: str
 
 
-def _read_numeric_csv(path: Path) -> "tuple[np.ndarray, tuple[str, ...]]":
+def _read_numeric_csv(path: Path) -> tuple[np.ndarray, tuple[str, ...]]:
     with path.open("r", encoding="utf-8") as fh:
         reader = csv.reader(fh)
         header = tuple(next(reader))
@@ -166,7 +174,7 @@ def _read_numeric_csv(path: Path) -> "tuple[np.ndarray, tuple[str, ...]]":
     return np.asarray(rows, dtype=float), header
 
 
-def _read_spec_csv(path: Path) -> "tuple[np.ndarray, np.ndarray, tuple[str, ...]]":
+def _read_spec_csv(path: Path) -> tuple[np.ndarray, np.ndarray, tuple[str, ...]]:
     """Specifications are CATEGORICAL (Cat0..Cat28), so they are ordinal-encoded, not parsed as numbers."""
     with path.open("r", encoding="utf-8") as fh:
         reader = csv.reader(fh)
@@ -181,7 +189,7 @@ def _read_spec_csv(path: Path) -> "tuple[np.ndarray, np.ndarray, tuple[str, ...]
     return ids, encoded, header[1:]
 
 
-def load_component_x(root: "str | Path", split: str = "train",
+def load_component_x(root: str | Path, split: str = "train",
                      aggregate: str = "last") -> ComponentXData:
     """Load one split as a per-VEHICLE feature table with a five-class label.
 
@@ -268,7 +276,7 @@ def load_component_x(root: "str | Path", split: str = "train",
                           censored=np.asarray(censored, dtype=bool), split=split)
 
 
-def graded_cost(y_true: np.ndarray, y_pred: np.ndarray) -> "tuple[float, np.ndarray]":
+def graded_cost(y_true: np.ndarray, y_pred: np.ndarray) -> tuple[float, np.ndarray]:
     """Total cost under the graded matrix, and the 5x5 confusion counts that produce it."""
     y_true = np.asarray(y_true, dtype=int)
     y_pred = np.asarray(y_pred, dtype=int)

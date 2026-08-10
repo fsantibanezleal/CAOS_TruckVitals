@@ -14,17 +14,17 @@ from __future__ import annotations
 import argparse
 import platform
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import regimecpd as rc  # noqa: E402
-from pipeline.jsonio import write_json  # noqa: E402
-from pipeline.lanes.cmapss import _informative_sensors, load_subset  # noqa: E402
-from pipeline.lanes.mechanism import measure_mechanism  # noqa: E402
+import regimecpd as rc
+from truckvitals.jsonio import write_json
+from truckvitals.lanes.cmapss import _informative_sensors, load_subset
+from truckvitals.lanes.mechanism import measure_mechanism
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CANONICAL = REPO_ROOT / "data" / "artifacts"
@@ -42,7 +42,7 @@ def main() -> None:
     out_dir = Path(args.output) if args.output else CANONICAL
     payload = {
         "schema": "truckvitals.mechanism/v1",
-        "generated_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "generated_utc": datetime.now(UTC).isoformat(timespec="seconds"),
         "regimecpd_version": rc.__version__,
         "python": platform.python_version(), "numpy": np.__version__,
         "config": {"healthy_cycles": args.healthy_cycles, "faulty_tail": args.faulty_tail,
@@ -50,19 +50,19 @@ def main() -> None:
                    "denominators": ["pooled across regimes", "within regime, variance-pooled"]},
         "pairs": [],
         "honest_limits": [
-            "This measures an EFFECT SIZE, not a detector's performance. It says the fault's signature is "
+            ("This measures an EFFECT SIZE, not a detector's performance. It says the fault's signature is "
             "large relative to within-regime spread and small relative to pooled spread. It does NOT say "
             "any particular detector achieves that separation, and the detection tables are where that "
-            "question is answered.",
-            "The single-condition subsets are the negative control and were not designed as one: they "
+            "question is answered."),
+            ("The single-condition subsets are the negative control and were not designed as one: they "
             "are what the identical code returns on data with only one regime, where the two denominators "
             "coincide by construction and the ratio must be 1.0. A ratio far from 1.0 there would mean "
-            "this measurement is broken.",
-            "The healthy window ends before the onset and the faulty window is the record's tail, with "
+            "this measurement is broken."),
+            ("The healthy window ends before the onset and the faulty window is the record's tail, with "
             "the ramp between them excluded from both. Including the ramp would blur the contrast in both "
-            "denominators.",
-            "C-MAPSS is turbofans, not trucks. What transfers is the MECHANISM, which is a statement "
-            "about operating context and residual spread, not about engines.",
+            "denominators."),
+            ("C-MAPSS is turbofans, not trucks. What transfers is the MECHANISM, which is a statement "
+            "about operating context and residual spread, not about engines."),
         ],
     }
 

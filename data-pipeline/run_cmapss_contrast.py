@@ -12,20 +12,19 @@ pass ``--output`` so they cannot mutate committed scientific evidence.
 from __future__ import annotations
 
 import argparse
-import json
 import platform
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import regimecpd as rc  # noqa: E402
-from pipeline.jsonio import write_json  # noqa: E402
-from pipeline.lanes.cmapss import SUBSETS, _informative_sensors, load_subset  # noqa: E402
-from pipeline.lanes.regime_experiment import build_outcomes, score_arm  # noqa: E402
+import regimecpd as rc
+from truckvitals.jsonio import write_json
+from truckvitals.lanes.cmapss import SUBSETS, _informative_sensors, load_subset
+from truckvitals.lanes.regime_experiment import build_outcomes, score_arm
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CANONICAL = REPO_ROOT / "data" / "artifacts"
@@ -136,7 +135,7 @@ def main() -> None:
     budgets = [0.25, 0.5, 1.0, 2.0, 5.0, 10.0]
     payload = {
         "schema": "truckvitals.cmapss-regime-contrast/v1",
-        "generated_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "generated_utc": datetime.now(UTC).isoformat(timespec="seconds"),
         "regimecpd_version": rc.__version__,
         "python": platform.python_version(),
         "numpy": np.__version__,

@@ -30,7 +30,7 @@ import regimecpd as rc
 
 from ..model.haulcycle import CONTEXT_CHANNELS, MONITORED_CHANNELS, build_fleet
 
-__all__ = ["DETECTOR_LADDER", "FAULT_CHANNELS", "run_synthetic_benchmark", "SyntheticArmResult"]
+__all__ = ["DETECTOR_LADDER", "FAULT_CHANNELS", "SyntheticArmResult", "run_synthetic_benchmark"]
 
 # Every rung the engine offers that produces a per-sample statistic on a multivariate series. PELT is
 # absent on purpose: it is retrospective and putting it on an online detection metric would score a
@@ -69,7 +69,7 @@ class SyntheticArmResult:
     n_faulty: int
     threshold: float | None
     fa_per_truck_month: float
-    fa_ci: "tuple[float, float]"
+    fa_ci: tuple[float, float]
     detection_rate: float
     median_delay_min: float | None
     onset_error_min: float | None
@@ -93,7 +93,7 @@ def run_synthetic_benchmark(n_healthy: int = 30, n_faulty: int = 24, n_cycles: i
                             fit_frac: float = 0.30, calib_frac: float = 0.15,
                             n_regimes: int = 6, budget_per_month: float = 1.0,
                             severity: float = 1.0, seed: int = 0,
-                            detectors: "tuple[str, ...] | None" = None) -> dict:
+                            detectors: tuple[str, ...] | None = None) -> dict:
     """Run every rung on both arms and return the full matrix.
 
     ``budget_per_month`` is false alarms per truck-month. A sample is one minute of operation, so a month
@@ -120,7 +120,7 @@ def run_synthetic_benchmark(n_healthy: int = 30, n_faulty: int = 24, n_cycles: i
     prepared = []
     for unit in fleet:
         series = rc.Series(unit["t"], unit["x"],
-                           tuple(__import__("pipeline.model.haulcycle", fromlist=["CHANNELS"]).CHANNELS),
+                           tuple(__import__("truckvitals.model.haulcycle", fromlist=["CHANNELS"]).CHANNELS),
                            unit_id=unit["unit_id"])
         n = series.n
         fit_end = int(n * fit_frac)
@@ -177,8 +177,11 @@ def run_synthetic_benchmark(n_healthy: int = 30, n_faulty: int = 24, n_cycles: i
                 continue
 
             fleet_score = rc.score_fleet(outcomes, th)
+            # `th` is bound as a default argument rather than captured. A closure over the loop
+            # variable would read whatever the LAST iteration left behind, so every arm's interval would
+            # describe the last detector's threshold, not its own.
             _, lo, hi = rc.bootstrap_ci(
-                outcomes, lambda o: rc.score_fleet(o, th).false_alarms_per_unit_time,
+                outcomes, lambda o, th=th: rc.score_fleet(o, th).false_alarms_per_unit_time,
                 n_boot=250, seed=seed)
             out["arms"].append(vars(SyntheticArmResult(
                 detector=det_name, arm=arm, n_units=len(outcomes),
@@ -237,7 +240,7 @@ def _onset_estimation(prepared) -> dict:
         med_err = float(np.median(errs[finite])) if finite.any() else None
         med_chance = float(np.median(chances[finite])) if finite.any() else None
         summary[arm] = {
-            "n_units": int(len(vals)),
+            "n_units": len(vals),
             "median_onset_error_min": med_err,
             "p90_onset_error_min": float(np.percentile(errs[finite], 90)) if finite.any() else None,
             "median_changepoints": float(np.median(cps)),

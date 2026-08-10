@@ -15,7 +15,7 @@ your product's real contract when you instantiate.
 
 ## CONTRACT 1, ingestion (raw → pipeline), the *bring-your-own-data* gate
 
-Defined in `data-pipeline/pipeline/io/contract.py`. A parameter row is **accepted** iff it satisfies the schema;
+Defined in `data-pipeline/truckvitals/io/contract.py`. A parameter row is **accepted** iff it satisfies the schema;
 **rejected** with a reason otherwise (never silently coerced); plausible-but-suspicious rows are **flagged**.
 
 EXAMPLE schema (an SIR parameterization, `examples/params.csv`):

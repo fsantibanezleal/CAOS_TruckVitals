@@ -10,18 +10,17 @@ and specifically how much is lost by choosing the threshold the way almost every
 from __future__ import annotations
 
 import argparse
-import json
 import platform
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from pipeline.jsonio import write_json  # noqa: E402
-from pipeline.lanes.aps import (  # noqa: E402
+from truckvitals.jsonio import write_json
+from truckvitals.lanes.aps import (
     COST_FN,
     COST_FP,
     IDA2016_LEADERBOARD,
@@ -99,14 +98,14 @@ def main() -> None:
 
     payload = {
         "schema": "truckvitals.aps-cost/v1",
-        "generated_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "generated_utc": datetime.now(UTC).isoformat(timespec="seconds"),
         "python": platform.python_version(), "numpy": np.__version__,
         "cost_matrix": {"false_positive": COST_FP, "false_negative": COST_FN,
                         "ratio": COST_FN / COST_FP,
                         "source": "aps_failure_description.txt, shipped with the dataset"},
         "dataset": {
-            "n_train": int(len(data.y_train)), "n_train_positive": int(data.y_train.sum()),
-            "n_test": int(len(data.y_test)), "n_test_positive": int(data.y_test.sum()),
+            "n_train": len(data.y_train), "n_train_positive": int(data.y_train.sum()),
+            "n_test": len(data.y_test), "n_test_positive": int(data.y_test.sum()),
             "n_features": data.n_features,
             "missing_fraction_max": float(data.missing_fraction.max()),
             "missing_fraction_mean": float(data.missing_fraction.mean()),
@@ -120,13 +119,13 @@ def main() -> None:
         "ida2016_leaderboard": list(IDA2016_LEADERBOARD),
         "test_cost_curve": cost_curve(data.y_test, test_scores),
         "honest_limits": [
-            "One aggregated snapshot per truck. No time series, so no onset detection, no detection "
+            ("One aggregated snapshot per truck. No time series, so no onset detection, no detection "
             "delay and no false alarms per truck-month. Nothing here belongs on the same axis as the "
-            "C-MAPSS or synthetic results.",
+            "C-MAPSS or synthetic results."),
             "170 anonymised features with no physical names, so no actionable attribution.",
             "A subset selected by experts, not a random sample of a fleet.",
-            "The leaderboard is a reference point, not a like-for-like comparison: those entries were "
-            "produced under challenge conditions this run does not reproduce.",
+            ("The leaderboard is a reference point, not a like-for-like comparison: those entries were "
+            "produced under challenge conditions this run does not reproduce."),
         ],
     }
     path = out_dir / "aps_cost.json"

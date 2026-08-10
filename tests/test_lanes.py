@@ -10,9 +10,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-
-from pipeline.lanes.mechanism import fleet_denominators, measure_mechanism, regime_key
-from pipeline.model.haulcycle import CHANNELS, CONTEXT_CHANNELS, MONITORED_CHANNELS, build_fleet
+from truckvitals.lanes.mechanism import fleet_denominators, measure_mechanism, regime_key
+from truckvitals.model.haulcycle import CHANNELS, CONTEXT_CHANNELS, MONITORED_CHANNELS, build_fleet
 
 
 class TestSyntheticFleet:

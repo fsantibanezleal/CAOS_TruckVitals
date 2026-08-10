@@ -59,7 +59,7 @@ from pathlib import Path
 import numpy as np
 from regimecpd import Series
 
-__all__ = ["CMAPSSSubset", "load_subset", "SUBSETS", "SENSOR_COLUMNS", "SETTING_COLUMNS"]
+__all__ = ["SENSOR_COLUMNS", "SETTING_COLUMNS", "SUBSETS", "CMAPSSSubset", "load_subset"]
 
 SETTING_COLUMNS = ("op_setting_1", "op_setting_2", "op_setting_3")
 SENSOR_COLUMNS = tuple(f"sensor_{i:02d}" for i in range(1, 22))
@@ -81,7 +81,7 @@ class CMAPSSSubset:
     """One subset, parsed into per-unit series with their run-to-failure structure intact."""
 
     name: str
-    units: "list[dict]"
+    units: list[dict]
     n_conditions: int
     n_fault_modes: int
 
@@ -89,7 +89,7 @@ class CMAPSSSubset:
     def n_units(self) -> int:
         return len(self.units)
 
-    def series(self, unit: dict, channels: "tuple[str, ...]" = SENSOR_COLUMNS) -> Series:
+    def series(self, unit: dict, channels: tuple[str, ...] = SENSOR_COLUMNS) -> Series:
         idx = [ALL_COLUMNS.index(c) for c in channels]
         return Series(unit["cycle"].astype(float), unit["raw"][:, idx], channels,
                       unit_id=f"{self.name}-u{unit['unit']:03d}")
@@ -99,8 +99,8 @@ class CMAPSSSubset:
         return unit["raw"][:, idx]
 
 
-def _informative_sensors(units: "list[dict]", tol: float = 1e-9,
-                         baseline_cycles: "int | None" = None) -> "tuple[str, ...]":
+def _informative_sensors(units: list[dict], tol: float = 1e-9,
+                         baseline_cycles: int | None = None) -> tuple[str, ...]:
     """Sensors that actually vary. Several C-MAPSS channels are constant and carry no information.
 
     Kept as a function rather than a hard-coded list, because WHICH sensors are constant differs between
@@ -127,7 +127,7 @@ def _informative_sensors(units: "list[dict]", tol: float = 1e-9,
     return tuple(keep)
 
 
-def load_subset(root: "str | Path", name: str, split: str = "train",
+def load_subset(root: str | Path, name: str, split: str = "train",
                 rul_cap: float = 125.0) -> CMAPSSSubset:
     """Parse one C-MAPSS subset.
 

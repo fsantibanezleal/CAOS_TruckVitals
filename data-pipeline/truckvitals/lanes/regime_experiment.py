@@ -56,7 +56,7 @@ from dataclasses import dataclass, field
 import numpy as np
 import regimecpd as rc
 
-__all__ = ["ArmResult", "ExperimentResult", "run_contrast", "DETECTORS"]
+__all__ = ["DETECTORS", "ArmResult", "ExperimentResult", "run_contrast"]
 
 
 def _cusum(k: float = 0.5):
@@ -86,7 +86,7 @@ class ArmResult:
     n_faulty: int
     threshold: float | None
     false_alarms_per_unit_time: float
-    fa_ci: "tuple[float, float]"
+    fa_ci: tuple[float, float]
     fa_per_1000_cycles: float
     detection_rate: float
     median_delay: float | None
@@ -98,17 +98,17 @@ class ArmResult:
 
 @dataclass
 class ExperimentResult:
-    arms: "list[ArmResult]" = field(default_factory=list)
+    arms: list[ArmResult] = field(default_factory=list)
     meta: dict = field(default_factory=dict)
 
-    def by(self, subset: str, arm: str, detector: str) -> "ArmResult | None":
+    def by(self, subset: str, arm: str, detector: str) -> ArmResult | None:
         for a in self.arms:
             if a.subset == subset and a.arm == arm and a.detector == detector:
                 return a
         return None
 
 
-def _split_points(n: int, fit_cycles: int, calib_cycles: int) -> "tuple[int, int]":
+def _split_points(n: int, fit_cycles: int, calib_cycles: int) -> tuple[int, int]:
     """Split points in ABSOLUTE cycles, not fractions of the record.
 
     Fractions look natural and select the sample. Every C-MAPSS unit starts healthy and runs to failure,
@@ -127,7 +127,7 @@ def build_outcomes(subset, detector_name: str, arm: str, channels, *,
                    n_regimes: int = 6, fit_cycles: int = 40, calib_cycles: int = 30,
                    discrete_regimes: bool = False, residual_method: str = "zscore",
                    setting_decimals: int = 0,
-                   max_units: "int | None" = None) -> "tuple[list, list, float, dict]":
+                   max_units: int | None = None) -> tuple[list, list, float, dict]:
     """Score every unit in a subset under one arm.
 
     Returns ``(outcomes, calibration_scores, mean_regime_coverage, dropped)`` where ``dropped`` counts
@@ -152,9 +152,6 @@ def build_outcomes(subset, detector_name: str, arm: str, channels, *,
         if onset_t is not None and onset_t <= series.t[calib_end]:
             dropped["onset_in_fit_window"] += 1
             continue
-
-        baseline = rc.Series(series.t[:fit_end], series.x[:fit_end], series.names, series.unit_id)
-        rest = rc.Series(series.t[fit_end:], series.x[fit_end:], series.names, series.unit_id)
 
         if arm == "raw":
             # EQUAL HEALTHY BUDGET. The residual arm spends [0, fit) on its regime and residual model and
@@ -227,7 +224,7 @@ def build_outcomes(subset, detector_name: str, arm: str, channels, *,
     return (outcomes, pooled, float(np.mean(coverages)) if coverages else float("nan"), dropped)
 
 
-def _fold_assignment(outcomes, k: int = 5) -> "list[int]":
+def _fold_assignment(outcomes, k: int = 5) -> list[int]:
     """Stratified round-robin folds over UNITS, faulty and healthy assigned separately.
 
     Stratifying matters: with a handful of healthy units a plain round robin can leave a fold with no
@@ -242,7 +239,7 @@ def _fold_assignment(outcomes, k: int = 5) -> "list[int]":
     return folds
 
 
-def _pool(scores) -> "rc.FleetScore":
+def _pool(scores) -> rc.FleetScore:
     """Pool per-unit scores that were computed at DIFFERENT thresholds, one per fold.
 
     `rc.score_fleet` pools at a single threshold and cannot be used here, which is the whole reason this
@@ -347,7 +344,7 @@ def score_arm(outcomes, calibration, *, arm: str, subset: str, detector: str,
 
 def run_contrast(subsets: dict, detector: str = "cusum", channels=None,
                  budget_per_1000: float = 1.0, n_regimes: int = 6,
-                 max_units: "int | None" = None, seed: int = 0) -> ExperimentResult:
+                 max_units: int | None = None, seed: int = 0) -> ExperimentResult:
     """Run the full contrast across the provided subsets and both arms.
 
     ``subsets`` maps a subset name to a loaded :class:`~pipeline.lanes.cmapss.CMAPSSSubset`.
