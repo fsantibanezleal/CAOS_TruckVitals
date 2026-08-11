@@ -8,7 +8,7 @@
     "dev": "vite",
     "prebuild": "node copy-data.mjs",
     "build": "tsc --noEmit && vite build",
-    "postbuild": "node spa-404.mjs",
+    "postbuild": "node spa-404.mjs && node prerender-routes.mjs",
     "preview": "vite preview",
     "test": "node --import tsx --test test/*.test.ts"
   },
