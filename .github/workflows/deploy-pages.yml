@@ -22,16 +22,16 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Verify committed scientific artifacts
-        run: |
-          pip install -r requirements-precompute.txt
-          python scripts/check_artifacts.py
+      # Stdlib only on purpose: the check must run before anything is installed, and it must not be
+      # able to pass because a dependency happened to be importable.
+      - name: Verify the committed artifacts are present and browser-parseable
+        run: python scripts/check_artifacts.py
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: npm
           cache-dependency-path: frontend/package-lock.json
-      - name: Build the SPA (copy-data.mjs overlays data/derived -> public/)
+      - name: Build the SPA (copy-data.mjs overlays data/artifacts -> public/data)
         run: cd frontend && npm ci && npm run build
       - uses: actions/upload-pages-artifact@v3
         with:
