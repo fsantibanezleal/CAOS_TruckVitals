@@ -138,3 +138,18 @@ html.tv-workbench .site-footer { margin-top: 12px; }
 .tv-readout .tv-keys { gap: 0.7rem; }
 .tv-readout .tv-keynote { flex: 1 1 200px; }
 .tv-readout dt::after { content: ':'; }
+
+/* --- live-lane controls and instruments -------------------------------------------------------- */
+.tv-knobval { color: var(--color-accent); font-variant-numeric: tabular-nums; }
+.tv-busy { color: var(--color-fg-faint); }
+.tv-ctl[aria-disabled="true"] { opacity: 0.45; }
+.tv-ctl span { display: flex; justify-content: space-between; gap: 0.5rem; }
+
+/* attribution bars: a magnitude the eye can compare, with the number kept beside it */
+.tv-bar { position: relative; display: block; height: 16px; border-radius: 4px;
+  background: color-mix(in srgb, var(--color-fg-faint) 14%, transparent); overflow: hidden; }
+.tv-bar-fill { position: absolute; inset: 0 auto 0 0; border-radius: 4px; opacity: 0.75; }
+.tv-bar-num { position: absolute; right: 5px; top: 0; line-height: 16px; font-size: 0.7rem;
+  font-variant-numeric: tabular-nums; color: var(--color-fg); }
+.tv-railnav { display: flex; gap: 0.3rem; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 0.15rem; }
+.tv-railnav .chip { flex: 0 0 auto; }
