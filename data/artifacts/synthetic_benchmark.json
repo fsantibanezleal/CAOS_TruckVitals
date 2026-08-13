@@ -530,8 +530,8 @@
     "note": "a hit means a channel the fault was actually injected into appears in the top two PCA SPE contributions at the peak. Contributions smear onto correlated channels, so this narrows a candidate set and does not identify a cause."
   },
   "schema": "truckvitals.synthetic-benchmark/v1",
-  "generated_utc": "2026-08-13T23:21:02+00:00",
-  "regimecpd_version": "0.09.005",
+  "generated_utc": "2026-08-13T23:35:10+00:00",
+  "regimecpd_version": "0.09.006",
   "python": "3.13.14",
   "numpy": "2.5.2",
   "honest_limits": [
