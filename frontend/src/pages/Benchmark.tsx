@@ -43,6 +43,22 @@ function Ladder({ es }: { es: boolean }) {
 
   const detectors = [...new Set(data.arms.map((a) => a.detector))];
   const byKey = new Map(data.arms.map((a) => [`${a.detector}:${a.arm}`, a]));
+  const TIER: Record<string, string> = {
+    shewhart: 'classical', cusum: 'classical', ewma: 'classical', 'page-hinkley': 'classical',
+    'pca-spe': 'multivariate', 'pca-t2': 'multivariate',
+    bocpd: 'sota', kswin: 'sota', adwin: 'sota',
+    'isolation-forest': 'learned', 'one-class-svm': 'learned', autoencoder: 'learned',
+  };
+  const helped = detectors.filter((d) => {
+    const r = byKey.get(`${d}:raw`);
+    const s = byKey.get(`${d}:residual`);
+    return r && s && s.detection_rate > r.detection_rate + 0.01;
+  });
+  const hurt = detectors.filter((d) => {
+    const r = byKey.get(`${d}:raw`);
+    const s = byKey.get(`${d}:residual`);
+    return r && s && r.detection_rate > s.detection_rate + 0.01;
+  });
 
   return (
     <div className="tv-prose">
@@ -59,6 +75,7 @@ function Ladder({ es }: { es: boolean }) {
         <table className="tv-table">
           <thead>
             <tr>
+              <th>{es ? 'Nivel' : 'Tier'}</th>
               <th>{es ? 'Detector' : 'Detector'}</th>
               <th>{es ? 'Detección, crudo' : 'Detection, raw'}</th>
               <th>{es ? 'Detección, residuo' : 'Detection, residual'}</th>
@@ -74,7 +91,8 @@ function Ladder({ es }: { es: boolean }) {
               const res = byKey.get(`${d}:residual`);
               const dead = (raw?.detection_rate ?? 0) === 0 && (res?.detection_rate ?? 0) === 0;
               return (
-                <tr key={d} className={dead ? undefined : 'hl'}>
+                <tr key={d} className={TIER[d] === 'learned' ? 'hl' : undefined}>
+                  <td className="tv-muted">{TIER[d] ?? '-'}</td>
                   <td>{d}{dead ? ' *' : ''}</td>
                   <td className={(raw?.detection_rate ?? 0) > (res?.detection_rate ?? 0) ? 'win' : undefined}>
                     {n(raw?.detection_rate)}
@@ -101,7 +119,41 @@ function Ladder({ es }: { es: boolean }) {
             + 'is a leaderboard. The reason for each failure is documented by the engine itself.'}
       </p>
 
-      <Callout variant="honest" title={es ? 'El brazo crudo gana la métrica de falsas alarmas' : 'The raw arm wins the false-alarm metric'}>
+      <Callout variant="strong" title={es
+        ? `El condicionamiento ayuda en ${helped.length}, perjudica en ${hurt.length}`
+        : `Conditioning helps ${helped.length} rungs and HURTS ${hurt.length}`}>
+        {es
+          ? 'Y los que perjudica son modelos APRENDIDOS de novedad: '
+          : 'And the ones it hurts are LEARNED novelty models: '}
+        <strong>{hurt.join(', ') || '-'}</strong>.
+        {es
+          ? ' Eso es un contraejemplo a la tesis de este producto y se reporta como tal. Hipótesis, no '
+            + 'resultado: un modelo de novedad aprende la FORMA de lo normal, y en el brazo crudo esa forma '
+            + 'son unos pocos grupos compactos de régimen, así que cualquier cosa fuera de un grupo es fácil '
+            + 'de aislar. El condicionamiento reemplaza esos grupos por una sola nube isotrópica, y un '
+            + 'desplazamiento moderado se queda dentro. La estructura que el residuo elimina es la que el '
+            + 'bosque de aislamiento estaba usando.'
+          : ' That is a counter-example to the central thesis here and it is reported as one. A '
+            + 'hypothesis, not a result: a novelty model learns the SHAPE of normal, and on the raw arm '
+            + 'that shape is a handful of tight regime clusters, so anything off-cluster is easy to '
+            + 'isolate. Conditioning replaces them with one roughly isotropic blob and a moderate shift '
+            + 'stays inside it. The structure the residual removes is structure isolation forest was '
+            + 'using.'}
+      </Callout>
+
+      <Callout variant="honest" title={es ? 'Lo que NO lo explica' : 'What does NOT explain it'}>
+        {es
+          ? 'La explicación obvia sería el hueco de muestras sin asignar: estos peldaños apilan una ventana '
+            + 'de 10 muestras y una sola muestra sin asignar descarta la ventana entera. La cobertura de '
+            + 'régimen en esta corrida es 0.998, así que casi no hay huecos que culpar. Comprobarlo fue la '
+            + 'diferencia entre una explicación y una suposición.'
+          : 'The obvious explanation would be the unassigned-sample gap: these rungs stack a 10-sample '
+            + 'window and one unassigned sample drops the whole window. Regime coverage on this run is '
+            + '0.998, so there are almost no gaps to blame. Checking that was the difference between an '
+            + 'explanation and a guess.'}
+      </Callout>
+
+      <Callout variant="honest" title={es ? 'Ninguna afirmación sobre falsas alarmas' : 'No false-alarm claim'}>
         {es
           ? 'En este carril el brazo crudo alcanza la mejor tasa de falsas alarmas. Por eso este producto '
             + 'no afirma reducir falsas alarmas en ninguna parte.'

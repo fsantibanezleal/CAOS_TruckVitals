@@ -351,6 +351,114 @@
       "attribution_top1": null,
       "regime_coverage": 0.9981194170192761,
       "note": ""
+    },
+    {
+      "detector": "isolation-forest",
+      "arm": "raw",
+      "n_units": 36,
+      "n_faulty": 16,
+      "threshold": 0.5998394600017738,
+      "fa_per_truck_month": 0.0,
+      "fa_ci": [
+        0.0,
+        0.0
+      ],
+      "detection_rate": 0.6875,
+      "median_delay_min": 263.0,
+      "onset_error_min": null,
+      "attribution_top1": null,
+      "regime_coverage": null,
+      "note": ""
+    },
+    {
+      "detector": "isolation-forest",
+      "arm": "residual",
+      "n_units": 36,
+      "n_faulty": 16,
+      "threshold": 0.6656453230199261,
+      "fa_per_truck_month": 0.0,
+      "fa_ci": [
+        0.0,
+        0.0
+      ],
+      "detection_rate": 0.0625,
+      "median_delay_min": 710.0,
+      "onset_error_min": null,
+      "attribution_top1": null,
+      "regime_coverage": 0.9981194170192761,
+      "note": ""
+    },
+    {
+      "detector": "one-class-svm",
+      "arm": "raw",
+      "n_units": 36,
+      "n_faulty": 16,
+      "threshold": 0.820010969349729,
+      "fa_per_truck_month": 0.0,
+      "fa_ci": [
+        0.0,
+        0.0
+      ],
+      "detection_rate": 0.75,
+      "median_delay_min": 192.0,
+      "onset_error_min": null,
+      "attribution_top1": null,
+      "regime_coverage": null,
+      "note": ""
+    },
+    {
+      "detector": "one-class-svm",
+      "arm": "residual",
+      "n_units": 36,
+      "n_faulty": 16,
+      "threshold": 1.2852167953418225,
+      "fa_per_truck_month": 0.0,
+      "fa_ci": [
+        0.0,
+        0.0
+      ],
+      "detection_rate": 0.5,
+      "median_delay_min": 95.0,
+      "onset_error_min": null,
+      "attribution_top1": null,
+      "regime_coverage": 0.9981194170192761,
+      "note": ""
+    },
+    {
+      "detector": "autoencoder",
+      "arm": "raw",
+      "n_units": 36,
+      "n_faulty": 16,
+      "threshold": 0.2920615625883147,
+      "fa_per_truck_month": 0.0,
+      "fa_ci": [
+        0.0,
+        0.0
+      ],
+      "detection_rate": 0.75,
+      "median_delay_min": 174.0,
+      "onset_error_min": null,
+      "attribution_top1": null,
+      "regime_coverage": null,
+      "note": ""
+    },
+    {
+      "detector": "autoencoder",
+      "arm": "residual",
+      "n_units": 36,
+      "n_faulty": 16,
+      "threshold": 2.583540850029678,
+      "fa_per_truck_month": 0.0,
+      "fa_ci": [
+        0.0,
+        0.0
+      ],
+      "detection_rate": 1.0,
+      "median_delay_min": 90.0,
+      "onset_error_min": null,
+      "attribution_top1": null,
+      "regime_coverage": 0.9981194170192761,
+      "note": ""
     }
   ],
   "onset_estimation": {
@@ -422,7 +530,7 @@
     "note": "a hit means a channel the fault was actually injected into appears in the top two PCA SPE contributions at the peak. Contributions smear onto correlated channels, so this narrows a candidate set and does not identify a cause."
   },
   "schema": "truckvitals.synthetic-benchmark/v1",
-  "generated_utc": "2026-08-13T12:16:15+00:00",
+  "generated_utc": "2026-08-13T23:21:02+00:00",
   "regimecpd_version": "0.09.005",
   "python": "3.13.14",
   "numpy": "2.5.2",

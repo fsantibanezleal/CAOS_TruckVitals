@@ -49,7 +49,24 @@ DETECTOR_LADDER = {
                               max_runs=200, prune_threshold=1e-4),
     "kswin": lambda: rc.KSWIN(window=240, recent=60),
     "adwin": lambda: rc.ADWIN(delta=0.002),
+
+    # LEARNED rungs. These do not test a hypothesis about a change; they learn a model of NORMAL from the
+    # healthy baseline and score how far each sample sits from it. That is the right shape for this
+    # domain: a fleet has thousands of healthy machine-years and a handful of labelled failures, so a
+    # method that needs fault labels to train has almost nothing to train on.
+    #
+    # `window=10` stacks ten consecutive samples into one feature vector, so they can see a short
+    # TRAJECTORY rather than a point. A single sample of a haul truck says almost nothing: the same strut
+    # pressure is normal loaded and abnormal empty. The statistic lands on the window's last sample,
+    # which is the earliest moment the evidence exists.
+    "isolation-forest": lambda: rc.IsolationForestDetector(window=10, n_estimators=200, seed=0),
+    "one-class-svm": lambda: rc.OneClassSVMDetector(window=10, nu=0.05, gamma="scale"),
+    "autoencoder": lambda: rc.AutoencoderDetector(window=10, hidden=(32, 8), epochs=60, seed=0),
 }
+
+#: The rungs that LEARN a model of normal rather than testing a change hypothesis. Reported separately
+#: because "we beat N baselines" means something different when the baselines are all one family.
+LEARNED_RUNGS = ("isolation-forest", "one-class-svm", "autoencoder")
 
 # Which monitored channel each injected fault actually moves first. Used to SCORE attribution, so it is
 # the ground truth for "did the method name the right channel", not a hint given to any method.

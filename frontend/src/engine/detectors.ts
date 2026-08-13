@@ -9,6 +9,7 @@
 // scaling.ts matters so much: one channel with a nonsense z-score sets the statistic for every sample.
 
 import { nanMeanAbs, nanStd, nanMean, robustScale } from './scaling.ts';
+import { autoencoder, isolationForest } from './learned.ts';
 
 export interface Detection {
   t: Float64Array;
@@ -21,10 +22,12 @@ export interface Detection {
 
 export type DetectorName =
   | 'shewhart' | 'cusum' | 'ewma' | 'page-hinkley'
-  | 'pca-spe' | 'pca-t2' | 'kswin' | 'adwin' | 'bocpd';
+  | 'pca-spe' | 'pca-t2' | 'kswin' | 'adwin' | 'bocpd'
+  | 'isolation-forest' | 'autoencoder';
 
 export const DETECTOR_LADDER: DetectorName[] = [
   'shewhart', 'cusum', 'ewma', 'page-hinkley', 'pca-spe', 'pca-t2', 'kswin', 'adwin', 'bocpd',
+  'isolation-forest', 'autoencoder',
 ];
 
 /** Which rungs are TIER-comparable, and what each is for. Shown in the App rather than hidden. */
@@ -38,7 +41,15 @@ export const DETECTOR_NOTES: Record<DetectorName, { tier: string; note: string }
   kswin: { tier: 'sota', note: 'Kolmogorov-Smirnov between a recent window and a reference window: distribution-free.' },
   adwin: { tier: 'sota', note: 'Adaptive windowing with a false-positive bound. Its integer statistic gives few budget points.' },
   bocpd: { tier: 'sota', note: 'Bayesian online change-point detection. Its independent-parameters assumption suits step changes, not slow ramps.' },
+  'isolation-forest': { tier: 'learned', note: 'Learns normal from the healthy baseline only. Anomalies are easier to isolate, so they sit at shorter path length. TRAINED in your browser.' },
+  autoencoder: { tier: 'learned', note: 'A small dense autoencoder over a 10-sample window. The statistic is what the model of normal cannot reconstruct. TRAINED in your browser.' },
 };
+
+/** The Python ladder also carries a one-class SVM. It is on the Benchmark page and NOT here: fitting one
+ *  in the browser means shipping an SMO solver, and an approximation would be a third implementation of a
+ *  method the parity gate could not check. Two learned rungs that are really the Python method beat three
+ *  where one is a lookalike. */
+export const OFFLINE_ONLY_RUNGS = ['one-class-svm'] as const;
 
 /** Per-channel location and scale, estimated once on a healthy baseline. */
 class BaselineScaler {
@@ -438,6 +449,18 @@ export function runDetector(
     case 'kswin': per = kswin(z, params.window, params.recent); break;
     case 'adwin': per = adwin(z, params.adwinDelta); break;
     case 'bocpd': per = bocpd(z); break;
+    case 'isolation-forest':
+    case 'autoencoder': {
+      // The learned rungs work on the RAW standardised channels with their own window stacking, not on
+      // the per-sample z rows the classical rungs consume, so they are dispatched before `finalise`.
+      const res = name === 'isolation-forest'
+        ? isolationForest(baseline, monitored, names, t.length, { window: 10, seed: 0 })
+        : autoencoder(baseline, monitored, names, t.length, { window: 10, seed: 0 });
+      const stat = res.statistic;
+      const perCh: Record<string, Float64Array> = {};
+      for (const nm of names) perCh[nm] = res.perChannel[nm] ?? new Float64Array(t.length).fill(NaN);
+      return { t, statistic: stat, perChannel: perCh, method: name };
+    }
     default: throw new Error(`unknown detector ${name}`);
   }
   return finalise(t, per, names, name);
