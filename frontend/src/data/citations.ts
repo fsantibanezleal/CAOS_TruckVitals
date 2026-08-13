@@ -145,7 +145,9 @@ export const CITATIONS: Citation[] = [
     id: 'saxena2008',
     label: 'Saxena et al. 2008',
     citation: 'Saxena, A., Goebel, K., Simon, D., Eklund, N. "Damage propagation modeling for aircraft '
-      + 'engine run-to-failure simulation." IEEE PHM 2008, 1-9. The C-MAPSS turbofan dataset.',
+      + 'engine run-to-failure simulation." 2008 International Conference on Prognostics and Health '
+      + 'Management, pp. 1-9. The C-MAPSS turbofan dataset. Page range verified from the publisher '
+      + 'deposit (Crossref/IEEE), which closes an UNVERIFIED note carried in the research pass.',
     doi: '10.1109/PHM.2008.4711414',
   },
   {
@@ -153,7 +155,10 @@ export const CITATIONS: Citation[] = [
     label: 'SCANIA APS 2016',
     citation: 'IDA 2016 Industrial Challenge: APS Failure at Scania Trucks. UCI Machine Learning '
       + 'Repository. The cost matrix (FP = 10, FN = 500) is primary-verified in the dataset\'s own '
-      + 'aps_failure_description.txt, as is the winning entry at 9,920.',
+      + 'aps_failure_description.txt, as is the winning entry at 9,920. LICENCE CAVEAT: CC BY 4.0 is '
+      + "the UCI repository page's default statement; the DataCite record for this DOI deposits NO "
+      + 'rights entry at all and lists the creator as "Unknown". The dataset is not redistributed here, '
+      + 'only downloaded and cited, so nothing in this product depends on resolving that.',
     doi: '10.24432/C51S51',
   },
   {
@@ -161,7 +166,8 @@ export const CITATIONS: Citation[] = [
     label: 'SCANIA Component X 2024',
     citation: 'SCANIA Component X: a multivariate time-series dataset for predictive maintenance. '
       + 'Swedish National Data Service (2024). 1,122,452 readouts over 23,550 vehicles, with a graded '
-      + '5x5 cost matrix. Downloadable anonymously.',
+      + '5x5 cost matrix. Downloadable anonymously (freelyAccessible, 11 files, no login or order form). '
+      + 'Third author verified from Crossref as Sindri Magnusson, closing an UNVERIFIED spelling note.',
     doi: '10.5878/jvb5-d390',
   },
   {

@@ -1,7 +1,7 @@
 {
   "schema": "truckvitals.fleet-traces/v1",
-  "generated_utc": "2026-08-10T17:17:02+00:00",
-  "regimecpd_version": "0.09.002",
+  "generated_utc": "2026-08-13T12:09:34+00:00",
+  "regimecpd_version": "0.09.005",
   "python": "3.13.14",
   "numpy": "2.5.2",
   "config": {

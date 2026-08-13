@@ -1,7 +1,7 @@
 {
   "schema": "truckvitals.cmapss-regime-contrast/v1",
-  "generated_utc": "2026-08-10T17:39:05+00:00",
-  "regimecpd_version": "0.09.003",
+  "generated_utc": "2026-08-13T12:09:19+00:00",
+  "regimecpd_version": "0.09.005",
   "python": "3.13.14",
   "numpy": "2.5.2",
   "config": {
@@ -241,14 +241,14 @@
             "onset_in_fit_window": 173,
             "regime_fit_failed": 0
           },
-          "threshold": 109.84466687017989,
-          "false_alarms_per_1000_cycles": 2.099737532808399,
+          "threshold": 83.47052273799989,
+          "false_alarms_per_1000_cycles": 1.3123359580052494,
           "false_alarms_ci_per_1000": [
-            0.0,
-            6.199809964484169
+            0.27580446636690925,
+            2.6175731592269824
           ],
-          "detection_rate": 0.9770114942528736,
-          "median_delay_cycles": 62.0,
+          "detection_rate": 0.9540229885057471,
+          "median_delay_cycles": 52.0,
           "regime_coverage": 0.7478234929375469,
           "budget_curve": [
             {
@@ -264,51 +264,51 @@
             {
               "budget_per_1000": 0.5,
               "reachable": true,
-              "threshold": 114.49941684717956,
+              "threshold": 108.16015812390813,
               "realised_per_1000": 0.26246719160104987,
-              "detection_rate": 0.9655172413793104,
-              "median_delay": 65.0,
-              "n_detected": 84,
+              "detection_rate": 0.9770114942528736,
+              "median_delay": 63.0,
+              "n_detected": 85,
               "n_faulty": 87
             },
             {
               "budget_per_1000": 1.0,
               "reachable": true,
-              "threshold": 110.06210645084214,
+              "threshold": 83.21160521868369,
               "realised_per_1000": 0.7874015748031495,
-              "detection_rate": 0.9770114942528736,
-              "median_delay": 65.0,
-              "n_detected": 85,
+              "detection_rate": 0.9655172413793104,
+              "median_delay": 55.0,
+              "n_detected": 84,
               "n_faulty": 87
             },
             {
               "budget_per_1000": 2.0,
               "reachable": true,
-              "threshold": 95.46163100835699,
+              "threshold": 61.332400406613935,
               "realised_per_1000": 1.837270341207349,
-              "detection_rate": 0.9885057471264368,
-              "median_delay": 59.0,
-              "n_detected": 86,
+              "detection_rate": 0.9195402298850575,
+              "median_delay": 45.0,
+              "n_detected": 80,
               "n_faulty": 87
             },
             {
               "budget_per_1000": 5.0,
               "reachable": true,
-              "threshold": 60.24544433609563,
+              "threshold": 35.45724181892297,
               "realised_per_1000": 4.986876640419948,
-              "detection_rate": 0.9770114942528736,
-              "median_delay": 44.0,
-              "n_detected": 85,
+              "detection_rate": 0.7931034482758621,
+              "median_delay": 33.0,
+              "n_detected": 69,
               "n_faulty": 87
             },
             {
               "budget_per_1000": 10.0,
               "reachable": true,
-              "threshold": 45.758613520966136,
-              "realised_per_1000": 9.973753280839896,
-              "detection_rate": 0.9770114942528736,
-              "median_delay": 35.0,
-              "n_detected": 85,
+              "threshold": 28.21264518001998,
+              "realised_per_1000": 7.349081364829396,
+              "detection_rate": 0.735632183908046,
+              "median_delay": 30.0,
+              "n_detected": 64,
               "n_faulty": 87
             }
           ]
@@ -324,14 +324,14 @@
             "onset_in_fit_window": 173,
             "regime_fit_failed": 0
           },
-          "threshold": 110.55137989078537,
-          "false_alarms_per_1000_cycles": 2.099737532808399,
+          "threshold": 83.35805922939946,
+          "false_alarms_per_1000_cycles": 1.0498687664041995,
           "false_alarms_ci_per_1000": [
-            0.0,
-            6.199809964484169
+            0.2618481460893913,
+            1.9768215763102912
           ],
-          "detection_rate": 0.9770114942528736,
-          "median_delay_cycles": 62.0,
+          "detection_rate": 0.9540229885057471,
+          "median_delay_cycles": 52.0,
           "regime_coverage": 0.7337612001692081,
           "budget_curve": [
             {
@@ -347,51 +347,51 @@
             {
               "budget_per_1000": 0.5,
               "reachable": true,
-              "threshold": 114.77077388608375,
+              "threshold": 107.72365621199529,
               "realised_per_1000": 0.26246719160104987,
-              "detection_rate": 0.9655172413793104,
-              "median_delay": 65.0,
-              "n_detected": 84,
+              "detection_rate": 0.9770114942528736,
+              "median_delay": 64.0,
+              "n_detected": 85,
               "n_faulty": 87
             },
             {
               "budget_per_1000": 1.0,
               "reachable": true,
-              "threshold": 110.91631490770462,
+              "threshold": 83.06327712280678,
               "realised_per_1000": 0.7874015748031495,
-              "detection_rate": 0.9770114942528736,
-              "median_delay": 65.0,
-              "n_detected": 85,
+              "detection_rate": 0.9655172413793104,
+              "median_delay": 55.5,
+              "n_detected": 84,
               "n_faulty": 87
             },
             {
               "budget_per_1000": 2.0,
               "reachable": true,
-              "threshold": 95.45587372174606,
+              "threshold": 64.49971219033772,
               "realised_per_1000": 1.837270341207349,
-              "detection_rate": 0.9885057471264368,
-              "median_delay": 60.0,
-              "n_detected": 86,
+              "detection_rate": 0.9195402298850575,
+              "median_delay": 47.5,
+              "n_detected": 80,
               "n_faulty": 87
             },
             {
               "budget_per_1000": 5.0,
               "reachable": true,
-              "threshold": 59.59131087290984,
-              "realised_per_1000": 4.986876640419948,
-              "detection_rate": 1.0,
-              "median_delay": 45.0,
-              "n_detected": 87,
+              "threshold": 37.63749947850339,
+              "realised_per_1000": 4.724409448818897,
+              "detection_rate": 0.8045977011494253,
+              "median_delay": 34.0,
+              "n_detected": 70,
               "n_faulty": 87
             },
             {
               "budget_per_1000": 10.0,
               "reachable": true,
-              "threshold": 45.391564649087044,
-              "realised_per_1000": 9.973753280839896,
-              "detection_rate": 1.0,
-              "median_delay": 35.0,
-              "n_detected": 87,
+              "threshold": 29.01577005215927,
+              "realised_per_1000": 7.349081364829396,
+              "detection_rate": 0.735632183908046,
+              "median_delay": 31.0,
+              "n_detected": 64,
               "n_faulty": 87
             }
           ]
@@ -483,9 +483,9 @@
       "contrast": {
         "single_condition_raw": 0.9285714285714286,
         "multi_condition_raw": 0.1724137931034483,
-        "regime_conditioned_worst": 0.9770114942528736,
+        "regime_conditioned_worst": 0.9540229885057471,
         "regime_conditioned_worst_arm": "residual-observed",
-        "regime_conditioned_best": 0.9770114942528736,
+        "regime_conditioned_best": 0.9540229885057471,
         "regime_conditioned_best_arm": "residual-observed",
         "non_regime_arms": {
           "context-regression-global": 0.8850574712643678
@@ -699,74 +699,74 @@
             "onset_in_fit_window": 103,
             "regime_fit_failed": 0
           },
-          "threshold": 641.9738284718154,
-          "false_alarms_per_1000_cycles": 1.1649789407653015,
+          "threshold": 197.53392178065667,
+          "false_alarms_per_1000_cycles": 0.9857514114167937,
           "false_alarms_ci_per_1000": [
-            0.0,
-            3.5481515705197912
+            0.4825418465712124,
+            1.4230704838439645
           ],
-          "detection_rate": 0.6986301369863014,
-          "median_delay_cycles": 95.5,
+          "detection_rate": 0.8972602739726028,
+          "median_delay_cycles": 66.0,
           "regime_coverage": 0.762919462652488,
           "budget_curve": [
             {
               "budget_per_1000": 0.25,
               "reachable": true,
-              "threshold": 665.4614337187114,
+              "threshold": 547.032679576797,
               "realised_per_1000": 0.17922752934850794,
-              "detection_rate": 0.6506849315068494,
-              "median_delay": 101.0,
-              "n_detected": 95,
+              "detection_rate": 0.7328767123287672,
+              "median_delay": 94.0,
+              "n_detected": 107,
               "n_faulty": 146
             },
             {
               "budget_per_1000": 0.5,
               "reachable": true,
-              "threshold": 649.9025896639574,
-              "realised_per_1000": 0.2688412940227619,
-              "detection_rate": 0.6575342465753424,
-              "median_delay": 100.0,
-              "n_detected": 96,
+              "threshold": 333.72649361219015,
+              "realised_per_1000": 0.44806882337126985,
+              "detection_rate": 0.8424657534246576,
+              "median_delay": 80.0,
+              "n_detected": 123,
               "n_faulty": 146
             },
             {
               "budget_per_1000": 1.0,
               "reachable": true,
-              "threshold": 547.032679576797,
+              "threshold": 182.32656530785283,
               "realised_per_1000": 0.9857514114167937,
-              "detection_rate": 0.7397260273972602,
-              "median_delay": 94.0,
-              "n_detected": 108,
+              "detection_rate": 0.9041095890410958,
+              "median_delay": 63.0,
+              "n_detected": 132,
               "n_faulty": 146
             },
             {
               "budget_per_1000": 2.0,
               "reachable": true,
-              "threshold": 277.9155293920417,
+              "threshold": 121.59194062242473,
               "realised_per_1000": 1.9715028228335874,
-              "detection_rate": 0.8835616438356164,
-              "median_delay": 73.0,
-              "n_detected": 129,
+              "detection_rate": 0.8424657534246576,
+              "median_delay": 52.0,
+              "n_detected": 123,
               "n_faulty": 146
             },
             {
               "budget_per_1000": 5.0,
               "reachable": true,
-              "threshold": 151.4877991417398,
-              "realised_per_1000": 4.928757057083969,
-              "detection_rate": 0.958904109589041,
-              "median_delay": 53.5,
-              "n_detected": 140,
+              "threshold": 76.25667758366626,
+              "realised_per_1000": 3.7637781163186665,
+              "detection_rate": 0.7328767123287672,
+              "median_delay": 41.0,
+              "n_detected": 107,
               "n_faulty": 146
             },
             {
               "budget_per_1000": 10.0,
               "reachable": true,
-              "threshold": 106.7278316294383,
-              "realised_per_1000": 9.94712787884219,
-              "detection_rate": 0.9657534246575342,
-              "median_delay": 42.0,
-              "n_detected": 141,
+              "threshold": 76.25667758366626,
+              "realised_per_1000": 3.7637781163186665,
+              "detection_rate": 0.7328767123287672,
+              "median_delay": 41.0,
+              "n_detected": 107,
               "n_faulty": 146
             }
           ]
@@ -782,74 +782,74 @@
             "onset_in_fit_window": 103,
             "regime_fit_failed": 0
           },
-          "threshold": 637.5212201940656,
-          "false_alarms_per_1000_cycles": 1.1649789407653015,
+          "threshold": 192.44338234570705,
+          "false_alarms_per_1000_cycles": 0.8961376467425397,
           "false_alarms_ci_per_1000": [
-            0.0,
-            3.5481515705197912
+            0.44721909365134943,
+            1.3309749054162252
           ],
-          "detection_rate": 0.6986301369863014,
-          "median_delay_cycles": 97.0,
+          "detection_rate": 0.8972602739726028,
+          "median_delay_cycles": 64.0,
           "regime_coverage": 0.7435629613982412,
           "budget_curve": [
             {
               "budget_per_1000": 0.25,
               "reachable": true,
-              "threshold": 684.3599984044487,
+              "threshold": 532.033552997999,
               "realised_per_1000": 0.17922752934850794,
-              "detection_rate": 0.636986301369863,
-              "median_delay": 103.0,
-              "n_detected": 93,
+              "detection_rate": 0.726027397260274,
+              "median_delay": 94.0,
+              "n_detected": 106,
               "n_faulty": 146
             },
             {
               "budget_per_1000": 0.5,
               "reachable": true,
-              "threshold": 644.4138274854605,
+              "threshold": 303.3111014932209,
               "realised_per_1000": 0.44806882337126985,
-              "detection_rate": 0.6575342465753424,
-              "median_delay": 100.0,
-              "n_detected": 96,
+              "detection_rate": 0.8493150684931506,
+              "median_delay": 78.5,
+              "n_detected": 124,
               "n_faulty": 146
             },
             {
               "budget_per_1000": 1.0,
               "reachable": true,
-              "threshold": 540.8480216022172,
+              "threshold": 179.05169541120068,
               "realised_per_1000": 0.9857514114167937,
-              "detection_rate": 0.726027397260274,
-              "median_delay": 92.0,
-              "n_detected": 106,
+              "detection_rate": 0.9041095890410958,
+              "median_delay": 63.0,
+              "n_detected": 132,
               "n_faulty": 146
             },
             {
               "budget_per_1000": 2.0,
               "reachable": true,
-              "threshold": 320.9290475046573,
+              "threshold": 131.65969162097733,
               "realised_per_1000": 1.9715028228335874,
-              "detection_rate": 0.8698630136986302,
-              "median_delay": 78.0,
-              "n_detected": 127,
+              "detection_rate": 0.8493150684931506,
+              "median_delay": 53.5,
+              "n_detected": 124,
               "n_faulty": 146
             },
             {
               "budget_per_1000": 5.0,
               "reachable": true,
-              "threshold": 169.4065101027343,
-              "realised_per_1000": 4.928757057083969,
-              "detection_rate": 0.9726027397260274,
-              "median_delay": 58.0,
-              "n_detected": 142,
+              "threshold": 74.37296936800927,
+              "realised_per_1000": 3.6741643516444125,
+              "detection_rate": 0.7397260273972602,
+              "median_delay": 40.0,
+              "n_detected": 108,
               "n_faulty": 146
             },
             {
               "budget_per_1000": 10.0,
               "reachable": true,
-              "threshold": 116.86318037060208,
-              "realised_per_1000": 9.767900349493681,
-              "detection_rate": 0.9931506849315068,
-              "median_delay": 46.0,
-              "n_detected": 145,
+              "threshold": 74.37296936800927,
+              "realised_per_1000": 3.6741643516444125,
+              "detection_rate": 0.7397260273972602,
+              "median_delay": 40.0,
+              "n_detected": 108,
               "n_faulty": 146
             }
           ]
@@ -941,9 +941,9 @@
       "contrast": {
         "single_condition_raw": 0.7307692307692307,
         "multi_condition_raw": 0.23972602739726026,
-        "regime_conditioned_worst": 0.6986301369863014,
+        "regime_conditioned_worst": 0.8972602739726028,
         "regime_conditioned_worst_arm": "residual-observed",
-        "regime_conditioned_best": 0.6986301369863014,
+        "regime_conditioned_best": 0.8972602739726028,
         "regime_conditioned_best_arm": "residual-observed",
         "non_regime_arms": {
           "context-regression-global": 0.8767123287671232

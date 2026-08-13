@@ -53,27 +53,34 @@ threshold rule and the budget. All arms at a **matched false-alarm budget** of a
 identical detector (CUSUM, k = 0.5), equal healthy data per arm, cross-fitted thresholds, common
 informative channels only.
 
-| pair | arm | detection rate | median delay |
-|---|---|---|---|
-| 1 fault mode | FD001 raw, **1 regime** | **0.93** | 46 |
-| | FD002 raw, **6 regimes** | **0.17** | 110 |
-| | FD002 regime-conditioned (observed) | **0.98** | 62 |
-| | FD002 regime-conditioned (clustered) | **0.98** | 62 |
-| 2 fault modes | FD003 raw, **1 regime** | **0.73** | 68 |
-| | FD004 raw, **6 regimes** | **0.24** | 107 |
-| | FD004 regime-conditioned (observed) | **0.70** | 96 |
-| | FD004 regime-conditioned (clustered) | **0.70** | 97 |
+| pair | arm | detection rate | median delay | FA / 1000 cycles |
+|---|---|---|---|---|
+| 1 fault mode | FD001 raw, **1 regime** | **0.93** | 46 | 1.45 |
+| | FD002 raw, **6 regimes** | **0.17** | 110 | 2.10 |
+| | FD002 regime-conditioned (observed) | **0.95** | 52 | 1.31 |
+| | FD002 regime-conditioned (clustered) | **0.95** | 52 | 1.05 |
+| 2 fault modes | FD003 raw, **1 regime** | **0.73** | 68 | 1.07 |
+| | FD004 raw, **6 regimes** | **0.24** | 107 | 1.08 |
+| | FD004 regime-conditioned (observed) | **0.90** | 66 | 0.99 |
+| | FD004 regime-conditioned (clustered) | **0.90** | 64 | 0.90 |
 
 **What regime variation costs.** One operating condition to six, everything else held fixed: 0.93 to
 0.17, and 0.73 to 0.24.
 
-**What conditioning recovers.** Back to 0.98 on the one-fault-mode pair, above the single-condition
-reference. Back to 0.70 on the two-fault-mode pair, which is **level with** the 0.73 reference and not
-above it. Recovery, not improvement, and the two-fault-mode case recovers less completely.
+**What conditioning recovers.** 0.95 and 0.90, both above their single-condition references, and at a
+LOWER realised false-alarm rate than the raw arm they are compared against in each pair.
 
 **The price of not being told the regime is zero, twice.** C-MAPSS ships its operating conditions as
 columns; real truck telemetry does not. Discovering the regimes by clustering scores identically to being
-handed them, on both pairs (0.98 against 0.98, 0.70 against 0.70).
+handed them, on both pairs (0.95 against 0.95, 0.90 against 0.90).
+
+**These numbers moved once more, on 2026-08-11, and upward.** An engine review found that a NaN gap
+inside a sustained excursion was counted as a SECOND alarm. The residual arm carries NaN by design (a
+sample outside every regime seen in the baseline is deliberately unassigned), so the bias fell on exactly
+the arm being argued for and inflated its false-alarm count. Fixing it in `regimecpd` 0.09.005 let the
+conditioned arm operate at a lower threshold: FD004 recovery went from 0.70 to 0.90, and FD002 from 0.98
+to 0.95. The direction of the correction was against the previously published figure in one case and for
+it in the other, which is what an unbiased fix looks like.
 
 ### What an adversarial review changed here
 
