@@ -153,3 +153,6 @@ html.tv-workbench .site-footer { margin-top: 12px; }
   font-variant-numeric: tabular-nums; color: var(--color-fg); }
 .tv-railnav { display: flex; gap: 0.3rem; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 0.15rem; }
 .tv-railnav .chip { flex: 0 0 auto; }
+.tv-focus-knob { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.8rem;
+  color: var(--color-fg-subtle); }
+.tv-focus-knob .range { width: 90px; accent-color: var(--color-accent); }

@@ -40,7 +40,9 @@ if (units.length === 0) {
   process.exit(1);
 }
 
-const routes = [...PAGES, ...units.map((u) => `focus/${u}`)];
+// `focus/live` is a real route: it re-runs the engine from the query string, so a shared link
+// carries the configuration. It has no truck in the index, so it is named explicitly.
+const routes = [...PAGES, 'focus/live', ...units.map((u) => `focus/${u}`)];
 for (const route of routes) {
   const dir = resolve(dist, route);
   mkdirSync(dir, { recursive: true });
