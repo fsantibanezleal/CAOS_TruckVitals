@@ -65,6 +65,10 @@ function makeDrawHooks(props: TraceChartProps, p: Palette) {
     const ctx = u.ctx;
     const { top, height } = u.bbox;
     ctx.save();
+    // The regimes alternate several times per haul cycle, so at full opacity the bands read as heavy
+    // striping that competes with the signal instead of sitting behind it. They are CONTEXT: enough to
+    // see where the boundaries fall, never enough to fight the line.
+    ctx.globalAlpha = 0.55;
     let start = 0;
     const flush = (end: number) => {
       const label = bands.regime[start];

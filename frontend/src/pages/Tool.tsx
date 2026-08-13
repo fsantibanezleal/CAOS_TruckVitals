@@ -1,177 +1,261 @@
-// The App: one truck, the whole pipeline, sample by sample.
+// The App: a LIVE workbench. Every control recomputes the whole pipeline in the browser.
 //
-// Every tab reacts to the truck selector, because a tab that ignores it is a slide rather than a view.
-// The comparison the product exists to make is on screen at all times: the same detector, on the raw
-// channel and on the within-regime residual, against the same fleet threshold and the same true onset.
+// It used to be a replay viewer over precooked traces: you could pick a truck and a detector, and
+// nothing else moved. Now the truck is simulated here, segmented here, residualised here and scored
+// here, so severity, onset, the number of regimes, each detector's own parameters and the false-alarm
+// budget are all knobs rather than captions. The engine doing that work is gated against the Python
+// engine by `test/parity.test.ts`, so a live number is the same number the pipeline would bake.
+//
+// The baked fleet is still here, under Fleet: it is the 14-truck run the artifacts were measured on, and
+// it is what anchors the live lane to something reproducible.
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router';
-import { Tabs, type TabDef } from '@fasl-work/caos-app-shell';
+import { Callout, Tabs, type TabDef } from '@fasl-work/caos-app-shell';
 import {
-  loadFleetIndex, loadFleetTrace, type FleetIndex, type FleetTrace,
-} from '../lib/artifacts.ts';
+  DETECTOR_LADDER, DETECTOR_NOTES, type DetectorName,
+} from '../engine/detectors.ts';
+import { FAULT_KINDS, MONITORED_CHANNELS, type Channel, type FaultKind } from '../engine/haulcycle.ts';
+import { MINUTES_PER_MONTH, runLive, type LiveResult } from '../engine/live.ts';
 import { CHANNEL_LABEL, FAULT_LABEL, label, useLang, useT } from '../lib/i18n.ts';
-import {
-  armsForChannel, delayOf, falseAlarmsBeforeOnset, fasterArm, fmt, regimeOccupancy,
-} from '../lib/trace.ts';
+import { fmt } from '../lib/trace.ts';
 import TraceChart from '../viz/TraceChart.tsx';
-import { usePalette } from '../viz/theme.ts';
+import BudgetCurve from '../viz/BudgetCurve.tsx';
+import RegimeStrip from '../viz/RegimeStrip.tsx';
+import Attribution from '../viz/Attribution.tsx';
+import FleetPanel from '../viz/FleetPanel.tsx';
 import PanelBoundary from '../viz/PanelBoundary.tsx';
+import { usePalette } from '../viz/theme.ts';
 import { useChromeHeight } from '../lib/chrome.ts';
+
+interface Knobs {
+  faultKind: FaultKind;
+  severity: number;
+  onsetFraction: number;
+  nCycles: number;
+  seed: number;
+  nRegimes: number;
+  noveltyFactor: number;
+  detector: DetectorName;
+  k: number;
+  lam: number;
+  budgetPerMonth: number;
+  channel: Channel;
+}
+
+const DEFAULT_KNOBS: Knobs = {
+  faultKind: 'strut_leak',
+  // 0.25, not 1.0. At full severity the strut leak is 9 bar against 0.35 bar of noise, so BOTH arms
+  // detect every truck at every budget and the instrument shows a flat line: true, and useless as a
+  // first view. At 0.25 the raw arm never detects at any budget and the conditioned arm detects all of
+  // them, which is the product's claim rather than an assertion about it. Raise it and both detect,
+  // with the conditioned arm roughly twice as fast.
+  severity: 0.25,
+  onsetFraction: 0.55,
+  nCycles: 24,
+  seed: 1,
+  nRegimes: 6,
+  noveltyFactor: 1.5,
+  detector: 'cusum',
+  k: 0.5,
+  lam: 0.1,
+  budgetPerMonth: 1.0,
+  channel: 'strut_rl_bar',
+};
 
 export default function Tool() {
   useChromeHeight();
   const t = useT();
   const lang = useLang();
-  const p = usePalette();
-  const [index, setIndex] = useState<FleetIndex | null>(null);
-  const [unitId, setUnitId] = useState<string>('');
-  const [trace, setTrace] = useState<FleetTrace | null>(null);
-  const [detector, setDetector] = useState('cusum');
-  const [channel, setChannel] = useState('');
+  const [knobs, setKnobs] = useState<Knobs>(DEFAULT_KNOBS);
+  // The rail holds four groups of controls and cannot show them all at once without going 309px past
+  // its own height. ADR-0071 rule 6: split the content, never scroll it, because a control below the
+  // fold is a control the reader does not know exists.
+  const [section, setSection] = useState<'truck' | 'regime' | 'detector' | 'view'>('truck');
+  const [result, setResult] = useState<LiveResult | null>(null);
+  const [busy, setBusy] = useState(true);
   const [err, setErr] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadFleetIndex()
-      .then((ix) => {
-        setIndex(ix);
-        const url = new URLSearchParams(window.location.search).get('truck');
-        const first = ix.units.find((u) => u.unit_id === url) || ix.units.find((u) => u.onset_t != null) || ix.units[0];
-        setUnitId(first.unit_id);
-        setDetector(ix.config.detectors[0]);
-      })
-      .catch((e) => setErr(String(e)));
+  // The knobs are deferred so dragging a slider stays responsive: React keeps painting the old result
+  // while the new one computes, instead of blocking every frame on a full re-run.
+  const settled = useDeferredValue(knobs);
+
+  const set = useCallback(<K extends keyof Knobs>(key: K, value: Knobs[K]) => {
+    setKnobs((prev) => ({ ...prev, [key]: value }));
   }, []);
 
   useEffect(() => {
-    if (!unitId) return;
-    setTrace(null);
-    loadFleetTrace(unitId)
-      .then((tr) => {
-        setTrace(tr);
-        // Default to the channel the fault actually expresses itself in. Landing on an arbitrary channel
-        // would show a reader a flat line on their first look at a truck that is visibly failing.
-        setChannel((c) => (c && tr.channels[c] ? c : (tr.fault_channels[0] || 'strut_rl_bar')));
-        const u = new URL(window.location.href);
-        u.searchParams.set('truck', unitId);
-        window.history.replaceState({}, '', u);
-      })
-      .catch((e) => setErr(String(e)));
-  }, [unitId]);
+    let cancelled = false;
+    setBusy(true);
+    // Yield a frame first so the control that triggered this can repaint before the work starts.
+    const id = window.setTimeout(() => {
+      try {
+        const r = runLive({
+          detector: settled.detector,
+          budgetPerMonth: settled.budgetPerMonth,
+          sim: {
+            faultKind: settled.faultKind,
+            severity: settled.severity,
+            onsetFraction: settled.onsetFraction,
+            nCycles: settled.nCycles,
+            seed: settled.seed,
+          },
+          regime: { nRegimes: settled.nRegimes, noveltyFactor: settled.noveltyFactor },
+          params: { k: settled.k, lam: settled.lam },
+        });
+        if (!cancelled) { setResult(r); setErr(null); }
+      } catch (e) {
+        if (!cancelled) setErr(String(e));
+      } finally {
+        if (!cancelled) setBusy(false);
+      }
+    }, 0);
+    return () => { cancelled = true; window.clearTimeout(id); };
+  }, [settled]);
 
-  const row = index?.units.find((u) => u.unit_id === unitId);
+  const channels = useMemo(() => MONITORED_CHANNELS, []);
 
-  // Four tabs, one row, under the ADR-0071 bound of about six peers. Each is a genuine view of the same
-  // truck rather than a meta-view of the product: the signal, the detector on it, the regimes that
-  // define the residual, and the fleet the threshold was calibrated on.
   const tabs: TabDef[] = useMemo(() => {
-    if (!trace) return [];
+    if (!result) return [];
     return [
       { id: 'signal', label: t('tab_signal'),
-        content: <PanelBoundary name="signal"><SignalPanel trace={trace} channel={channel} detector={detector} /></PanelBoundary> },
+        content: <PanelBoundary name="signal">
+          <SignalPanel r={result} channel={knobs.channel} />
+        </PanelBoundary> },
       { id: 'detector', label: t('tab_detector'),
-        content: <PanelBoundary name="detector"><DetectorPanel trace={trace} detector={detector} /></PanelBoundary> },
+        content: <PanelBoundary name="detector">
+          <DetectorPanel r={result} detector={knobs.detector} />
+        </PanelBoundary> },
+      { id: 'budget', label: lang === 'es' ? 'Presupuesto' : 'Budget',
+        content: <PanelBoundary name="budget"><BudgetPanel r={result} /></PanelBoundary> },
       { id: 'regimes', label: t('tab_regimes'),
-        content: <PanelBoundary name="regimes"><RegimesPanel trace={trace} palette={p} /></PanelBoundary> },
+        content: <PanelBoundary name="regimes"><RegimesPanel r={result} /></PanelBoundary> },
+      { id: 'attribution', label: lang === 'es' ? 'Atribución' : 'Attribution',
+        content: <PanelBoundary name="attribution">
+          <Attribution r={result} detector={knobs.detector} />
+        </PanelBoundary> },
       { id: 'fleet', label: t('tab_fleet'),
-        content: index
-          ? <PanelBoundary name="fleet"><FleetPanel index={index} current={unitId} onSelect={setUnitId} /></PanelBoundary>
-          : null },
+        content: <PanelBoundary name="fleet"><FleetPanel /></PanelBoundary> },
     ];
-  }, [trace, channel, detector, index, unitId, p, t]);
-
-  if (err) {
-    return (
-      <div className="page-body">
-        <div className="tv-err">
-          <strong>{t('load_failed')}</strong>
-          <div className="tv-muted" style={{ marginTop: '0.35rem', fontFamily: 'monospace' }}>{err}</div>
-        </div>
-      </div>
-    );
-  }
+  }, [result, knobs.channel, knobs.detector, lang, t]);
 
   return (
     <div className="page-body wide">
       <div className="tv-layout">
         <aside className="tv-side">
+          <div className="tv-railnav" role="tablist" aria-label={lang === 'es' ? 'Controles' : 'Controls'}>
+            {([
+              ['truck', lang === 'es' ? 'Camión' : 'Truck'],
+              ['regime', lang === 'es' ? 'Régimen' : 'Regime'],
+              ['detector', lang === 'es' ? 'Detector' : 'Detector'],
+              ['view', lang === 'es' ? 'Vista' : 'View'],
+            ] as const).map(([id, text]) => (
+              <button key={id} role="tab" aria-selected={section === id}
+                className={`chip${section === id ? ' on' : ''}`} onClick={() => setSection(id)}>
+                {text}
+              </button>
+            ))}
+          </div>
+
+          {section === 'truck' && (
           <div className="tv-card">
-            <div className="tv-card-t">{t('truck')}</div>
-            <label className="tv-ctl">
-              <select
-                value={unitId}
-                onChange={(e) => setUnitId(e.target.value)}
-                aria-label={t('truck')}
-              >
-                {index && (
-                  <>
-                    <optgroup label={t('faulty')}>
-                      {index.units.filter((u) => u.onset_t != null).map((u) => (
-                        <option key={u.unit_id} value={u.unit_id}>
-                          {u.unit_id} ({label(FAULT_LABEL, u.fault_kind, lang)})
-                        </option>
-                      ))}
-                    </optgroup>
-                    <optgroup label={t('healthy')}>
-                      {index.units.filter((u) => u.onset_t == null).map((u) => (
-                        <option key={u.unit_id} value={u.unit_id}>{u.unit_id}</option>
-                      ))}
-                    </optgroup>
-                  </>
-                )}
-              </select>
-            </label>
-            {row && (
+            <div className="tv-card-t">
+              {lang === 'es' ? 'Camión en vivo' : 'Live truck'}
+              {busy && <span className="tv-busy" aria-live="polite"> ...</span>}
+            </div>
+            <Select label={t('fault_kind')} value={knobs.faultKind}
+              onChange={(v) => set('faultKind', v as FaultKind)}
+              options={FAULT_KINDS.map((k) => [k, label(FAULT_LABEL, k, lang)])} />
+            <Range label={lang === 'es' ? 'Severidad' : 'Severity'} value={knobs.severity}
+              min={0.1} max={2} step={0.05} onChange={(v) => set('severity', v)}
+              format={(v) => `${v.toFixed(2)}x`}
+              disabled={knobs.faultKind === 'none'} />
+            <Range label={lang === 'es' ? 'Inicio (fracción del registro)' : 'Onset (fraction of record)'}
+              value={knobs.onsetFraction} min={0.25} max={0.8} step={0.01}
+              onChange={(v) => set('onsetFraction', v)} format={(v) => v.toFixed(2)}
+              disabled={knobs.faultKind === 'none'} />
+            <Range label={lang === 'es' ? 'Ciclos de acarreo' : 'Haul cycles'} value={knobs.nCycles}
+              min={10} max={45} step={1} onChange={(v) => set('nCycles', Math.round(v))}
+              format={(v) => `${v.toFixed(0)}`} />
+            <Range label={lang === 'es' ? 'Semilla' : 'Seed'} value={knobs.seed}
+              min={1} max={40} step={1} onChange={(v) => set('seed', Math.round(v))}
+              format={(v) => v.toFixed(0)} />
+          </div>
+          )}
+
+          {section === 'regime' && (
+          <div className="tv-card">
+            <div className="tv-card-t">{lang === 'es' ? 'Régimen' : 'Regime'}</div>
+            <Range label={lang === 'es' ? 'Regímenes (k)' : 'Regimes (k)'} value={knobs.nRegimes}
+              min={1} max={10} step={1} onChange={(v) => set('nRegimes', Math.round(v))}
+              format={(v) => v.toFixed(0)} />
+            <Range label={lang === 'es' ? 'Radio de novedad' : 'Novelty radius'} value={knobs.noveltyFactor}
+              min={0.5} max={4} step={0.1} onChange={(v) => set('noveltyFactor', v)}
+              format={(v) => `${v.toFixed(1)}x`} />
+            {result && (
               <div className="tv-cap">
-                {t('fault_kind')}: <strong>{label(FAULT_LABEL, row.fault_kind, lang)}</strong>
-                {row.onset_t != null && <> ; {t('onset')} {fmt(row.onset_t)} {t('minutes')}</>}
-              </div>
-            )}
-            {unitId && (
-              <div style={{ marginTop: '0.5rem' }}>
-                <Link className="chip" to={`/focus/${unitId}`}>{t('focus')}</Link>
+                {lang === 'es' ? 'Cobertura' : 'Coverage'}{' '}
+                <strong>{(result.labels.coverage * 100).toFixed(0)}%</strong>
+                {' ; '}
+                {lang === 'es' ? 'acuerdo con la verdad' : 'agreement with truth'}{' '}
+                <strong>{fmt(result.regimeAgreement, 2)}</strong>
               </div>
             )}
           </div>
+          )}
 
+          {section === 'detector' && (
           <div className="tv-card">
             <div className="tv-card-t">{t('detector')}</div>
-            <div className="tv-row">
-              {index?.config.detectors.map((d) => (
-                <button
-                  key={d}
-                  className={`chip${d === detector ? ' on' : ''}`}
-                  onClick={() => setDetector(d)}
-                  aria-pressed={d === detector}
-                >{d}</button>
-              ))}
-            </div>
+            <Select label={t('detector')} value={knobs.detector}
+              onChange={(v) => set('detector', v as DetectorName)}
+              options={DETECTOR_LADDER.map((d) => [d, `${d}  (${DETECTOR_NOTES[d].tier})`])} />
+            {knobs.detector === 'cusum' && (
+              <Range label="k (slack)" value={knobs.k} min={0} max={2} step={0.05}
+                onChange={(v) => set('k', v)} format={(v) => v.toFixed(2)} />
+            )}
+            {knobs.detector === 'ewma' && (
+              <Range label="lambda" value={knobs.lam} min={0.02} max={0.9} step={0.02}
+                onChange={(v) => set('lam', v)} format={(v) => v.toFixed(2)} />
+            )}
+            <Range label={lang === 'es' ? 'Presupuesto (FA / camión-mes)' : 'Budget (FA / truck-month)'}
+              value={knobs.budgetPerMonth} min={0.1} max={10} step={0.1}
+              onChange={(v) => set('budgetPerMonth', v)} format={(v) => v.toFixed(1)} />
+            <div className="tv-cap tv-muted">{DETECTOR_NOTES[knobs.detector].note}</div>
           </div>
+          )}
 
+          {section === 'view' && (
           <div className="tv-card">
             <div className="tv-card-t">{t('channel')}</div>
-            <label className="tv-ctl">
-              <select value={channel} onChange={(e) => setChannel(e.target.value)} aria-label={t('channel')}>
-                {index?.config.monitored_channels.map((c) => (
-                  <option key={c} value={c}>
-                    {label(CHANNEL_LABEL, c, lang)}
-                    {trace?.fault_channels.includes(c) ? ' *' : ''}
-                  </option>
-                ))}
-              </select>
-            </label>
-            {trace && trace.fault_channels.length > 0 && (
-              <div className="tv-cap tv-muted">
-                * {lang === 'es'
-                  ? 'canal donde la falla se expresa por construcción'
-                  : 'the channel the fault expresses itself in, by construction'}
-              </div>
-            )}
+            <Select label={t('channel')} value={knobs.channel}
+              onChange={(v) => set('channel', v as Channel)}
+              options={channels.map((c) => [c, label(CHANNEL_LABEL, c, lang)
+                + (result?.truck.faultChannels.includes(c) ? ' *' : '')])} />
+            <div className="tv-row" style={{ marginTop: '0.4rem' }}>
+              <button className="chip" onClick={() => setKnobs(DEFAULT_KNOBS)}>
+                {lang === 'es' ? 'Restablecer' : 'Reset'}
+              </button>
+              <Link className="chip" to="/focus/live">{t('focus')}</Link>
+            </div>
           </div>
+          )}
         </aside>
 
         <main className="tv-main">
-          {!trace ? (
+          {err ? (
+            <div className="tv-err">
+              <strong>{t('load_failed')}</strong>
+              <div className="tv-muted" style={{ marginTop: '0.35rem', fontFamily: 'monospace' }}>{err}</div>
+              <div className="tv-cap" style={{ marginTop: '0.5rem' }}>
+                {lang === 'es'
+                  ? 'Con k alto y pocos ciclos, ningún régimen alcanza el mínimo de muestras para ajustar '
+                    + 'un residuo. Baje k o suba los ciclos.'
+                  : 'With a high k and few cycles, no regime reaches the minimum sample count needed to fit '
+                    + 'a residual. Lower k or raise the cycle count.'}
+              </div>
+            </div>
+          ) : !result ? (
             <div className="tv-cap">{t('loading')}...</div>
           ) : (
             <Tabs tabs={tabs} ariaLabel={t('truck')} />
@@ -182,307 +266,70 @@ export default function Tool() {
   );
 }
 
-/* ------------------------------------------------------------------ Signal */
+/* --------------------------------------------------------------------- controls */
 
-function SignalPanel({ trace, channel, detector }: { trace: FleetTrace; channel: string; detector: string }) {
-  const t = useT();
-  const lang = useLang();
-  const p = usePalette();
-  const [cursor, setCursor] = useState<{ x: number | null; raw: number | null; res: number | null }>(
-    { x: null, raw: null, res: null });
-  const onRaw = useCallback((x: number | null, v: (number | null)[]) =>
-    setCursor((c) => ({ ...c, x, raw: v[0] ?? null })), []);
-  const onRes = useCallback((x: number | null, v: (number | null)[]) =>
-    setCursor((c) => ({ ...c, x, res: v[0] ?? null })), []);
-  const arms = useMemo(() => armsForChannel(trace, channel), [trace, channel]);
-  const bands = useMemo(() => ({ regime: trace.monitored.regime, t: trace.monitored.t }), [trace]);
-  const d = trace.detectors[detector];
-  // Stable series identities. A fresh array literal on every render is a new dependency, and the chart
-  // effect would tear down and rebuild the plot each time the cursor readout updated.
-  const rawSeries = useMemo(
-    () => [{ label: t('arm_raw'), values: arms.raw, color: p.raw, width: 1.2 }],
-    [arms.raw, p.raw, t]);
-  const resSeries = useMemo(
-    () => [{ label: t('arm_residual'), values: arms.residual, color: p.residual, width: 1.2 }],
-    [arms.residual, p.residual, t]);
-
-  return (
-    <div className="tv-stage">
-      <Readout trace={trace} detector={detector} cursor={cursor} note={lang === 'es'
-        ? 'Arriba el canal crudo, abajo el residuo dentro del régimen. Las bandas son regímenes aprendidos del ciclo de acarreo.'
-        : 'Raw channel above, within-regime residual below. The bands are regimes learned from the haul cycle.'} />
-      <TraceChart
-        onCursor={onRaw}
-        t={arms.t}
-        series={rawSeries}
-        onsetT={trace.onset_t}
-        alarmTimes={d?.raw.alarm_times}
-        bands={bands}
-        fill
-        yLabel={label(CHANNEL_LABEL, channel, lang)}
-        ariaLabel={`raw ${channel}`}
-      />
-      <TraceChart
-        onCursor={onRes}
-        t={arms.t}
-        series={resSeries}
-        onsetT={trace.onset_t}
-        alarmTimes={d?.residual.alarm_times}
-        bands={bands}
-        fill
-        yLabel={`${label(CHANNEL_LABEL, channel, lang)}, z`}
-        xLabel={t('min_since_start')}
-        ariaLabel={`residual ${channel}`}
-      />
-
-    </div>
-  );
-}
-
-/* ---------------------------------------------------------------- Detector */
-
-function DetectorPanel({ trace, detector }: { trace: FleetTrace; detector: string }) {
-  const t = useT();
-  const lang = useLang();
-  const p = usePalette();
-  const [cursor, setCursor] = useState<{ x: number | null; raw: number | null; res: number | null }>(
-    { x: null, raw: null, res: null });
-  const onRaw = useCallback((x: number | null, v: (number | null)[]) =>
-    setCursor((c) => ({ ...c, x, raw: v[0] ?? null })), []);
-  const onRes = useCallback((x: number | null, v: (number | null)[]) =>
-    setCursor((c) => ({ ...c, x, res: v[0] ?? null })), []);
-  const d = trace.detectors[detector];
-  const rawSeries = useMemo(
-    () => (d ? [{ label: `${detector}, ${t('arm_raw')}`, values: d.raw.statistic, color: p.raw }] : []),
-    [d, detector, p.raw, t]);
-  const resSeries = useMemo(
-    () => (d ? [{ label: `${detector}, ${t('arm_residual')}`, values: d.residual.statistic, color: p.residual }] : []),
-    [d, detector, p.residual, t]);
-  if (!d) return <div className="tv-cap">{t('load_failed')}</div>;
-
-  return (
-    <div className="tv-stage">
-      <Readout trace={trace} detector={detector} cursor={cursor} note={lang === 'es'
-        ? 'El umbral es el de FLOTA al presupuesto compartido, no ajustado a este camión.'
-        : 'The threshold is the FLEET threshold at the shared budget, not fitted to this truck.'} />
-      <TraceChart
-        onCursor={onRaw}
-        t={trace.monitored.t}
-        series={rawSeries}
-        threshold={d.raw.threshold}
-        thresholdLabel={t('threshold')}
-        onsetT={trace.onset_t}
-        alarmTimes={d.raw.alarm_times}
-        fill
-        yLabel={t('statistic')}
-        ariaLabel={`${detector} raw statistic`}
-      />
-      <TraceChart
-        onCursor={onRes}
-        t={trace.monitored.t}
-        series={resSeries}
-        threshold={d.residual.threshold}
-        thresholdLabel={t('threshold')}
-        onsetT={trace.onset_t}
-        alarmTimes={d.residual.alarm_times}
-        fill
-        yLabel={t('statistic')}
-        xLabel={t('min_since_start')}
-        ariaLabel={`${detector} residual statistic`}
-      />
-
-    </div>
-  );
-}
-
-/* ----------------------------------------------------------------- Regimes */
-
-function RegimesPanel({ trace, palette }: { trace: FleetTrace; palette: ReturnType<typeof usePalette> }) {
-  const lang = useLang();
-  const occ = useMemo(() => regimeOccupancy(trace.monitored.regime), [trace]);
-  const keys = [...occ.keys()].sort((a, b) => a - b);
-  const contextChannels = ['payload_t', 'grade_pct', 'speed_kmh'];
-  const arms = contextChannels.map((c) => ({ c, arm: armsForChannel(trace, c) }));
-
-  return (
-    <div className="tv-stage">
-      <div className="tv-readout">
-        {keys.map((k) => (
-          <div key={k}>
-            <dt>{k < 0 ? (lang === 'es' ? 'sin asignar' : 'unassigned') : `${lang === 'es' ? 'régimen' : 'regime'} ${k}`}</dt>
-            <dd>
-              <span style={{
-                display: 'inline-block', width: 10, height: 10, borderRadius: 2, marginRight: 6,
-                background: k < 0 ? 'transparent' : palette.regimes[k % palette.regimes.length],
-                border: `1px solid ${palette.border}`,
-              }} />
-              {(occ.get(k)! * 100).toFixed(1)}%
-            </dd>
-          </div>
-        ))}
-      </div>
-      {arms.map(({ c, arm }) => (
-        <TraceChart
-          key={c}
-          t={arm.t}
-          series={[{ label: label(CHANNEL_LABEL, c, lang), values: arm.raw, color: palette.accent, width: 1.1 }]}
-          bands={{ regime: trace.monitored.regime, t: trace.monitored.t }}
-          onsetT={trace.onset_t}
-          height={140}
-          yLabel={label(CHANNEL_LABEL, c, lang)}
-          xLabel={c === 'speed_kmh' ? (lang === 'es' ? 'minutos' : 'minutes') : undefined}
-          ariaLabel={`context ${c}`}
-        />
-      ))}
-      <div className="tv-cap">
-        {lang === 'es'
-          ? 'Estos tres canales de contexto (carga, pendiente, velocidad) son los que definen el régimen. '
-            + 'No se monitorean para detectar fallas: se usan para preguntar "¿comparado con qué?" antes de '
-            + 'decidir si un valor es anómalo. La cobertura de este camión es '
-          : 'These three context channels (payload, grade, speed) are what define the regime. They are not '
-            + 'monitored for faults: they are used to ask "compared with what?" before deciding whether a '
-            + 'value is anomalous. This truck\'s coverage is '}
-        <strong>{(trace.monitored.regime_coverage * 100).toFixed(0)}%</strong>
-        {lang === 'es'
-          ? ', la fracción del tiempo monitoreado que cae en un régimen visto en la línea base. El resto queda sin asignar y nunca se fuerza al régimen más cercano.'
-          : ', the fraction of monitored time falling in a regime seen during the baseline. The rest stays unassigned and is never snapped to the nearest regime.'}
-      </div>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------- Fleet */
-
-function FleetPanel({ index, current, onSelect }: {
-  index: FleetIndex; current: string; onSelect: (id: string) => void;
+function Range({ label: lbl, value, min, max, step, onChange, format, disabled }: {
+  label: string; value: number; min: number; max: number; step: number;
+  onChange: (v: number) => void; format: (v: number) => string; disabled?: boolean;
 }) {
-  const lang = useLang();
-  const t = useT();
-  const [rows, setRows] = useState<Record<string, FleetTrace>>({});
-
-  // The fleet table needs every truck's delays, so it fetches them all. Deliberately only on this tab:
-  // the other three need one truck, and making the first paint wait on fourteen records would be paying
-  // the cost of this tab on every visit.
-  useEffect(() => {
-    let cancelled = false;
-    Promise.all(index.units.map((u) => loadFleetTrace(u.unit_id).then((tr) => [u.unit_id, tr] as const)))
-      .then((pairs) => { if (!cancelled) setRows(Object.fromEntries(pairs)); })
-      .catch(() => { /* the per-row cells fall back to a dash */ });
-    return () => { cancelled = true; };
-  }, [index]);
-
-  const dets = index.config.detectors;
   return (
-    <div className="tv-stage">
-      <div className="tv-tablewrap">
-        <table className="tv-table">
-          <thead>
-            <tr>
-              <th>{t('truck')}</th>
-              <th>{t('fault_kind')}</th>
-              {dets.map((d) => <th key={d} colSpan={2}>{d}</th>)}
-            </tr>
-            <tr>
-              <th /><th />
-              {dets.map((d) => (
-                <>
-                  <th key={`${d}-r`} style={{ fontWeight: 400 }}>raw</th>
-                  <th key={`${d}-s`} style={{ fontWeight: 400 }}>res</th>
-                </>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {index.units.map((u) => {
-              const tr = rows[u.unit_id];
-              return (
-                <tr
-                  key={u.unit_id}
-                  className={u.unit_id === current ? 'hl' : undefined}
-                  onClick={() => onSelect(u.unit_id)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <td>{u.unit_id}</td>
-                  <td>{label(FAULT_LABEL, u.fault_kind, lang)}</td>
-                  {dets.map((d) => {
-                    if (!tr) return <><td key={`${d}r`}>-</td><td key={`${d}s`}>-</td></>;
-                    const r = delayOf(tr, d, 'raw');
-                    const s = delayOf(tr, d, 'residual');
-                    const faster = fasterArm(tr, d);
-                    return (
-                      <>
-                        <td key={`${d}r`} className={faster === 'raw' ? 'win' : undefined}>
-                          {u.onset_t == null ? '-' : fmt(r, 0, 'never')}
-                        </td>
-                        <td key={`${d}s`} className={faster === 'residual' ? 'win' : undefined}>
-                          {u.onset_t == null ? '-' : fmt(s, 0, 'never')}
-                        </td>
-                      </>
-                    );
-                  })}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-      <div className="tv-cap">
-        {lang === 'es'
-          ? 'Retardo de detección en minutos tras el inicio real; menor es mejor, verde marca el brazo más '
-            + 'rápido y "never" significa que el detector nunca disparó despues del inicio con ese umbral. '
-            + 'Los camiones sanos no tienen inicio, asi que no pueden ser detectados: existen para medir la '
-            + 'tasa de falsas alarmas. Note que el condicionamiento no gana siempre.'
-          : 'Detection delay in minutes after the true onset; lower is better, green marks the faster arm, '
-            + 'and "never" means the detector never fired after the onset at that threshold. Healthy trucks '
-            + 'have no onset and so cannot be detected: they exist to measure the false-alarm rate. Note '
-            + 'that conditioning does not win everywhere.'}
-      </div>
-    </div>
+    <label className="tv-ctl" aria-disabled={disabled}>
+      <span>{lbl} <strong className="tv-knobval">{format(value)}</strong></span>
+      <input className="range" type="range" min={min} max={max} step={step} value={value}
+        disabled={disabled} onChange={(e) => onChange(Number(e.target.value))} />
+    </label>
   );
 }
 
-/* ----------------------------------------------------------- shared pieces */
-
-function Readout({ trace, detector, cursor, note }: {
-  trace: FleetTrace; detector: string;
-  cursor?: { x: number | null; raw: number | null; res: number | null };
-  note?: string;
+function Select({ label: lbl, value, onChange, options }: {
+  label: string; value: string; onChange: (v: string) => void; options: [string, string][];
 }) {
+  return (
+    <label className="tv-ctl">
+      <span>{lbl}</span>
+      <select value={value} onChange={(e) => onChange(e.target.value)} aria-label={lbl}>
+        {options.map(([v, text]) => <option key={v} value={v}>{text}</option>)}
+      </select>
+    </label>
+  );
+}
+
+/* ----------------------------------------------------------------------- panels */
+
+function Readout({ r, note }: { r: LiveResult; note?: string }) {
   const t = useT();
   const lang = useLang();
   const p = usePalette();
-  const r = delayOf(trace, detector, 'raw');
-  const s = delayOf(trace, detector, 'residual');
-  const faster = fasterArm(trace, detector);
-  const healthy = trace.onset_t == null;
-
+  const healthy = r.truck.onsetT === null;
+  const fa = (a: 'raw' | 'residualArm') => r[a].fleet?.falseAlarmsPerUnitTime;
   return (
     <dl className="tv-readout">
       <div>
         <dt>{t('delay_raw')}</dt>
-        <dd className={faster === 'raw' ? 'good' : undefined}>
-          {healthy ? '-' : (r == null ? t('no_detection') : `${fmt(r)} ${t('minutes')}`)}
+        <dd className={r.faster === 'raw' ? 'good' : undefined}>
+          {healthy ? '-' : r.raw.delayMin === null ? t('no_detection') : `${fmt(r.raw.delayMin)} ${t('minutes')}`}
         </dd>
       </div>
       <div>
         <dt>{t('delay_res')}</dt>
-        <dd className={faster === 'residual' ? 'good' : undefined}>
-          {healthy ? '-' : (s == null ? t('no_detection') : `${fmt(s)} ${t('minutes')}`)}
+        <dd className={r.faster === 'residual' ? 'good' : undefined}>
+          {healthy ? '-' : r.residualArm.delayMin === null ? t('no_detection')
+            : `${fmt(r.residualArm.delayMin)} ${t('minutes')}`}
         </dd>
       </div>
       <div>
-        <dt>{t('which_faster')}</dt>
-        <dd>{healthy ? t('no_fault') : (faster == null ? t('tie') : t(faster === 'raw' ? 'arm_raw' : 'arm_residual'))}</dd>
+        <dt>{t('false_alarms')}</dt>
+        <dd>{r.raw.falseAlarmsBeforeOnset} / {r.residualArm.falseAlarmsBeforeOnset}</dd>
       </div>
       <div>
-        <dt>{t('false_alarms')} ({lang === 'es' ? 'crudo / residuo' : 'raw / residual'})</dt>
+        <dt>{lang === 'es' ? 'FA realizadas / mes' : 'realised FA / month'}</dt>
         <dd>
-          {falseAlarmsBeforeOnset(trace, detector, 'raw')} / {falseAlarmsBeforeOnset(trace, detector, 'residual')}
+          {fmt((fa('raw') ?? NaN) * MINUTES_PER_MONTH, 2)} / {fmt((fa('residualArm') ?? NaN) * MINUTES_PER_MONTH, 2)}
         </dd>
       </div>
       <div>
         <dt>{t('coverage')}</dt>
-        <dd>{(trace.monitored.regime_coverage * 100).toFixed(0)}%</dd>
+        <dd>{(r.labels.coverage * 100).toFixed(0)}%</dd>
       </div>
       <div className="tv-keys">
         <span><i style={{ borderTopColor: p.onset, borderTopWidth: 2 }} />{t('onset')}</span>
@@ -490,23 +337,123 @@ function Readout({ trace, detector, cursor, note }: {
         <span><i style={{ borderTopColor: p.alarm, borderTopWidth: 2 }} />{t('alarms')}</span>
         <span><i className="band" style={{ background: p.regimes[1] }} />{t('regime_band')}</span>
       </div>
-      {cursor && (
-        <div>
-          <dt>{lang === 'es' ? 'bajo el cursor' : 'at the cursor'}</dt>
-          <dd>
-            {cursor.x == null
-              ? <span className="tv-muted">{lang === 'es' ? 'pase el cursor' : 'hover a chart'}</span>
-              : (<>
-                {fmt(cursor.x)} {t('minutes')}
-                {' '}<span style={{ color: p.raw }}>{fmt(cursor.raw, 2, '-')}</span>
-                {' / '}<span style={{ color: p.residual }}>{fmt(cursor.res, 2, '-')}</span>
-              </>)}
-          </dd>
-        </div>
-      )}
       {note && <div className="tv-keynote" title={note}>{note}</div>}
+      <div>
+        <dt>{lang === 'es' ? 'calculado en' : 'computed in'}</dt>
+        <dd>{Math.round(r.timings.simulateMs + r.timings.segmentMs + r.timings.detectMs + r.timings.scoreMs)} ms</dd>
+      </div>
     </dl>
   );
 }
 
+function SignalPanel({ r, channel }: { r: LiveResult; channel: Channel }) {
+  const t = useT();
+  const lang = useLang();
+  const p = usePalette();
+  const raw = useMemo(() => Array.from(r.truck.x[channel].slice(r.fitEnd)), [r, channel]);
+  const res = useMemo(() => Array.from(r.residual[channel] ?? []), [r, channel]);
+  const bands = useMemo(() => ({ regime: Array.from(r.labels.labels), t: Array.from(r.monitoredT) }),
+    [r]);
+  const rawSeries = useMemo(() => [{ label: t('arm_raw'), values: raw, color: p.raw, width: 1.2 }],
+    [raw, p.raw, t]);
+  const resSeries = useMemo(() => [{ label: t('arm_residual'), values: res, color: p.residual, width: 1.2 }],
+    [res, p.residual, t]);
+  return (
+    <div className="tv-stage">
+      <Readout r={r} note={lang === 'es'
+        ? 'Arriba el canal crudo, abajo el residuo dentro del régimen. Las bandas son regímenes aprendidos del ciclo.'
+        : 'Raw channel above, within-regime residual below. The bands are regimes learned from the cycle.'} />
+      <TraceChart t={Array.from(r.monitoredT)} series={rawSeries} onsetT={r.truck.onsetT}
+        alarmTimes={r.raw.alarmTimes} bands={bands} fill
+        yLabel={label(CHANNEL_LABEL, channel, lang)} ariaLabel={`raw ${channel}`} />
+      <TraceChart t={Array.from(r.monitoredT)} series={resSeries} onsetT={r.truck.onsetT}
+        alarmTimes={r.residualArm.alarmTimes} bands={bands} fill
+        yLabel={`${label(CHANNEL_LABEL, channel, lang)}, z`} xLabel={t('min_since_start')}
+        ariaLabel={`residual ${channel}`} />
+    </div>
+  );
+}
 
+function DetectorPanel({ r, detector }: { r: LiveResult; detector: DetectorName }) {
+  const t = useT();
+  const lang = useLang();
+  const p = usePalette();
+  const rawSeries = useMemo(() => [{
+    label: `${detector}, ${t('arm_raw')}`, values: Array.from(r.raw.detection.statistic), color: p.raw,
+  }], [r, detector, p.raw, t]);
+  const resSeries = useMemo(() => [{
+    label: `${detector}, ${t('arm_residual')}`, values: Array.from(r.residualArm.detection.statistic),
+    color: p.residual,
+  }], [r, detector, p.residual, t]);
+  return (
+    <div className="tv-stage">
+      <Readout r={r} note={lang === 'es'
+        ? 'El umbral es el de FLOTA al presupuesto elegido, calibrado sobre camiones sanos simulados junto a este.'
+        : 'The threshold is the FLEET threshold at the chosen budget, calibrated on healthy trucks simulated alongside this one.'} />
+      <TraceChart t={Array.from(r.raw.detection.t)} series={rawSeries}
+        threshold={r.raw.threshold} thresholdLabel={t('threshold')} onsetT={r.truck.onsetT}
+        alarmTimes={r.raw.alarmTimes} fill yLabel={t('statistic')} ariaLabel={`${detector} raw`} />
+      <TraceChart t={Array.from(r.residualArm.detection.t)} series={resSeries}
+        threshold={r.residualArm.threshold} thresholdLabel={t('threshold')} onsetT={r.truck.onsetT}
+        alarmTimes={r.residualArm.alarmTimes} fill yLabel={t('statistic')}
+        xLabel={t('min_since_start')} ariaLabel={`${detector} residual`} />
+    </div>
+  );
+}
+
+function BudgetPanel({ r }: { r: LiveResult }) {
+  const lang = useLang();
+  return (
+    <div className="tv-stage">
+      <Readout r={r} />
+      <BudgetCurve r={r} />
+      <Callout variant="honest" title={lang === 'es' ? 'Un punto es una elección; una curva es una medición'
+        : 'One point is a choice; a curve is a measurement'}>
+        {lang === 'es'
+          ? 'Un método que gana solo a un presupuesto no ha ganado, así que la comparación se lee a lo '
+            + 'largo de toda la curva. En la severidad por defecto (0.25) el brazo crudo no detecta a '
+            + 'NINGÚN presupuesto y el condicionado detecta todo: esa separación es la afirmación central '
+            + 'del producto, en el carril SINTÉTICO donde la falla está construida para confundirse con el '
+            + 'régimen. Suba la severidad y ambos detectan, con el condicionado unas dos veces más rápido. '
+            + '"Inalcanzable" significa que ningún umbral cumple ese presupuesto, que es un resultado real '
+            + 'y no un cero.'
+          : 'A method that wins only at one budget has not won, so the comparison is read across the whole '
+            + 'curve. At the default severity (0.25) the raw arm detects at NO budget and the conditioned '
+            + 'arm detects every truck: that separation is the central claim, on the SYNTHETIC '
+            + 'lane where the fault is built to be confusable with the regime. Raise the severity and both '
+            + 'detect, with the conditioned arm roughly twice as fast. "Unreachable" means no threshold '
+            + 'meets that budget at all, which is a real outcome rather than a zero.'}
+      </Callout>
+    </div>
+  );
+}
+
+function RegimesPanel({ r }: { r: LiveResult }) {
+  const lang = useLang();
+  const p = usePalette();
+  const t = useT();
+  const ctx: Channel[] = ['payload_t', 'grade_pct', 'speed_kmh'];
+  return (
+    <div className="tv-stage">
+      <Readout r={r} />
+      <RegimeStrip r={r} />
+      {ctx.map((c) => {
+        const values = Array.from(r.truck.x[c].slice(r.fitEnd));
+        return (
+          <TraceChart key={c} t={Array.from(r.monitoredT)}
+            series={[{ label: label(CHANNEL_LABEL, c, lang), values, color: p.accent, width: 1.1 }]}
+            bands={{ regime: Array.from(r.labels.labels), t: Array.from(r.monitoredT) }}
+            onsetT={r.truck.onsetT} height={120} yLabel={label(CHANNEL_LABEL, c, lang)}
+            xLabel={c === 'speed_kmh' ? t('min_since_start') : undefined} ariaLabel={`context ${c}`} />
+        );
+      })}
+      <div className="tv-cap">
+        {lang === 'es'
+          ? 'Estos tres canales definen el régimen y NUNCA se monitorean. Si el régimen se definiera con '
+            + 'un canal monitoreado, la segmentación absorbería la falla y el residuo quedaría plano.'
+          : 'These three channels define the regime and are NEVER monitored. If a regime were defined using '
+            + 'a monitored channel, the segmentation would absorb the fault and the residual would go flat.'}
+      </div>
+    </div>
+  );
+}
