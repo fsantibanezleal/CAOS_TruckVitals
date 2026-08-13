@@ -113,6 +113,11 @@ export interface SyntheticBenchmark {
     skill_vs_chance: number; median_changepoints: number; n_units: number;
   } | null>;
   trivial_baseline: Record<string, unknown>;
+  /** Rungs the ladder DECLARES, versus the ones that actually ran. A rung whose optional backend is not
+   *  installed is skipped with a reason rather than crashing the bake or vanishing from the table. */
+  ladder_declared?: string[];
+  ladder_run?: string[];
+  skipped_rungs?: Record<string, string>;
   attribution: {
     top2_hit_rate: number | null; n_scored: number;
     per_fault_kind: Record<string, { hits: number; n: number; truth: string[] }>;

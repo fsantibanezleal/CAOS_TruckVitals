@@ -36,7 +36,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import regimecpd as rc
 from truckvitals.jsonio import write_json
-from truckvitals.model.haulcycle import CONTEXT_CHANNELS, MONITORED_CHANNELS, HaulTruckSimulator, Fault
+from truckvitals.model.haulcycle import CONTEXT_CHANNELS, MONITORED_CHANNELS, Fault, HaulTruckSimulator
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CANONICAL = REPO_ROOT / "data" / "artifacts"
@@ -65,7 +65,7 @@ def main() -> None:
     cycle_len = (sim.cycle.load_min + sim.cycle.haul_min + sim.cycle.dump_min + sim.cycle.return_min)
     n_total = args.n_cycles * cycle_len
     onset = int(n_total * 0.55)
-    t, x, meta = sim.simulate(args.n_cycles,
+    t, x, _meta = sim.simulate(args.n_cycles,
                               fault=Fault(kind="strut_leak", onset_index=onset,
                                           ramp_min=int(n_total * 0.2), severity=1.0))
     from truckvitals.model.haulcycle import CHANNELS

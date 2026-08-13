@@ -117,7 +117,33 @@ function Ladder({ es }: { es: boolean }) {
             + 'documentado por el propio motor.'
           : 'detects nothing on either arm. Shown anyway: a ladder that lists only the rungs that worked '
             + 'is a leaderboard. The reason for each failure is documented by the engine itself.'}
+        {data.ladder_declared && data.ladder_run && (
+          <>
+            {' '}{es ? 'Escalera: ' : 'Ladder: '}
+            <strong>{data.ladder_run.length}</strong>
+            {es ? ' de ' : ' of '}
+            <strong>{data.ladder_declared.length}</strong>
+            {es ? ' peldaños ejecutados.' : ' rungs run.'}
+          </>
+        )}
       </p>
+
+      {data.skipped_rungs && Object.keys(data.skipped_rungs).length > 0 && (
+        <Callout variant="honest" title={es ? 'Peldaños NO ejecutados' : 'Rungs that did NOT run'}>
+          {es
+            ? 'Declarados en la escalera pero no ejecutados en este horneado, porque un backend opcional '
+              + 'no estaba instalado. Se listan en vez de desaparecer: una tabla más corta se lee como una '
+              + 'escalera que nunca los tuvo.'
+            : 'Declared in the ladder but not run in this bake, because an optional backend was not '
+              + 'installed. Listed rather than dropped: a shorter table reads as a ladder that never had '
+              + 'them.'}
+          <ul>
+            {Object.entries(data.skipped_rungs).map(([rung, why]) => (
+              <li key={rung}><strong>{rung}</strong>: {String(why).split(/\r?\n/)[0]}</li>
+            ))}
+          </ul>
+        </Callout>
+      )}
 
       <Callout variant="strong" title={es
         ? `El condicionamiento ayuda en ${helped.length}, perjudica en ${hurt.length}`

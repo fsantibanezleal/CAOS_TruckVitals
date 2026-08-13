@@ -124,13 +124,28 @@ def run_synthetic_benchmark(n_healthy: int = 30, n_faulty: int = 24, n_cycles: i
     ladder = DETECTOR_LADDER if detectors is None else {
         k: v for k, v in DETECTOR_LADDER.items() if k in detectors}
 
+    # An optional extra that is not installed SKIPS its rung and says so. It must not crash the run (a
+    # smoke test on a machine without torch is a normal thing) and it must not silently vanish from the
+    # table either, because a ladder quietly missing a rung reads as a ladder that never had one. The
+    # reason travels into the artifact, so the web surface can show the gap rather than a shorter list.
+    #
+    # The probe has to FIT, not just construct: these detectors import their backend lazily inside
+    # `fit`, so constructing one succeeds on a machine that cannot run it. Guarding the constructor
+    # looked right and never fired once.
+    skipped: dict[str, str] = {}
+
     out = {"config": {
         "n_healthy": n_healthy, "n_faulty": n_faulty, "n_cycles": n_cycles,
         "fit_frac": fit_frac, "calib_frac": calib_frac, "n_regimes": n_regimes,
         "budget_per_truck_month": budget_per_month, "minutes_per_month": minutes_per_month,
         "severity": severity, "seed": seed,
         "monitored_channels": list(names), "context_channels": list(CONTEXT_CHANNELS),
-    }, "arms": [], "onset_estimation": {}, "trivial_baseline": {}}
+    }, "arms": [], "onset_estimation": {}, "trivial_baseline": {},
+        "skipped_rungs": skipped,
+        "ladder_declared": list(DETECTOR_LADDER),
+        # Filled in AFTER the run: which rungs actually produced rows. Computing it up front would
+        # over-report, since a rung can only be found unavailable at fit time.
+        "ladder_run": []}
 
     # Pre-build both arms once per unit, so every detector sees exactly the same inputs. Rebuilding them
     # per detector would let a seed difference leak into a between-detector comparison.
@@ -158,6 +173,8 @@ def run_synthetic_benchmark(n_healthy: int = 30, n_faulty: int = 24, n_cycles: i
         })
 
     for det_name, make in ladder.items():
+        if det_name in skipped:
+            continue
         for arm in ("raw", "residual"):
             outcomes, coverages = [], []
             for p in prepared:
@@ -166,6 +183,13 @@ def run_synthetic_benchmark(n_healthy: int = 30, n_faulty: int = 24, n_cycles: i
                 try:
                     det = _fit_detector(make, rc.Series(s.t[:cut], s.x[:cut], s.names, s.unit_id))
                     d = _detect(det, s)
+                except ImportError as exc:
+                    # An optional backend is missing. Record WHY and drop the rung; do not let a machine
+                    # without torch fail the whole benchmark, and do not let the rung vanish silently.
+                    skipped[det_name] = str(exc)
+                    outcomes = []
+                    note = "skipped: optional backend not installed"
+                    break
                 except (ValueError, RuntimeError) as exc:  # a rung that cannot run on this shape
                     outcomes = []
                     note = f"{type(exc).__name__}: {exc}"
@@ -177,6 +201,8 @@ def run_synthetic_benchmark(n_healthy: int = 30, n_faulty: int = 24, n_cycles: i
             else:
                 note = ""
 
+            if det_name in skipped:
+                continue
             if not outcomes:
                 out["arms"].append(vars(SyntheticArmResult(
                     det_name, arm, 0, 0, None, float("nan"), (float("nan"),) * 2,
@@ -211,6 +237,7 @@ def run_synthetic_benchmark(n_healthy: int = 30, n_faulty: int = 24, n_cycles: i
                 regime_coverage=float(np.mean(coverages)) if coverages else None,
                 note=note)))
 
+    out["ladder_run"] = sorted({a["detector"] for a in out["arms"]})
     out["onset_estimation"] = _onset_estimation(prepared)
     out["trivial_baseline"] = _trivial_baseline(prepared, minutes_per_month, budget_per_month, seed)
     out["attribution"] = _attribution(prepared, names)
