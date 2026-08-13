@@ -2,7 +2,7 @@
   "schema": "truckvitals.parity/v1",
   "python": "3.13.14",
   "numpy": "2.5.2",
-  "regimecpd_version": "0.09.003",
+  "regimecpd_version": "0.09.005",
   "why": "Inputs and the outputs the PYTHON engine computes from them. frontend/test/parity.test.ts recomputes these in TypeScript and asserts they match, so the App's live lane cannot drift from the pipeline that produces every other number on the site.",
   "channels": [
     "strut_fl_bar",

@@ -1,7 +1,7 @@
 {
   "schema": "truckvitals.mechanism/v1",
-  "generated_utc": "2026-08-10T17:46:41+00:00",
-  "regimecpd_version": "0.09.003",
+  "generated_utc": "2026-08-13T12:09:13+00:00",
+  "regimecpd_version": "0.09.005",
   "python": "3.13.14",
   "numpy": "2.5.2",
   "config": {
