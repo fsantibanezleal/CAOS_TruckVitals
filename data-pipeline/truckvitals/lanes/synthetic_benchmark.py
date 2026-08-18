@@ -32,9 +32,12 @@ from ..model.haulcycle import CONTEXT_CHANNELS, MONITORED_CHANNELS, build_fleet
 
 __all__ = ["DETECTOR_LADDER", "FAULT_CHANNELS", "SyntheticArmResult", "run_synthetic_benchmark"]
 
-# Every rung the engine offers that produces a per-sample statistic on a multivariate series. PELT is
-# absent on purpose: it is retrospective and putting it on an online detection metric would score a
-# method that had already read the future.
+# Every ONLINE rung the engine offers on a multivariate series. Two engine methods are absent on
+# purpose, for the same reason: an online detection metric must never score a method that has already
+# read the future. PELT is retrospective by construction (it drives onset_estimation below instead),
+# and mSTAMP's profile value at a window is computed against matches anywhere in the record, including
+# after it, so it is retrospective in exactly the way that matters even though its output LOOKS like a
+# per-sample statistic.
 DETECTOR_LADDER = {
     "shewhart": lambda: rc.Shewhart(),
     "cusum": lambda: rc.CUSUM(k=0.5),
@@ -67,6 +70,11 @@ DETECTOR_LADDER = {
 #: The rungs that LEARN a model of normal rather than testing a change hypothesis. Reported separately
 #: because "we beat N baselines" means something different when the baselines are all one family.
 LEARNED_RUNGS = ("isolation-forest", "one-class-svm", "autoencoder")
+
+#: The alarm-budget sweep, in false alarms per truck-month. A single operating point hides whether an
+#: advantage survives changing the budget, so every rung is read off at each of these. The headline
+#: tables still quote the 1.0 point; the curve is what makes that point defensible.
+BUDGET_GRID = (0.1, 0.25, 0.5, 1.0, 2.0, 4.0)
 
 # Which monitored channel each injected fault actually moves first. Used to SCORE attribution, so it is
 # the ground truth for "did the method name the right channel", not a hint given to any method.
@@ -141,6 +149,11 @@ def run_synthetic_benchmark(n_healthy: int = 30, n_faulty: int = 24, n_cycles: i
         "severity": severity, "seed": seed,
         "monitored_channels": list(names), "context_channels": list(CONTEXT_CHANNELS),
     }, "arms": [], "onset_estimation": {}, "trivial_baseline": {},
+        # Every rung read off at every budget in BUDGET_GRID, with a bootstrap interval over UNITS on the
+        # detection rate. An unreachable budget is an explicit cell with reachable=false, never a missing
+        # one: a curve with silently absent points reads as a curve that was never swept there.
+        "budget_curves": {},
+        "budget_grid_per_truck_month": list(BUDGET_GRID),
         "skipped_rungs": skipped,
         "ladder_declared": list(DETECTOR_LADDER),
         # Filled in AFTER the run: which rungs actually produced rows. Computing it up front would
@@ -208,6 +221,27 @@ def run_synthetic_benchmark(n_healthy: int = 30, n_faulty: int = 24, n_cycles: i
                     det_name, arm, 0, 0, None, float("nan"), (float("nan"),) * 2,
                     float("nan"), None, None, None, None, note or "produced no outcomes")))
                 continue
+
+            # The budget sweep runs on every arm that produced outcomes, INCLUDING arms where the
+            # headline budget is unreachable: the curve is exactly where "cannot operate at 1.0" stops
+            # being a dead end and becomes a shape. The interval is a bootstrap over units, matching
+            # every other interval in this product; resampling samples would narrow with the sample rate.
+            curve = []
+            for b in BUDGET_GRID:
+                thb = rc.threshold_for_budget(outcomes, target_rate=b / minutes_per_month, n=500)
+                if thb is None:
+                    curve.append({"budget_per_truck_month": b, "reachable": False, "threshold": None,
+                                  "detection_rate": None, "det_ci": None, "fa_per_truck_month": None})
+                    continue
+                fs = rc.score_fleet(outcomes, thb)
+                _, dlo, dhi = rc.bootstrap_ci(
+                    outcomes, lambda o, thb=thb: rc.score_fleet(o, thb).detection_rate,
+                    n_boot=250, seed=seed)
+                curve.append({"budget_per_truck_month": b, "reachable": True,
+                              "threshold": float(thb), "detection_rate": fs.detection_rate,
+                              "det_ci": (dlo, dhi),
+                              "fa_per_truck_month": fs.per(minutes_per_month)})
+            out["budget_curves"].setdefault(det_name, {})[arm] = curve
 
             target = budget_per_month / minutes_per_month
             th = rc.threshold_for_budget(outcomes, target_rate=target, n=500)

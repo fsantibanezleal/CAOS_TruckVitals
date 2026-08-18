@@ -172,9 +172,24 @@ export const CITATIONS: Citation[] = [
   },
   {
     id: 'carpentier2024',
-    label: 'Carpentier et al.',
-    citation: 'Carpentier, L., et al. "Anomaly Detection for Predictive Maintenance in Heavy-Duty Trucks." '
-      + 'Their "contextual" model partitions the FLEET into per-vehicle cohorts by specification; the '
-      + 'regime conditioning here partitions the TIMELINE. The two compose and do not overlap.',
+    label: 'Carpentier et al. 2024',
+    // The first version of this entry carried a title that does not exist and no year, venue or DOI.
+    // Corrected 2026-08-17 against Crossref and Springer during the BL-005 primary-source pass.
+    citation: 'Carpentier, L., De Temmerman, A., Verbeke, M. "Towards Contextual, Cost-Efficient '
+      + 'Predictive Maintenance in Heavy-Duty Trucks." Advances in Intelligent Data Analysis XXII '
+      + '(IDA 2024), LNCS 14642, 260-267 (2024). Their "contextual" model partitions the FLEET into '
+      + 'per-vehicle cohorts by specification; the regime conditioning here partitions the TIMELINE. '
+      + 'The two compose and do not overlap.',
+    doi: '10.1007/978-3-031-58553-1_21',
+  },
+  {
+    id: 'sakurada2014',
+    label: 'Sakurada and Yairi 2014',
+    citation: 'Sakurada, M., Yairi, T. "Anomaly Detection Using Autoencoders with Nonlinear '
+      + 'Dimensionality Reduction." MLSDA 2014 Workshop on Machine Learning for Sensory Data '
+      + 'Analysis, 4-11, ACM (2014). The canonical reference for reconstruction-error novelty '
+      + 'detection, including the comparison against linear and kernel PCA that mirrors the '
+      + 'autoencoder-versus-SPE analogy the engine itself draws.',
+    doi: '10.1145/2689746.2689747',
   },
 ];
