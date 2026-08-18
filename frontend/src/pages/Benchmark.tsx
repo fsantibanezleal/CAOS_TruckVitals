@@ -11,6 +11,7 @@ import {
 } from '../lib/artifacts.ts';
 import { n, useArtifact } from '../lib/useArtifact.ts';
 import { useLang } from '../lib/i18n.ts';
+import BakedBudgetCurves from '../viz/BakedBudgetCurves.tsx';
 import PanelBoundary from '../viz/PanelBoundary.tsx';
 
 export default function Benchmark() {
@@ -144,6 +145,8 @@ function Ladder({ es }: { es: boolean }) {
           </ul>
         </Callout>
       )}
+
+      <BakedBudgetCurves data={data} es={es} />
 
       <Callout variant="strong" title={es
         ? `El condicionamiento ayuda en ${helped.length}, perjudica en ${hurt.length}`

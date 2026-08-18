@@ -118,6 +118,14 @@ export interface SyntheticBenchmark {
   ladder_declared?: string[];
   ladder_run?: string[];
   skipped_rungs?: Record<string, string>;
+  /** Every rung read off at every budget in the sweep, with a bootstrap-over-units interval on the
+   *  detection rate. An unreachable budget is an explicit cell with reachable=false, never absent. */
+  budget_curves?: Record<string, Record<'raw' | 'residual', Array<{
+    budget_per_truck_month: number; reachable: boolean; threshold: number | null;
+    detection_rate: number | null; det_ci: [number, number] | null;
+    fa_per_truck_month: number | null;
+  }>>>;
+  budget_grid_per_truck_month?: number[];
   attribution: {
     top2_hit_rate: number | null; n_scored: number;
     per_fault_kind: Record<string, { hits: number; n: number; truth: string[] }>;

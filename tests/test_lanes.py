@@ -142,3 +142,41 @@ class TestMechanismNegativeControls:
         _, sd_within, n_used, _ = fleet_denominators(subset, names, healthy_cycles=40, min_samples=500)
         assert sd_within is None and n_used == 0, (
             "a regime with too few samples must be skipped, not used to produce a spread from noise")
+
+
+class TestBudgetCurves:
+    """The baked alarm-budget curve: every rung read off at every budget, no silently absent cell."""
+
+    @classmethod
+    def setup_class(cls):
+        from truckvitals.lanes.synthetic_benchmark import BUDGET_GRID, run_synthetic_benchmark
+        cls.grid = BUDGET_GRID
+        cls.result = run_synthetic_benchmark(
+            n_healthy=4, n_faulty=3, n_cycles=12, seed=0, detectors=("shewhart", "cusum"))
+
+    def test_every_detector_and_arm_has_a_full_curve(self):
+        curves = self.result["budget_curves"]
+        assert set(curves) == {"shewhart", "cusum"}
+        for det, arms in curves.items():
+            assert set(arms) == {"raw", "residual"}, det
+            for arm, curve in arms.items():
+                assert [c["budget_per_truck_month"] for c in curve] == list(self.grid), (
+                    f"{det}/{arm}: a curve with silently absent points reads as one never swept there")
+
+    def test_a_cell_is_either_fully_populated_or_explicitly_unreachable(self):
+        for det, arms in self.result["budget_curves"].items():
+            for arm, curve in arms.items():
+                for c in curve:
+                    if c["reachable"]:
+                        assert 0.0 <= c["detection_rate"] <= 1.0
+                        lo, hi = c["det_ci"]
+                        assert lo <= c["detection_rate"] <= hi, (
+                            f"{det}/{arm} at {c['budget_per_truck_month']}: the point estimate must "
+                            "sit inside its own bootstrap interval")
+                        assert c["threshold"] is not None
+                    else:
+                        assert c["detection_rate"] is None and c["det_ci"] is None, (
+                            "an unreachable budget must not carry numbers a reader would trust")
+
+    def test_the_grid_travels_into_the_artifact(self):
+        assert self.result["budget_grid_per_truck_month"] == list(self.grid)
