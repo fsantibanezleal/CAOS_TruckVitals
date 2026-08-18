@@ -3,6 +3,34 @@
 Newest first, following [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions use the
 `X.XX.XXX` display form. Stays in `0.x` while any lane is synthetic or the at-bar review is open.
 
+## [0.02.000] - 2026-08-18
+
+Everything that shipped since the first cut, collected into one release because the intermediate
+merges went out unversioned, which this changelog will not repeat.
+
+### Added
+
+- The App is a LIVE workbench: the engine ported to TypeScript, every control recomputing in the
+  browser, gated against the Python engine by a 10-assertion parity fixture that runs in CI.
+- The ladder is complete at 12 rungs including a learned tier (isolation forest, one-class SVM,
+  autoencoder); a rung whose optional backend is missing degrades to a NAMED skip in the artifact.
+- Baked alarm-budget curves: every rung, both arms, six budgets, bootstrap-over-units intervals,
+  unreachable budgets as explicit cells, rendered on the Benchmark page with a per-detector selector.
+- Method theory at exemplar depth: Methodology grew from four tabs to nine, transcribed from
+  engine-verified dossiers, equations in the implementation's form with divergences stated.
+- ADR-0070 focus route for one truck, baked or live, shareable by URL; 20 prerendered routes.
+
+### Fixed
+
+- The citation registry is now fully primary-source verified: carpentier2024 corrected (wrong title,
+  missing year/venue/DOI), sakurada2014 added for the autoencoder.
+- Data fetches are cache-busted with ?v=APP_VERSION. They never were, despite the deploy notes
+  claiming it: an artifact whose shape changed rendered silently incomplete from a stale CDN cache.
+
+### Changed
+
+- regimecpd pinned at 0.9.6; artifacts record the version that baked them. Engine 0.09.007 released
+  (docs-only, found by the dossier extraction behind the method pages).
 ## [0.01.000] - 2026-08-10
 
 First cut. The central claim is measured; the product around it is not built yet, and this entry says so.

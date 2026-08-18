@@ -220,8 +220,13 @@ export interface Mechanism {
 
 const base = () => import.meta.env.BASE_URL || '/';
 
+// The app version, injected at build time (vite.config.ts). Used as a cache-buster: Pages serves
+// these JSON files through a CDN, and an artifact whose SHAPE changed renders silently incomplete
+// from a stale cache. Bumping the version is what invalidates every visitor's copy.
+declare const __APP_VERSION__: string;
+
 async function getJSON<T>(rel: string): Promise<T> {
-  const r = await fetch(`${base()}${rel}`);
+  const r = await fetch(`${base()}${rel}?v=${__APP_VERSION__}`);
   if (!r.ok) throw new Error(`fetch ${rel} -> ${r.status}`);
   return (await r.json()) as T;
 }
