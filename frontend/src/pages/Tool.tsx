@@ -6,8 +6,9 @@
 // budget are all knobs rather than captions. The engine doing that work is gated against the Python
 // engine by `test/parity.test.ts`, so a live number is the same number the pipeline would bake.
 //
-// The baked fleet is still here, under Fleet: it is the 14-truck run the artifacts were measured on, and
-// it is what anchors the live lane to something reproducible.
+// The baked fleet is still here, under Fleet: the fixed 14-truck run behind the committed fleet traces,
+// which anchors the live lane to something reproducible. The benchmark artifacts come from a separate
+// 36-unit offline run.
 
 import { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router';

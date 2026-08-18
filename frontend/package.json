@@ -1,7 +1,7 @@
 {
   "name": "truckvitals-frontend",
   "private": true,
-  "version": "0.02.000",
+  "version": "0.03.000",
   "type": "module",
   "scripts": {
     "predev": "node copy-data.mjs",

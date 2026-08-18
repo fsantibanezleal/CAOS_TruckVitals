@@ -1,3 +1,5 @@
 # DEV lane, lint + test. Pinned to the verified install (Python 3.12, 2026-06-20).
 pytest==9.1.1
 ruff==0.15.18
+# Manuscript figures only (manuscripts/*/figures/make_figs.py); nothing in the pipeline imports it.
+matplotlib>=3.11

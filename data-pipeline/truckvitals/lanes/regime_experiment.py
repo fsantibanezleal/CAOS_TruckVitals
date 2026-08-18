@@ -1,4 +1,8 @@
-"""The central experiment: does conditioning on operating regime actually reduce false alarms?
+"""The central experiment: what does regime variation cost detection, and what does conditioning recover?
+
+(An earlier version of this line asked whether conditioning "reduces false alarms". That claim was
+WITHDRAWN: neither lane demonstrates it, and on the synthetic lane the raw arm wins that metric
+outright. The measured claim is detection at a matched false-alarm budget.)
 
 One detector at a time, held identical across arms. The only thing that differs between arm A and arm B
 is whether the detector sees raw channels or within-regime residuals. Everything else (the detector, its

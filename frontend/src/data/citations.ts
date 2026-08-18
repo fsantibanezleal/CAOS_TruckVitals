@@ -183,6 +183,27 @@ export const CITATIONS: Citation[] = [
     doi: '10.1007/978-3-031-58553-1_21',
   },
   {
+    id: 'hendrickx2020',
+    label: 'Hendrickx et al. 2020',
+    citation: 'Hendrickx, K., Meert, W., Mollet, Y., Gyselinck, J., Cornelis, B., Gryllias, K., '
+      + 'Davis, J. "A general anomaly detection framework for fleet-based condition monitoring of '
+      + 'machines." Mechanical Systems and Signal Processing 139, 106585 (2020). The FLEET axis: '
+      + 'detect a faulty machine by comparison against its peers, assuming most of the fleet is '
+      + 'healthy. Orthogonal to the REGIME axis here (a truck against itself within a matched '
+      + 'operating context); the two compose, and the two-way combination is the interesting cell.',
+    doi: '10.1016/j.ymssp.2019.106585',
+  },
+  {
+    id: 'dimidov2026',
+    label: 'Dimidov et al. 2026',
+    citation: 'Dimidov, V., Jafarnejad, S., Frank, R. "An Empirical Study on Predictive Maintenance '
+      + 'for Component X in Heavy-Duty Scania Trucks." arXiv:2606.12486 (2026). The best published '
+      + 'result on Component X (balanced accuracy 0.2428 against a 0.20 chance level), whose own '
+      + 'limitations section names the gap this product targets: the solution "doesn\'t account for '
+      + 'the dynamic nature of the fleets and their operating conditions".',
+    url: 'https://arxiv.org/abs/2606.12486',
+  },
+  {
     id: 'sakurada2014',
     label: 'Sakurada and Yairi 2014',
     citation: 'Sakurada, M., Yairi, T. "Anomaly Detection Using Autoencoders with Nonlinear '
