@@ -318,17 +318,34 @@ the fault.
 
 ## Status
 
-**v0.01.000, under construction.** Built and verified:
+**0.03.000, released 2026-08-18. Live at [truckvitals.fasl-work.com](https://truckvitals.fasl-work.com/).**
+
+All four lanes are baked and committed:
 
 - The **C-MAPSS lane** and the controlled contrast above, baked to
   `data/artifacts/cmapss_regime_contrast.json` with bootstrap intervals over units and a budget sweep.
 - The **APS cost lane**, baked to `data/artifacts/aps_cost.json` with the full cost curve.
+- The **Component X lane**, baked to `data/artifacts/componentx.json`: all 11 files fetched, the
+  structure reproduced from the bytes, and the argmax-versus-expected-cost finding above.
 - The **synthetic lane**: a physically grounded fleet with an emergent confound and a known onset time,
   the method ladder on both arms, onset error against chance, a deliberately generous trivial baseline,
   and scored attribution.
 
-Not built: the SCANIA Component X lane (access is being verified) and the web surface. Neither is
-represented here as done.
+What 0.02.000 and 0.03.000 shipped on top of the measurements (the CHANGELOG carries the split):
+
+- **A live, parity-gated workbench.** The engine is ported to TypeScript (`frontend/src/engine/`) and
+  every control on the App recomputes the whole pipeline in the browser. The port's right to exist is a
+  fixture: `data-pipeline/run_parity.py` bakes inputs plus the Python engine's outputs, and
+  `frontend/test/parity.test.ts` asserts in CI that the browser engine reproduces them.
+- **The ladder completed at 12 rungs**, including the learned tier above. A rung whose optional backend
+  is missing degrades to a NAMED skip recorded in the artifact, never a silently shorter table.
+- **Baked budget curves**: every rung, both arms, six false-alarm budgets, bootstrap intervals over
+  units, unreachable budgets as explicit cells. Rendered on the Benchmark page.
+- **Focus routes** (ADR-0070): `/focus/<unitId>` for any of the 14 baked trucks, `/focus/live` for a
+  configuration carried in the URL; 20 routes are prerendered so a shared link answers 200.
+- **A nine-tab Methodology**, transcribed from engine-verified method dossiers.
+- **Cache-busted data fetches** (`?v=APP_VERSION`), so a redeploy invalidates every visitor's copy of
+  the artifacts instead of rendering silently incomplete from a stale CDN cache.
 
 ## Licence
 

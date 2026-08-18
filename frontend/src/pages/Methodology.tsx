@@ -222,11 +222,13 @@ function Metrics({ es }: { es: boolean }) {
       <Callout variant="honest" title={es ? 'La métrica que casi produce un resultado falso' : 'The metric that nearly produced a false result'}>
         {es
           ? 'El error de inicio sin nivel de azar habría mostrado al brazo condicionado entre 2 y 7 veces '
-            + 'más preciso en CADA semilla. Corregido por azar, la diferencia pareada es -0.08 +/- 0.66. '
-            + 'Toda la ventaja aparente se explica por producir 12-14 puntos de cambio en vez de 2-3.'
+            + 'más preciso en CADA semilla. Corregido por azar, la diferencia pareada es -0.08 +/- 0.74. '
+            + 'Toda la ventaja aparente se explica por producir una mediana de 11.5 a 14 puntos de cambio '
+            + 'en vez de 2 a 3.'
           : 'Onset error without a chance level would have shown the conditioned arm 2 to 7 times more '
-            + 'accurate on EVERY seed. Chance-corrected, the paired difference is -0.08 +/- 0.66. The entire '
-            + 'apparent advantage is explained by producing 12 to 14 changepoints instead of 2 to 3.'}
+            + 'accurate on EVERY seed. Chance-corrected, the paired difference is -0.08 +/- 0.74. The entire '
+            + 'apparent advantage is explained by producing a median of 11.5 to 14 changepoints against '
+            + '2 to 3.'}
       </Callout>
     </div>
   );
@@ -835,13 +837,13 @@ function Streaming({ es }: { es: boolean }) {
             + 'la corrección 0.09.002, mientras el código implementa la forma del paper. El commit '
             + 'que corrigió el código y su comentario no tocó la ecuación del docstring. Es el mismo '
             + 'patrón "código documentado contra código que corre" que este producto ya pagó dos '
-            + 'veces, y se corrige en el motor como parte de este ciclo.'
+            + 'veces. Corregido en regimecpd 0.09.007, una versión solo de documentación.'
           : 'The code-verified extraction behind this page found that the engine\'s ADWIN class '
-            + 'docstring still displays the harmonic term from BEFORE the 0.09.002 fix, while the '
+            + 'docstring still displayed the harmonic term from BEFORE the 0.09.002 fix, while the '
             + 'code implements the paper\'s form. The commit that fixed the code and its comment did '
             + 'not touch the docstring equation. It is the same "documented code versus running code" '
-            + 'pattern this product has already paid for twice, and it is being fixed in the engine '
-            + 'as part of this cycle.'}
+            + 'pattern this product has already paid for twice. Fixed in regimecpd 0.09.007, a '
+            + 'documentation-only release.'}
       </Callout>
 
       <h3>KSWIN <Cite id="raab2020" /></h3>
@@ -931,14 +933,14 @@ function Learned({ es }: { es: boolean }) {
             + 'signo: estos detectores corren sobre el brazo de residuos, cuyos canales están '
             + 'centrados en cero por construcción, y una media con signo colapsa el piso relativo y '
             + 'deja pasar un canal muerto. Ese fue el defecto corregido en 0.09.006, el TERCER módulo '
-            + 'con la misma falla, encontrada de a una. El horneado publicado (24 minutos posterior a '
-            + 'la corrección) incluye ambos arreglos de escala.'
+            + 'con la misma falla, encontrada de a una. El horneado publicado corre 0.09.006, así que '
+            + 'incluye ambos arreglos de escala.'
           : 'The scale floor uses the channel\'s mean ABSOLUTE value as its reference, never the '
             + 'signed mean: these detectors run on the residual arm, whose channels are centred on '
             + 'zero by construction, and a signed mean collapses the relative floor and lets a dead '
             + 'channel through. That was the defect fixed in 0.09.006, the THIRD module with the same '
-            + 'flaw, found one at a time. The published bake (24 minutes after the fix) includes both '
-            + 'scale fixes.'}
+            + 'flaw, found one at a time. The published bake runs 0.09.006, so it includes both scale '
+            + 'fixes.'}
       />
       <p>
         {es
@@ -1060,8 +1062,8 @@ function Learned({ es }: { es: boolean }) {
       </p>
       <Equation
         tex={String.raw`E_t = \frac{1}{90} \left\lVert g_\theta(\mathbf{f}_t) - \mathbf{f}_t \right\rVert_2^2, \qquad
-          90 \xrightarrow{\;\mathrm{ReLU}\;} 32 \xrightarrow{\;\mathrm{lin}\;} 8 \xrightarrow{\;\mathrm{lin}\;} 32
-          \xrightarrow{\;\mathrm{ReLU}\;} 90`}
+          90 \xrightarrow{\;\mathrm{ReLU}\;} 32 \xrightarrow{\;\mathrm{lin}\;} 8 \xrightarrow{\;\mathrm{ReLU}\;} 32
+          \xrightarrow{\;\mathrm{lin}\;} 90`}
         caption={es
           ? 'La arquitectura como está construida, no como la dibujaría un libro: la capa de código '
             + 'es LINEAL (sin ReLU tras el cuello) y la salida es LINEAL (el objetivo está '
@@ -1100,7 +1102,8 @@ function Learned({ es }: { es: boolean }) {
       <Callout variant="strong" title={es ? 'El hallazgo transversal, con su explicación obvia descartada por medición' : 'The cross-cutting finding, its obvious explanation ruled out by measurement'}>
         {es
           ? 'Sobre los 12 peldaños del horneado, el condicionamiento mejora la detección en 5, es '
-            + 'neutro en 5 (peldaños acumulativos que ya estaban en el techo), y PERJUDICA 2. Los dos '
+            + 'neutro en 5 (tres peldaños acumulativos ya en el techo, SPE sin cambio en 0.75 en ambos '
+            + 'brazos, y BOCPD en cero en ambos), y PERJUDICA 2. Los dos '
             + 'perjudicados son modelos de novedad con forma de frontera. La explicación obvia sería '
             + 'el hueco de muestras sin asignar (una muestra NaN destruye toda ventana de 10 que la '
             + 'contiene), pero la cobertura de régimen es 0.998 en las tres filas aprendidas: no hay '
@@ -1118,7 +1121,8 @@ function Learned({ es }: { es: boolean }) {
             + 'evidencia, y puede perjudicar activamente a los que puntúan aislamiento de la nube '
             + 'sana, en este carril, a esta severidad.'
           : 'Across the bake\'s 12 rungs, conditioning improves detection on 5, is neutral on 5 '
-            + '(cumulative rungs already at ceiling), and HURTS 2. Both hurt rungs are '
+            + '(three cumulative rungs already at ceiling, SPE unchanged at 0.75 on both arms, and BOCPD '
+            + 'at zero on both), and HURTS 2. Both hurt rungs are '
             + 'boundary-shaped novelty models. The obvious explanation would be the unassigned-sample '
             + 'gap (one NaN sample destroys every 10-sample window containing it), but regime '
             + 'coverage is 0.998 on all three learned rows: there are no gaps to blame. The surviving '

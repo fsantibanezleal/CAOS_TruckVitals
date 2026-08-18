@@ -1,10 +1,11 @@
 # Frameworks
 
-One card per research-chosen engine/library, **the deep research, made binding**. Every engine the pipeline uses
-gets a card here AND an exact pin in the matching `requirements-*.txt`. No hand-rolled toy substitute for a SOTA
+One card per research-chosen engine, the deep research made binding. Every engine the pipeline uses
+gets a card here AND an exact pin in the matching requirements file. No hand-rolled substitute for an
 engine the research prescribed.
 
-- [00, card TEMPLATE](frameworks/00_TEMPLATE.md), copy per engine to `frameworks/<NN>_<tool>/<tool>.md`
-
-*(The template's EXAMPLE engine is numpy-only SIR, so it ships no SOTA card. A real product adds e.g.
-`01_yade/`, `02_ortools/`, `03_mintpy/`, `04_torch/`.)*
+- [01, regimecpd](frameworks/01_regimecpd/regimecpd.md): the regime-conditional change-point engine,
+  pinned `==0.9.6` in all three requirements files: base in `requirements.txt`, `[learned]` in
+  `requirements-precompute.txt`, `[deep]` in `requirements-gpu.txt`.
+- [02, torch](frameworks/02_torch/torch.md): the optional GPU lane. Arrives through
+  `regimecpd[deep]`, backs exactly one rung of the ladder, the autoencoder.

@@ -8,7 +8,7 @@ in `data-pipeline/`. Nothing is computed in the browser and nothing is typed int
 ```bash
 python -m venv .venv                       # never a global environment
 .venv/Scripts/python -m pip install -r requirements.txt -r requirements-dev.txt
-.venv/Scripts/python -m pytest             # 35 tests, no data downloads needed
+.venv/Scripts/python -m pytest             # 39 tests, no data downloads needed
 ```
 
 The engine is a **separate published package**, `regimecpd`, pinned in `requirements.txt`. This repo
@@ -27,6 +27,12 @@ Each writes one artifact. All accept `--output` so a smoke run cannot overwrite 
 | `run_fleet_traces.py` | `data/artifacts/fleet/` | nothing |
 | `run_aps_cost.py` | `aps_cost.json` | SCANIA APS on disk |
 | `run_componentx.py` | `componentx.json` | SCANIA Component X on disk |
+| `run_parity.py` | `parity.json` | nothing |
+
+`run_parity.py` is part of every re-bake that follows an engine bump. Its artifact is the fixture the
+browser engine is gated on: it carries input arrays plus the outputs the Python engine computed from
+them, and `frontend/test/parity.test.ts` recomputes both in TypeScript in CI. A re-bake that skips it
+ships a stale fixture, and CI fails on a file the runner list would otherwise never have mentioned.
 
 ```bash
 .venv/Scripts/python data-pipeline/run_mechanism.py --data <cmapss-dir>
@@ -34,6 +40,7 @@ Each writes one artifact. All accept `--output` so a smoke run cannot overwrite 
 .venv/Scripts/python data-pipeline/run_synthetic_benchmark.py
 .venv/Scripts/python data-pipeline/run_onset_seeds.py
 .venv/Scripts/python data-pipeline/run_fleet_traces.py
+.venv/Scripts/python data-pipeline/run_parity.py
 python scripts/check_artifacts.py          # the gate CI runs
 ```
 
@@ -52,8 +59,10 @@ Keep downloads out of the repo. They are large and they are not ours to redistri
 
 ## Determinism, and where it stops
 
-Every runner takes `--seed` and the same seed reproduces the same artifact. That is a property of the
-CODE, not evidence that a result is stable: this product published an onset-localisation figure of 2.40x
+Every runner reproduces its artifact: the stochastic ones take `--seed` (`run_onset_seeds.py` sweeps
+`--seeds`), `run_mechanism.py` has no randomness to seed, and `run_parity.py` deliberately bakes the
+actual arrays rather than a seed, because the TypeScript simulator cannot reproduce numpy's random
+stream. Reproducibility is a property of the CODE, not evidence that a result is stable: this product published an onset-localisation figure of 2.40x
 from one perfectly reproducible run, and a second seed reversed it. `run_onset_seeds.py` exists because
 of that. If a result matters, sweep it.
 

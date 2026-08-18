@@ -1,4 +1,5 @@
-// The BAKED fleet: the 14-truck run the committed artifacts were measured on.
+// The BAKED fleet: the fixed 14-truck run that produced the committed FLEET TRACES (data/fleet/).
+// The benchmark, C-MAPSS and cost artifacts come from their own lanes at other scales.
 //
 // The rest of the App is live, which makes it explorable and makes every number depend on the knobs.
 // This tab is the anchor: a fixed fleet, computed by the Python pipeline, committed to the repo, and
@@ -51,10 +52,14 @@ export default function FleetPanel() {
         </div>
         <div className="tv-keynote">
           {lang === 'es'
-            ? 'Esta pestaña NO es en vivo: es la corrida fija que produjo los artefactos versionados, '
-              + 'idéntica para todo lector. Es el ancla de reproducibilidad del resto de la App.'
-            : 'This tab is NOT live: it is the fixed run that produced the committed artifacts, identical '
-              + 'for every reader. It is what anchors the rest of the App to something reproducible.'}
+            ? 'Esta pestaña NO es en vivo: es la corrida fija de 14 camiones que produjo las trazas de '
+              + 'flota versionadas, idéntica para todo lector. Es el ancla de reproducibilidad del resto '
+              + 'de la App; el benchmark de 36 unidades y los carriles C-MAPSS y de costo tienen sus '
+              + 'propios artefactos.'
+            : 'This tab is NOT live: it is the fixed 14-truck run that produced the committed fleet '
+              + 'traces, identical for every reader. It anchors the rest of the App to something '
+              + 'reproducible; the 36-unit benchmark and the C-MAPSS and cost lanes have their own '
+              + 'artifacts.'}
         </div>
       </dl>
 

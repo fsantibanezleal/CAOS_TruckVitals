@@ -3,6 +3,46 @@
 Newest first, following [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions use the
 `X.XX.XXX` display form. Stays in `0.x` while any lane is synthetic or the at-bar review is open.
 
+## [0.03.000] - 2026-08-18
+
+The coherence release: a four-agent audit compared every documentation surface against the shipped
+reality and the artifacts, found 73 defects (13 wrong, 20 stale, 14 missing, 26 thin), and this
+release closes them.
+
+### Added
+
+- The manuscript: "Regime Conditioning Recovers Detection, Not Localisation" (IEEEtran, 5 pp, three
+  artifact-derived figures, the defect record as an appendix), under manuscripts/, built and
+  committed. Zenodo publication awaits explicit authorization.
+- Introduction at exemplar depth: theme-aware pipeline figure with the unassigned dead-end branch,
+  the detector-free effect-size equations with the fleet-denominator and regime-locked-channel
+  honesty, a six-step product walkthrough, the industrial cost framing (50:1, the 4.1x F1 finding),
+  and prior-art positioning (Hendrickx fleet axis, Carpentier cohort context, the Dimidov
+  limitations concession), all newly registry-verified citations.
+- Experiments at exemplar depth: a Questions tab with the four questions (one null), the CUSUM and
+  chance-skill equations next to the tables they govern, the split-protocol figure with this
+  product's own two corrected leaks struck out, the travelling honesty boundary, and the
+  detected-only delay caveat.
+- Implementation at exemplar depth: Parity, JSON-contract and Simulator tabs; a build-parameters
+  versus engine-defaults table; the budget-threshold rule as an equation; PELT/mSTAMP and conformal
+  scoping; the defect table caught up through 0.09.007 including the wrong-first-fix and the
+  meta-defect (the version gate that failed unread).
+
+### Fixed
+
+- Methodology quoted 0.66 for the onset-null spread where the artifact says 0.74, and 12-14
+  changepoints where the seeds say 11.5-14; the autoencoder architecture arrow placed a ReLU on the
+  output map the code does not have; the neutral-rungs parenthetical lumped BOCPD (at floor) and SPE
+  (unchanged) in with the at-ceiling rungs.
+- Implementation claimed BOCPD and ADWIN both detect nothing (ADWIN residual is 0.0625 at 652 min)
+  and understated the engine-fix cycle count; the fleet keynote claimed the 14-truck run produced
+  ALL committed artifacts (it produced the fleet traces; the benchmark runs 36 units).
+- The docs/ tree carried template residue naming files that do not exist (SIR engine, data/derived,
+  pyodide lanes) and the experiment-protocol doc still led with the WITHDRAWN false-alarm claim and
+  the pre-review numbers; rewritten against the code.
+- regime_experiment.py's title line asked the withdrawn false-alarm question; it now states the
+  measured claim and records the withdrawal.
+
 ## [0.02.000] - 2026-08-18
 
 Everything that shipped since the first cut, collected into one release because the intermediate

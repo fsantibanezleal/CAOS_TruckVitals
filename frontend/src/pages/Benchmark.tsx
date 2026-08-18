@@ -1,8 +1,8 @@
 // Benchmark: the full detector ladder on the synthetic lane, and the two real SCANIA cost lanes.
 //
-// Two rungs of the ladder detect nothing at all. They are shown rather than dropped: a ladder that only
-// lists the rungs that worked is a leaderboard, and the reason each one fails is stated in the artifact
-// by the engine's own documentation.
+// One rung (BOCPD) detects nothing on either arm and ADWIN barely detects on one. They are shown rather
+// than dropped: a ladder that only lists the rungs that worked is a leaderboard, and the reason each one
+// struggles is stated in the artifact by the engine's own documentation.
 
 import { Callout, Tabs, type TabDef } from '@fasl-work/caos-app-shell';
 import {
@@ -66,11 +66,14 @@ function Ladder({ es }: { es: boolean }) {
       <p>
         {es
           ? 'Cada peldaño corre sobre AMBOS brazos, con el mismo presupuesto de falsas alarmas por '
-            + 'camión-mes. PELT no aparece: es retrospectivo, y ponerlo en una métrica de detección en '
-            + 'línea puntuaría un método que ya leyó el futuro.'
-          : 'Every rung runs on BOTH arms, at the same false-alarm budget per truck-month. PELT is absent: '
-            + 'it is retrospective, and putting it on an online detection metric would score a method that '
-            + 'had already read the future.'}
+            + 'camión-mes. PELT y mSTAMP no aparecen, por la misma razón: son retrospectivos (el perfil '
+            + 'de mSTAMP se calcula contra coincidencias en cualquier parte del registro, incluidas las '
+            + 'posteriores), y ponerlos en una métrica de detección en línea puntuaría métodos que ya '
+            + 'leyeron el futuro.'
+          : 'Every rung runs on BOTH arms, at the same false-alarm budget per truck-month. PELT and mSTAMP '
+            + 'are absent, for the same reason: both are retrospective (the mSTAMP profile is computed '
+            + 'against matches anywhere in the record, including after the window), and putting them on an '
+            + 'online detection metric would score methods that had already read the future.'}
       </p>
       <div className="tv-tablewrap">
         <table className="tv-table">
