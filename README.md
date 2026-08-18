@@ -270,56 +270,51 @@ This does **not** touch the headline: detection rate at a matched false-alarm bu
 measurement, on different data (see the C-MAPSS table above). Two sub-claims of the same product, one
 supported and one null, measured by the same protocol.
 
-## The ladder on the synthetic lane: conditioning never hurts, and sometimes transforms
+## The ladder on the synthetic lane: 12 rungs, and 2 of them say the opposite
 
-Six rungs, both arms, all at the same false-alarm budget (all achieved 0 per truck-month), 36 trucks of
-which 16 develop a fault at a known time:
+Every rung the engine offers that produces a per-sample statistic, run on BOTH arms at the same
+false-alarm budget, on a 36-truck synthetic fleet. PELT is absent on purpose: it is retrospective, and
+putting it on an online detection metric would score a method that had already read the future.
 
-| detector | raw detection | raw delay | conditioned detection | conditioned delay |
-|---|---|---|---|---|
-| Shewhart | 0.75 | 190 min | **1.00** | **86 min** |
-| CUSUM | 1.00 | 119 min | 1.00 | **106 min** |
-| EWMA | 1.00 | 113 min | 1.00 | **90 min** |
-| Page-Hinkley | 1.00 | 198 min | 1.00 | **184 min** |
-| PCA SPE | 0.75 | 210 min | 0.75 | **86 min** |
-| **PCA T-squared** | **0.06** | 532 min | **1.00** | **150 min** |
-| KSWIN | 0.06 | 159 min | **0.50** | **97 min** |
-| BOCPD | **0.00** | never fires | **0.00** | never fires |
-| ADWIN | **0.00** | never fires | **0.00** | never fires |
+| tier | rung | detection, raw | detection, residual | delay raw | delay residual |
+|---|---|---|---|---|---|
+| classical | shewhart | 0.75 | **1.00** | 190 | 86 |
+| classical | cusum | 1.00 | 1.00 | 119 | 106 |
+| classical | ewma | 1.00 | 1.00 | 113 | 90 |
+| classical | page-hinkley | 1.00 | 1.00 | 199 | 184 |
+| multivariate | pca-spe | 0.75 | 0.75 | 211 | 86 |
+| multivariate | pca-t2 | 0.06 | **1.00** | 532 | 150 |
+| SOTA | bocpd | 0.00 | 0.00 | never | never |
+| SOTA | kswin | 0.06 | **0.50** | 159 | 97 |
+| SOTA | adwin | 0.00 | **0.06** | never | 652 |
+| **learned** | isolation-forest | **0.69** | 0.06 | 263 | 710 |
+| **learned** | one-class-svm | **0.75** | 0.50 | 192 | 95 |
+| **learned** | autoencoder | 0.75 | **1.00** | 174 | 90 |
 
-### Two rungs detect nothing, and the engine's own documentation predicted both
+**Conditioning helps 5 rungs, is neutral on 5, and HURTS 2.** Both of the two it hurts are learned
+novelty models, and one of them badly: isolation forest goes from 0.69 to 0.06.
 
-They are published as zeros rather than dropped from the table.
+That is a counter-example to this product's own thesis and it is reported as one. A plausible mechanism,
+stated as a hypothesis rather than a result: a novelty model learns the shape of normal, and on the raw
+arm that shape is a handful of tight regime clusters, so anything off-cluster is easy to isolate.
+Conditioning replaces those clusters with one roughly isotropic blob, and a moderate shift stays inside
+it. The structure the residual removes is structure isolation forest was using.
 
-**BOCPD** assumes the model parameters before and after a changepoint are **independent**. That suits a
-step change and suits a slow drift poorly: when the post-change state is nearly the pre-change state,
-evidence for a changepoint at any particular instant stays weak no matter how far the drift eventually
-travels. Every fault in this lane is a slow ramp over about a fifth of the record. The engine documents
-this limitation and warns that "BOCPD is not automatically the best rung" for gradual onset; here it is
-the worst.
+What it is NOT: the unassigned-sample gap. That would be the obvious explanation, since these rungs stack
+a 10-sample window and one unassigned sample drops the whole window. Regime coverage on this run is
+**0.998**, so there are almost no gaps to blame. Checking that was the difference between an explanation
+and a guess.
 
-**ADWIN** reports a small integer count of channels flagging, so its alarm-budget curve has only `d + 1`
-points where the others have hundreds. At a budget of one false alarm per truck-month the only feasible
-threshold is one that never fires. The engine documents exactly this and says `delta` should be swept
-instead whenever ADWIN is compared against anything; putting it on a common budget is the wrong
-instrument for it, and this row is what that looks like.
+**Two rungs detect nothing at all**, on either arm, and are shown rather than dropped. Both failures are
+predicted by the engine's own documentation: BOCPD's independent-parameters assumption suits step changes
+rather than slow ramps, and ADWIN's statistic is an integer cut count, which offers only a handful of
+distinct operating points on a matched-budget curve. A ladder that lists only the rungs that worked is a
+leaderboard.
 
-Both zeros are therefore coherence checks passing rather than surprises: a documented limitation showed
-up where the documentation said it would.
-
-Conditioning is never worse on either axis, and on Hotelling T-squared it is the difference between
-detecting 6% of faults and detecting all of them. That is the expected direction: T-squared measures
-position within the normal correlation structure, and on a load-varying machine the raw structure is
-dominated by the duty cycle.
-
-A **trivial baseline** is scored alongside, and it is deliberately generous: a fixed threshold on the one
-channel each fault moves first, *told the answer*. It reaches 0.75 detection at 123 min, beaten by
-Shewhart on residuals (1.00 at 86 min). So the lane is not trivially easy.
-
-**Attribution is scored, not judged by eye**: does the method name a channel the fault was actually
-injected into? Top-2 hit rate **0.44** over 16 faulty trucks, and it is uneven: tyre leak 4/4, brake drag
-2/4, strut leak 1/4, cooling loss **0/4**. That is a weak result and it is published as one. Contribution
-plots smear onto correlated channels, which is exactly what the engine's documentation warns about.
+**The most dramatic win is pca-t2, 0.06 to 1.00.** Hotelling's T-squared measures movement inside the
+retained subspace, and on raw haul-truck channels that subspace is dominated by the haul cycle, so the
+fault is a small perturbation of a huge signal. Conditioned, the cycle is gone and the subspace is about
+the fault.
 
 ## Status
 
