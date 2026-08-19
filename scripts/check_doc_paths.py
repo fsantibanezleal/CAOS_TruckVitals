@@ -39,6 +39,9 @@ EXCLUDED_PREFIXES = (
     "frontend/dist/",    # build output; exists only after `npm run build`
     "frontend/node_modules/",
     ".venv/",
+    "data/raw/",         # gitignored by design: docs legitimately name it, a clean clone lacks it.
+                         # Found by this gate's own first CI run: the path existed on the dev machine
+                         # and not in the runner's checkout, a class Windows testing cannot see.
 )
 
 EXTENSIONS = (
