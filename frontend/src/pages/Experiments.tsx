@@ -108,7 +108,64 @@ function Questions({ es }: { es: boolean }) {
             + 'which is domain-general. It is not a claim about trucks, and no surface of this product '
             + 'may present it as one.'}
       </Callout>
-      <Refs ids={['saxena2008']} label={es ? 'Referencias' : 'References'} />
+
+      <h2>{es ? 'Los datos, verificados en vez de asumidos' : 'The data, verified rather than assumed'}</h2>
+      <p>
+        {es
+          ? 'Cada carril declara su estructura y el pipeline la AFIRMA al cargar, porque un subconjunto '
+            + 'mal parseado en silencio dejaría cada número posterior luciendo razonable mientras el '
+            + 'contraste completo pierde el sentido.'
+          : 'Each lane declares its structure and the pipeline ASSERTS it at load, because a silently '
+            + 'mis-parsed subset would leave every downstream number looking reasonable while the whole '
+            + 'contrast stops meaning anything.'}
+      </p>
+      <div className="tv-tablewrap">
+        <table className="tv-table">
+          <thead>
+            <tr>
+              <th>{es ? 'Carril' : 'Lane'}</th>
+              <th>{es ? 'Estructura, verificada' : 'Structure, verified'}</th>
+              <th>{es ? 'Redistribución' : 'Redistribution'}</th>
+              <th>{es ? 'Estado en este horneado' : 'Status in this bake'}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>C-MAPSS</td>
+              <td>{es
+                ? '4 subconjuntos x condiciones x modos de falla x unidades train/test, afirmados al cargar contra la tabla declarada (FD001 1x1x100/100 ... FD004 6x2x249/248)'
+                : '4 subsets x conditions x fault modes x train/test units, asserted at load against the declared table (FD001 1x1x100/100 ... FD004 6x2x249/248)'}</td>
+              <td>{es ? 'pública, redistribuible' : 'public, redistributable'}</td>
+              <td>{es ? 'MEDIDO: mecanismo + contraste de detección' : 'MEASURED: mechanism + detection contrast'}</td>
+            </tr>
+            <tr>
+              <td>SCANIA APS</td>
+              <td>{es
+                ? '170 columnas de features anonimizadas, subconjunto seleccionado por expertos, UNA instantánea por camión; la matriz de costos (10/500) y el puntaje del ganador IDA 2016 verificados PRIMARIOS en el archivo de descripción del propio dataset'
+                : '170 anonymised feature columns, an expert-selected subset, ONE snapshot per truck; the cost matrix (10/500) and the IDA 2016 winner score PRIMARY-verified in the dataset\'s own description file'}</td>
+              <td>{es ? 'pública (UCI)' : 'public (UCI)'}</td>
+              <td>{es ? 'MEDIDO: solo carril de decisión (sin series de tiempo)' : 'MEASURED: decision lane only (no time series)'}</td>
+            </tr>
+            <tr>
+              <td>Component X</td>
+              <td>{es
+                ? 'verificado contra los bytes descargados: 11 archivos, ~1.65 GB, descarga anónima; 1,122,452 lecturas x 107 columnas sobre 23,550 vehículos; 107 = 2 identificadores + 97 bins de histograma + 8 contadores'
+                : 'verified against the downloaded bytes: 11 files, ~1.65 GB, anonymous download; 1,122,452 readouts x 107 columns over 23,550 vehicles; 107 = 2 identifiers + 97 histogram bins + 8 counters'}</td>
+              <td>{es ? 'pública (SND, CC BY)' : 'public (SND, CC BY)'}</td>
+              <td>{es ? 'MEDIDO: costo graduado 5x5 (histogramas, no canales continuos)' : 'MEASURED: graded 5x5 cost (histograms, not continuous channels)'}</td>
+            </tr>
+            <tr>
+              <td>{es ? 'Sintético' : 'Synthetic'}</td>
+              <td>{es
+                ? 'flota de 36 unidades (20 sanas, 16 con falla), 45 ciclos, 12 canales, confundidor de régimen EMERGENTE del ciclo de acarreo; el instante real de inicio existe por construcción'
+                : '36-unit fleet (20 healthy, 16 faulty), 45 cycles, 12 channels, regime confound EMERGENT from the haul cycle; the true onset instant exists by construction'}</td>
+              <td>{es ? 'nuestro, MIT' : 'ours, MIT'}</td>
+              <td>{es ? 'MEDIDO: escalera de 12 peldaños + curvas de presupuesto + error de inicio' : 'MEASURED: 12-rung ladder + budget curves + onset error'}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <Refs ids={['saxena2008', 'aps2016', 'componentx2024']} label={es ? 'Referencias' : 'References'} />
     </div>
   );
 }

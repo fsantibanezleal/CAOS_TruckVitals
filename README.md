@@ -318,7 +318,14 @@ the fault.
 
 ## Status
 
-**0.03.000, released 2026-08-18. Live at [truckvitals.fasl-work.com](https://truckvitals.fasl-work.com/).**
+**0.03.001, released 2026-08-18. Live at [truckvitals.fasl-work.com](https://truckvitals.fasl-work.com/).**
+
+The study is also a published technical report: **Regime Conditioning Recovers Detection, Not
+Localisation** (Zenodo, CC-BY-4.0). Cite the concept DOI
+[10.5281/zenodo.22002431](https://doi.org/10.5281/zenodo.22002431); v1.0 is
+[10.5281/zenodo.22002432](https://doi.org/10.5281/zenodo.22002432). Source, figures pipeline and
+built PDF live under [`manuscripts/`](manuscripts/README.md); every number replays from the
+committed artifacts.
 
 All four lanes are baked and committed:
 

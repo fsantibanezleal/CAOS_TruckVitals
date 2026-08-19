@@ -3,6 +3,21 @@
 Newest first, following [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions use the
 `X.XX.XXX` display form. Stays in `0.x` while any lane is synthetic or the at-bar review is open.
 
+## [0.03.001] - 2026-08-18
+
+### Added
+
+- The manuscript is PUBLISHED: Zenodo record 22002432, CC-BY-4.0, concept DOI
+  10.5281/zenodo.22002431 (cite this), v1.0 DOI 10.5281/zenodo.22002432. The DOI is mirrored where
+  the update rule requires it: manuscripts/README.md (new), the README status section, and the
+  Introduction page, which links the record and notes that the report's figures regenerate from the
+  same artifacts these pages render.
+- The dataset-verification table on the Experiments Questions tab (the last open audit item): per
+  lane, the structure the pipeline ASSERTS at load (C-MAPSS subset table; APS 170 features and the
+  primary-verified cost matrix; Component X 1,122,452 x 107 readouts confirmed from the downloaded
+  bytes as 2 + 97 + 8; the 36-unit synthetic fleet), redistribution terms, and what this bake
+  measures on it. Every cell verified against the lane code before shipping.
+
 ## [0.03.000] - 2026-08-18
 
 The coherence release: a four-agent audit compared every documentation surface against the shipped
