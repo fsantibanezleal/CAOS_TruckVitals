@@ -160,7 +160,7 @@ function Questions({ es }: { es: boolean }) {
                 ? 'flota de 36 unidades (20 sanas, 16 con falla), 45 ciclos, 12 canales, confundidor de régimen EMERGENTE del ciclo de acarreo; el instante real de inicio existe por construcción'
                 : '36-unit fleet (20 healthy, 16 faulty), 45 cycles, 12 channels, regime confound EMERGENT from the haul cycle; the true onset instant exists by construction'}</td>
               <td>{es ? 'nuestro, MIT' : 'ours, MIT'}</td>
-              <td>{es ? 'MEDIDO: escalera de 12 peldaños + curvas de presupuesto + error de inicio' : 'MEASURED: 12-rung ladder + budget curves + onset error'}</td>
+              <td>{es ? 'MEDIDO: escalera de 14 peldaños + curvas de presupuesto + error de inicio' : 'MEASURED: 14-rung ladder + budget curves + onset error'}</td>
             </tr>
           </tbody>
         </table>

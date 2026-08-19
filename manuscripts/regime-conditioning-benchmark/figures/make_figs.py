@@ -6,9 +6,10 @@ artifacts (no recompute). Three figures:
                       standard deviations against within-regime standard deviations, per C-MAPSS
                       subset, with the single-condition subsets returning exactly 1.00 as the
                       negative control nobody designed.
-  fig-ladder.pdf    - the complete 12-rung ladder on the synthetic fleet, detection rate on the raw
+  fig-ladder.pdf    - the complete 14-rung ladder on the synthetic fleet, detection rate on the raw
                       and the residual arm at the same 1.0 false-alarm-per-truck-month budget,
-                      grouped by tier. The two rungs conditioning HURTS are both learned.
+                      grouped by tier. The two rungs conditioning HURTS are both learned, and the
+                      deep tier is what refuted the explanation once offered for that.
   fig-budget.pdf    - the baked alarm-budget curves with bootstrap-over-units intervals for one rung
                       conditioning helps (pca-t2), one it leaves at ceiling (cusum) and one it hurts
                       (isolation-forest). An unreachable budget is a gap, not a zero.
@@ -78,8 +79,9 @@ TIER = {
     "pca-spe": "multivariate", "pca-t2": "multivariate",
     "bocpd": "streaming", "kswin": "streaming", "adwin": "streaming",
     "isolation-forest": "learned", "one-class-svm": "learned", "autoencoder": "learned",
+    "deep-svdd": "deep", "lstm-autoencoder": "deep",
 }
-TIER_ORDER = ["classical", "multivariate", "streaming", "learned"]
+TIER_ORDER = ["classical", "multivariate", "streaming", "learned", "deep"]
 
 
 def fig_ladder() -> None:
@@ -106,7 +108,9 @@ def fig_ladder() -> None:
     ax.set_xlim(0, 1.0)
     ax.set_xlabel("detection rate at 1.0 false alarm per truck-month")
     ax.grid(axis="x", color="0.85", lw=0.6, zorder=0)
-    ax.legend(frameon=False, loc="lower right")
+    # Below the axes, not inside them: at 14 rungs every in-axes corner now has a bar in it, and a
+    # legend sitting on top of the deep tier is exactly where a reader looks for the new result.
+    ax.legend(frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.13), ncol=2)
     fig.savefig(HERE / "fig-ladder.pdf")
     plt.close(fig)
 

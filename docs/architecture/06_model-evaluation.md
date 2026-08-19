@@ -125,7 +125,7 @@ chance-corrected skill (mean -0.08, sd 0.74) is smaller than the seed-to-seed sp
 ## The budget sweep
 
 One operating point is a choice; a curve is a measurement, and a method that wins only at one budget has
-not won. So every rung of the 12-rung ladder is read off at every budget in `BUDGET_GRID` in
+not won. So every rung of the 14-rung ladder is read off at every budget in `BUDGET_GRID` in
 `synthetic_benchmark.py`, `(0.1, 0.25, 0.5, 1.0, 2.0, 4.0)` false alarms per truck-month, on both arms,
 with a bootstrap-over-units interval on each detection rate. An unreachable budget is an explicit cell
 with `reachable: false`, never an absent point: a curve with silently missing points reads as a curve

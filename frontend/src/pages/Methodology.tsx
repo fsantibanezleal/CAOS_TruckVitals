@@ -1099,11 +1099,135 @@ function Learned({ es }: { es: boolean }) {
             + 'trained per truck on its own healthy stretch, with the parity gate watching.'}
       </p>
 
+      <h3>Deep SVDD <Cite id="ruff2018" /></h3>
+      <p>
+        {es
+          ? 'Aprende un mapeo de red bajo el cual las ventanas sanas caen dentro de una hiperesfera de '
+            + 'volumen mínimo; el estadístico es la distancia al cuadrado a un centro FIJO. Tiene un '
+            + 'modo de falla catastrófico que el paper no advierte sino que DEMUESTRA: la red puede '
+            + 'aprender un mapeo CONSTANTE al centro, llevando la pérdida a cero mientras el detector '
+            + 'queda ciego. Una pérdida cercana a cero aquí es una alarma, no un éxito.'
+          : 'It learns a network mapping under which healthy windows fall inside a minimum-volume '
+            + 'hypersphere; the statistic is the squared distance to a FIXED centre. It has one '
+            + 'catastrophic failure mode that the paper does not warn about but PROVES: the network '
+            + 'can learn a CONSTANT map onto the centre, driving the loss to zero while the detector '
+            + 'goes blind. A loss near zero here is an alarm, not a success.'}
+      </p>
+      <Equation
+        tex={String.raw`\min_{\mathcal{W}}\ \frac{1}{n}\sum_{i=1}^{n}\bigl\lVert \phi(x_i;\mathcal{W})-c \bigr\rVert^{2}
+          + \frac{\lambda}{2}\sum_{\ell}\lVert W^{\ell}\rVert_F^2, \qquad
+          s(x) = \bigl\lVert \phi(x;\mathcal{W}^{*})-c \bigr\rVert^{2}`}
+        caption={es
+          ? 'El objetivo One-Class (ecuación 4 del paper). Las tres restricciones anti-colapso de la '
+            + 'Sección 3.3 se IMPONEN, no se documentan: el centro es fijo y nunca cero (una coordenada '
+            + 'en cero se iguala trivialmente con pesos en cero); NO hay términos de sesgo en ninguna '
+            + 'capa, porque con un sesgo el mapeo constante colapsado es una solución ÓPTIMA, es decir '
+            + 'el mínimo del propio objetivo y no un accidente de entrenamiento; y la activación no '
+            + 'está acotada. La varianza de las representaciones se calcula al ajustar y viaja al '
+            + 'artefacto, así que un modelo colapsado se ve en vez de sospecharse.'
+          : 'The One-Class objective (the paper\'s equation 4). The three anti-collapse constraints '
+            + 'from Section 3.3 are ENFORCED, not documented: the centre is fixed and never zero (a '
+            + 'zero coordinate is trivially matched by zero weights); there are NO bias terms in any '
+            + 'layer, because with a bias the collapsed constant map is an OPTIMAL solution, the '
+            + 'objective\'s own minimum rather than a training accident; and the activation is '
+            + 'unbounded. Representation variance is computed at fit and travels into the artifact, so '
+            + 'a collapsed model is visible rather than suspected.'}
+      />
+
+      <h3>{es ? 'Codificador-decodificador LSTM' : 'LSTM encoder-decoder'} <Cite id="malhotra2016" /></h3>
+      <p>
+        {es
+          ? 'El codificador consume la ventana hacia adelante y entrega su estado final al '
+            + 'decodificador, que reconstruye la ventana en orden INVERSO. Esa inversión es el método '
+            + 'publicado, no un detalle: lo primero que emite el decodificador es la reconstrucción de '
+            + 'la ÚLTIMA muestra de entrada, lo que acorta la dependencia en la costura. Una '
+            + 'implementación en orden directo pasaría cualquier prueba de humo siendo otro método, '
+            + 'así que la asimetría que implica (el último paso reconstruye mejor) se afirma con una '
+            + 'prueba.'
+          : 'The encoder consumes the window forward and hands its final state to the decoder, which '
+            + 'reconstructs the window in REVERSE order. That reversal is the published method, not a '
+            + 'detail: the first thing the decoder emits is the reconstruction of the LAST input '
+            + 'sample, which shortens the dependency at the seam. A forward-order implementation would '
+            + 'pass any smoke test while being a different method, so the asymmetry it implies (the '
+            + 'last step reconstructs best) is asserted by a test.'}
+      </p>
+      <Equation
+        tex={String.raw`e^{(i)} = \bigl\lvert x^{(i)} - x'^{(i)} \bigr\rvert, \qquad
+          a^{(i)} = \left(e^{(i)}-\mu\right)^{\!\top}\Sigma^{-1}\left(e^{(i)}-\mu\right)`}
+        caption={es
+          ? 'El error es ABSOLUTO elemento a elemento, así que sigue siendo un vector, y el puntaje es '
+            + 'una forma cuadrática sobre él, NO un error cuadrático simple. Esa distinción está '
+            + 'medida: sobre una falla que invierte la correlación de un canal dejando intactas todas '
+            + 'las marginales, el puntaje publicado separa lo anómalo de lo sano por 1.36 a 1.73 en '
+            + 'tres semillas, y el MSE simple por 1.00 a 1.13, es decir nada. Sigma lleva un ridge '
+            + 'RELATIVO antes de invertirse; un piso absoluto sería una dependencia de unidades y un '
+            + 'canal muerto seguiría invirtiéndose a algo enorme. Límite honesto de la fuente: todos '
+            + 'los experimentos del paper son efectivamente univariados, así que no ofrece evidencia '
+            + 'para la covarianza completa a nueve canales.'
+          : 'The error is element-wise ABSOLUTE, so it stays a vector, and the score is a quadratic '
+            + 'form on it, NOT a plain squared error. That distinction is measured: on a fault that '
+            + 'flips one channel\'s correlation while leaving every marginal untouched, the published '
+            + 'score separates anomalous from healthy by 1.36 to 1.73 across three seeds, and plain '
+            + 'MSE by 1.00 to 1.13, which is to say not at all. Sigma carries a RELATIVE ridge before '
+            + 'inversion; an absolute floor would be a unit dependence and a dead channel would still '
+            + 'invert to something enormous. Honest limit of the source: every experiment in the paper '
+            + 'is effectively univariate, so it offers no evidence for the full covariance at nine '
+            + 'channels.'}
+      />
+
+      <Callout variant="honest" title={es ? 'La hipótesis de la FORMA fue REFUTADA por su propia prueba' : 'The SHAPE hypothesis was REFUTED by its own test'}>
+        {es
+          ? 'Lo que sigue abajo describe una hipótesis que este producto propuso y luego REFUTÓ, y se '
+            + 'conserva porque el recorrido es el resultado. La hipótesis decía que la FORMA del '
+            + 'estadístico decide el signo del efecto: los detectores con forma de FRONTERA serían '
+            + 'perjudicados por el condicionamiento, los de RECONSTRUCCIÓN no. La predicción se '
+            + 'escribió y se versionó ANTES de entrenar nada, y se añadieron dos peldaños profundos, '
+            + 'uno de cada forma, para poder fallar: Deep SVDD (frontera) y un codificador-decodificador '
+            + 'LSTM (reconstrucción).'
+          : 'What follows below describes a hypothesis this product proposed and then REFUTED, and it '
+            + 'is kept because the route is the result. The hypothesis said the SHAPE of the statistic '
+            + 'decides the sign of the effect: BOUNDARY-shaped detectors would be hurt by conditioning, '
+            + 'RECONSTRUCTION-shaped ones would not. The prediction was written down and committed '
+            + 'BEFORE anything was trained, and two deep rungs were added, one of each shape, so it '
+            + 'could fail: Deep SVDD (boundary) and an LSTM encoder-decoder (reconstruction).'}
+        {' '}
+        <strong>{es
+          ? 'Falló. Deep SVDD tiene forma de frontera sin ambigüedad (aprende literalmente una '
+            + 'hiperesfera alrededor de las representaciones sanas) y el condicionamiento LO AYUDÓ: '
+            + '0.812 crudo a 0.938 residuo. El LSTM quedó en 1.00 en AMBOS brazos, así que no podía '
+            + 'ser perjudicado desde ahí y su mitad de la prueba es casi no informativa (su retardo sí '
+            + 'mejoró, de 170 a 54 minutos).'
+          : 'It failed. Deep SVDD is boundary-shaped without ambiguity (it literally learns a '
+            + 'hypersphere around the healthy representations) and conditioning HELPED it: 0.812 raw '
+            + 'to 0.938 residual. The LSTM sat at 1.00 on BOTH arms, so it could not have been hurt '
+            + 'from there and its half of the test is nearly uninformative (its delay did improve, '
+            + '170 to 54 minutes).'}</strong>
+        {' '}
+        {es
+          ? 'Lo que MUERE es la explicación; lo que SOBREVIVE es la observación: el bosque de '
+            + 'aislamiento y la SVM de una clase siguen perjudicados, y eso está medido. Tres peldaños '
+            + 'con forma de frontera se reparten ahora dos perjudicados contra uno ayudado, que no es '
+            + 'una regla. Y no hay rescate: la preinscripción se comprometió por adelantado a no '
+            + 'inventar una explicación posterior sobre profundidad o capacidad, así que la diferencia '
+            + 'evidente (Deep SVDD APRENDE su representación, los otros dos particionan un espacio de '
+            + 'entrada fijo) queda registrada como pregunta abierta, no como hipótesis salvada. La '
+            + 'oración honesta que los datos sí soportan: el condicionamiento ayuda a la mayoría de '
+            + 'los peldaños, perjudica a dos, y ninguna regla predice todavía cuáles.'
+          : 'What DIES is the explanation; what SURVIVES is the observation: isolation forest and '
+            + 'one-class SVM are still hurt, and that is measured. Three boundary-shaped rungs now '
+            + 'split two hurt against one helped, which is not a rule. And there is no rescue: the '
+            + 'preregistration committed in advance to not inventing a post-hoc explanation about '
+            + 'depth or capacity, so the obvious difference (Deep SVDD LEARNS its representation, the '
+            + 'other two partition a fixed input space) is recorded as an open question, not as a '
+            + 'saved hypothesis. The honest sentence the data does support: conditioning helps most '
+            + 'rungs, hurts two, and no rule yet predicts which.'}
+      </Callout>
+
       <Callout variant="strong" title={es ? 'El hallazgo transversal, con su explicación obvia descartada por medición' : 'The cross-cutting finding, its obvious explanation ruled out by measurement'}>
         {es
-          ? 'Sobre los 12 peldaños del horneado, el condicionamiento mejora la detección en 5, es '
-            + 'neutro en 5 (tres peldaños acumulativos ya en el techo, SPE sin cambio en 0.75 en ambos '
-            + 'brazos, y BOCPD en cero en ambos), y PERJUDICA 2. Los dos '
+          ? 'Sobre los 14 peldaños del horneado, el condicionamiento mejora la detección en 6, es '
+            + 'neutro en 6 (tres peldaños acumulativos ya en el techo, el LSTM también en el techo en '
+            + 'ambos brazos, SPE sin cambio en 0.75, y BOCPD en cero en ambos), y PERJUDICA 2. Los dos '
             + 'perjudicados son modelos de novedad con forma de frontera. La explicación obvia sería '
             + 'el hueco de muestras sin asignar (una muestra NaN destruye toda ventana de 10 que la '
             + 'contiene), pero la cobertura de régimen es 0.998 en las tres filas aprendidas: no hay '
@@ -1120,9 +1244,9 @@ function Learned({ es }: { es: boolean }) {
             + 'condicionamiento por régimen ayuda a los detectores que miden posición o acumulan '
             + 'evidencia, y puede perjudicar activamente a los que puntúan aislamiento de la nube '
             + 'sana, en este carril, a esta severidad.'
-          : 'Across the bake\'s 12 rungs, conditioning improves detection on 5, is neutral on 5 '
-            + '(three cumulative rungs already at ceiling, SPE unchanged at 0.75 on both arms, and BOCPD '
-            + 'at zero on both), and HURTS 2. Both hurt rungs are '
+          : 'Across the bake\'s 14 rungs, conditioning improves detection on 6, is neutral on 6 '
+            + '(three cumulative rungs already at ceiling, the LSTM also at ceiling on both arms, SPE '
+            + 'unchanged at 0.75, and BOCPD at zero on both), and HURTS 2. Both hurt rungs are '
             + 'boundary-shaped novelty models. The obvious explanation would be the unassigned-sample '
             + 'gap (one NaN sample destroys every 10-sample window containing it), but regime '
             + 'coverage is 0.998 on all three learned rows: there are no gaps to blame. The surviving '

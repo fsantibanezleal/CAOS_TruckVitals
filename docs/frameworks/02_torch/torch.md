@@ -2,17 +2,25 @@
 
 ## What and why
 
-PyTorch backs exactly one rung of the 12-rung ladder: `regimecpd.AutoencoderDetector`, a small dense
-autoencoder trained on healthy windowed features only, whose statistic is the per-window mean squared
-reconstruction error (primary reference Sakurada and Yairi 2014, DOI 10.1145/2689746.2689747, cited
-as `sakurada2014` in the App's citation registry). The rung matters to the product beyond
-completeness: on the baked run it is the only LEARNED rung where conditioning helps (0.75 raw to 1.00
-residual), against isolation forest and one-class SVM where conditioning hurts.
+PyTorch backs three rungs of the 14-rung ladder, all trained on healthy windowed features only:
+
+- `regimecpd.AutoencoderDetector`, a small dense autoencoder scored by per-window mean squared
+  reconstruction error (Sakurada and Yairi 2014, DOI 10.1145/2689746.2689747, `sakurada2014`).
+- `regimecpd.DeepSVDDDetector`, One-Class Deep SVDD, scored by squared distance to a fixed
+  hypersphere centre (Ruff et al., ICML 2018, PMLR 80, 4393-4402, `ruff2018`).
+- `regimecpd.LSTMAutoencoderDetector`, the EncDec-AD LSTM encoder-decoder, scored by a Mahalanobis
+  distance on the reconstruction-error vector (Malhotra et al., ICML 2016 Anomaly Detection
+  Workshop, arXiv:1607.00148, `malhotra2016`).
+
+The last two were added as a PAIR to test a hypothesis rather than for coverage: Deep SVDD is
+boundary-shaped and the LSTM encoder-decoder is reconstruction-shaped, which are the two categories
+the learned tier's conditioning result split along. The prediction was written down before either was
+trained (`preregistration-deep-tier-2026-08-19.md` in the management repo).
 
 ## Install (exact, pinned)
 
 torch is never pinned directly here: it arrives through the engine's extra.
-`requirements-gpu.txt` pins `regimecpd[deep]==0.9.6`, which requires `torch>=2.0`.
+`requirements-gpu.txt` pins `regimecpd[deep]==0.10.0`, which requires `torch>=2.0`.
 
 ```bash
 python -m venv .venv        # the same .venv as the rest of the pipeline

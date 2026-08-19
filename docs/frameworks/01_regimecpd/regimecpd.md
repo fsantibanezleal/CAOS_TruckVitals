@@ -13,13 +13,13 @@ plumbing.
 
 ## Install (exact, pinned)
 
-Pinned `==0.9.6` in all three requirements files, one per lane:
+Pinned `==0.10.1` in all three requirements files, one per lane:
 
 | file | pin | pulls |
 |---|---|---|
-| `requirements.txt` | `regimecpd==0.9.6` | `numpy>=1.24` |
-| `requirements-precompute.txt` | `regimecpd[learned]==0.9.6` | plus `scikit-learn>=1.3` |
-| `requirements-gpu.txt` | `regimecpd[deep]==0.9.6` | plus `torch>=2.0` |
+| `requirements.txt` | `regimecpd==0.10.1` | `numpy>=1.24` |
+| `requirements-precompute.txt` | `regimecpd[learned]==0.10.1` | plus `scikit-learn>=1.3` |
+| `requirements-gpu.txt` | `regimecpd[deep]==0.10.1` | plus `torch>=2.0` |
 
 The `[learned]` extra backs the isolation-forest and one-class-SVM rungs; `[deep]` backs the
 autoencoder rung (see the [torch card](../02_torch/torch.md)). The backends import lazily inside
@@ -51,7 +51,7 @@ matter of intention.
 
 - `data-pipeline/truckvitals/lanes/regime_experiment.py` and `lanes/cmapss.py`: the C-MAPSS contrast
   (`make_arms`, cross-fitted thresholds, `FleetScore`, `UnitOutcome`).
-- `lanes/synthetic_benchmark.py`: the 12-rung ladder. `DETECTOR_LADDER` maps every rung to an engine
+- `lanes/synthetic_benchmark.py`: the 14-rung ladder. `DETECTOR_LADDER` maps every rung to an engine
   class, from `Shewhart` through `PCAMonitor(statistic="spe"|"t2")`, `BOCPD`, `KSWIN`, `ADWIN`, to
   `IsolationForestDetector`, `OneClassSVMDetector` and `AutoencoderDetector`. The same module runs the
   retrospective onset estimation with `PELT(min_size=30, cost="mean")` plus `segmentation_error`.
