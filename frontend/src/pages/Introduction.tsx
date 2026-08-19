@@ -362,6 +362,28 @@ export default function Introduction() {
             + 'the only place the true onset instant exists. This is a limitation of the product, not a '
             + 'footnote.'}
       </Callout>
+      <h2>{es ? 'El informe técnico' : 'The technical report'}</h2>
+      <p>
+        {es
+          ? 'Este estudio está publicado como informe técnico con DOI permanente: '
+          : 'This study is published as a technical report with a permanent DOI: '}
+        <em>{es
+          ? 'Regime Conditioning Recovers Detection, Not Localisation: An Honest Benchmark for Fault '
+            + 'Onset on Load-Varying Fleet Telemetry'
+          : 'Regime Conditioning Recovers Detection, Not Localisation: An Honest Benchmark for Fault '
+            + 'Onset on Load-Varying Fleet Telemetry'}</em>
+        {es ? ' (Zenodo, CC-BY-4.0, 2026). Citar el DOI de concepto ' : ' (Zenodo, CC-BY-4.0, 2026). Cite the concept DOI '}
+        <a href="https://doi.org/10.5281/zenodo.22002431" target="_blank" rel="noreferrer">10.5281/zenodo.22002431</a>
+        {es ? '; la v1.0 es ' : '; v1.0 is '}
+        <a href="https://doi.org/10.5281/zenodo.22002432" target="_blank" rel="noreferrer">10.5281/zenodo.22002432</a>.
+        {es
+          ? ' Las tres figuras del informe se regeneran desde los mismos artefactos que renderizan '
+            + 'estas páginas (manuscripts/ en el repositorio), y su apéndice es el registro de '
+            + 'defectos: la misma tabla de la pestaña Defectos de Implementación.'
+          : ' The report\'s three figures regenerate from the same artifacts these pages render '
+            + '(manuscripts/ in the repository), and its appendix is the defect record: the same table '
+            + 'as Implementation\'s Defects tab.'}
+      </p>
       <Refs ids={['saxena2008', 'aps2016', 'componentx2024', 'hendrickx2020', 'carpentier2024', 'dimidov2026']}
         label={es ? 'Referencias' : 'References'} />
     </div>
