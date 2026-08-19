@@ -3,6 +3,23 @@
 Newest first, following [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions use the
 `X.XX.XXX` display form. Stays in `0.x` while any lane is synthetic or the at-bar review is open.
 
+## [0.03.002] - 2026-08-18
+
+### Added
+
+- `scripts/check_doc_paths.py`, in CI: every repo path a tracked markdown file names must exist. The
+  gate the coherence audit showed was missing (the residue checker greps for known tokens, so residue
+  naming plausible-but-nonexistent files sails through it). It earned its keep on its first run,
+  catching five hits in files outside the audit's scope: STRUCTURE.md still carried the template's
+  generic blueprint, data/README.md still described the SIR example contract, and app/README.md still
+  pointed at data/derived/.
+
+### Fixed
+
+- STRUCTURE.md rewritten as the REAL structure map (lanes, tree, contracts, what CI enforces);
+  data/README.md rewritten as the real artifact ledger with per-lane provenance and licences;
+  app/README.md points at data/artifacts/. The docs map now links the published manuscript.
+
 ## [0.03.001] - 2026-08-18
 
 ### Added
