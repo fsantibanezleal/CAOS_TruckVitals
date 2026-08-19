@@ -270,7 +270,7 @@ This does **not** touch the headline: detection rate at a matched false-alarm bu
 measurement, on different data (see the C-MAPSS table above). Two sub-claims of the same product, one
 supported and one null, measured by the same protocol.
 
-## The ladder on the synthetic lane: 12 rungs, and 2 of them say the opposite
+## The ladder on the synthetic lane: 14 rungs, and 2 of them say the opposite
 
 Every rung the engine offers that produces a per-sample statistic, run on BOTH arms at the same
 false-alarm budget, on a 36-truck synthetic fleet. PELT is absent on purpose: it is retrospective, and
@@ -290,23 +290,49 @@ putting it on an online detection metric would score a method that had already r
 | **learned** | isolation-forest | **0.69** | 0.06 | 263 | 710 |
 | **learned** | one-class-svm | **0.75** | 0.50 | 192 | 95 |
 | **learned** | autoencoder | 0.75 | **1.00** | 174 | 90 |
+| **deep** | deep-svdd | 0.81 | **0.94** | 220 | 96 |
+| **deep** | lstm-autoencoder | 1.00 | 1.00 | 170 | 54 |
 
-**Conditioning helps 5 rungs, is neutral on 5, and HURTS 2.** Both of the two it hurts are learned
+**Conditioning helps 6 rungs, is neutral on 6, and HURTS 2.** Both of the two it hurts are learned
 novelty models, and one of them badly: isolation forest goes from 0.69 to 0.06.
 
-That is a counter-example to this product's own thesis and it is reported as one. A plausible mechanism,
-stated as a hypothesis rather than a result: a novelty model learns the shape of normal, and on the raw
-arm that shape is a handful of tight regime clusters, so anything off-cluster is easy to isolate.
-Conditioning replaces those clusters with one roughly isotropic blob, and a moderate shift stays inside
-it. The structure the residual removes is structure isolation forest was using.
+That is a counter-example to this product's own thesis and it is reported as one.
+
+### The explanation this repo offered for it, and then REFUTED
+
+An earlier version of this README, and version 1.0 of the published report, explained the
+counter-example with a hypothesis: that the SHAPE of the statistic decides the sign. Boundary-shaped
+detectors, which learn where the healthy cloud is, would be hurt because conditioning replaces the tight
+regime clusters they exploit with one isotropic blob; reconstruction-shaped detectors, which learn
+correlation structure, would not.
+
+That hypothesis was written up as a falsifiable prediction, committed BEFORE any test was run
+(`preregistration-deep-tier-2026-08-19.md` in the management repo), and tested by adding the two deep
+rungs above: Deep SVDD (boundary-shaped) and an LSTM encoder-decoder (reconstruction-shaped).
+
+**It failed.** Deep SVDD is boundary-shaped without ambiguity, and conditioning HELPED it, 0.81 to 0.94.
+The LSTM's half is nearly uninformative because it sits at ceiling on both arms, though its delay did
+fall from 170 to 54 minutes.
+
+So the observation survives (isolation forest and one-class SVM are still hurt, and those are
+measurements) and the explanation does not. Three boundary-shaped rungs now split two hurt against one
+helped, which is not a rule. No replacement is offered: the preregistration committed in advance to not
+inventing a post-hoc story, and the visible candidate difference (Deep SVDD learns its representation;
+the two hurt rungs partition a fixed input space) is recorded as an open question needing its own
+registered prediction. The published report was corrected the same day: v1.1
+([10.5281/zenodo.22016415](https://doi.org/10.5281/zenodo.22016415)) carries the retraction in an
+appendix, under the unchanged concept DOI.
+
+The honest sentence, narrower than the one it replaces: regime conditioning helps most detectors, hurts
+some healthy-only novelty models, and no rule established here predicts which.
 
 What it is NOT: the unassigned-sample gap. That would be the obvious explanation, since these rungs stack
 a 10-sample window and one unassigned sample drops the whole window. Regime coverage on this run is
 **0.998**, so there are almost no gaps to blame. Checking that was the difference between an explanation
 and a guess.
 
-**Two rungs detect nothing at all**, on either arm, and are shown rather than dropped. Both failures are
-predicted by the engine's own documentation: BOCPD's independent-parameters assumption suits step changes
+**One rung detects nothing at all** on either arm, and ADWIN barely detects on one; both are shown
+rather than dropped. Both weaknesses are predicted by the engine's own documentation: BOCPD's independent-parameters assumption suits step changes
 rather than slow ramps, and ADWIN's statistic is an integer cut count, which offers only a handful of
 distinct operating points on a matched-budget curve. A ladder that lists only the rungs that worked is a
 leaderboard.
@@ -322,8 +348,8 @@ the fault.
 
 The study is also a published technical report: **Regime Conditioning Recovers Detection, Not
 Localisation** (Zenodo, CC-BY-4.0). Cite the concept DOI
-[10.5281/zenodo.22002431](https://doi.org/10.5281/zenodo.22002431); v1.0 is
-[10.5281/zenodo.22002432](https://doi.org/10.5281/zenodo.22002432). Source, figures pipeline and
+[10.5281/zenodo.22002431](https://doi.org/10.5281/zenodo.22002431); v1.1 is
+[10.5281/zenodo.22016415](https://doi.org/10.5281/zenodo.22016415). Source, figures pipeline and
 built PDF live under [`manuscripts/`](manuscripts/README.md); every number replays from the
 committed artifacts.
 
@@ -344,7 +370,7 @@ What 0.02.000 and 0.03.000 shipped on top of the measurements (the CHANGELOG car
   every control on the App recomputes the whole pipeline in the browser. The port's right to exist is a
   fixture: `data-pipeline/run_parity.py` bakes inputs plus the Python engine's outputs, and
   `frontend/test/parity.test.ts` asserts in CI that the browser engine reproduces them.
-- **The ladder completed at 12 rungs**, including the learned tier above. A rung whose optional backend
+- **The ladder completed at 14 rungs**, including the learned and deep tiers above. A rung whose optional backend
   is missing degrades to a NAMED skip recorded in the artifact, never a silently shorter table.
 - **Baked budget curves**: every rung, both arms, six false-alarm budgets, bootstrap intervals over
   units, unreachable budgets as explicit cells. Rendered on the Benchmark page.

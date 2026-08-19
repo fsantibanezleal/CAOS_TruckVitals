@@ -31,7 +31,7 @@ package in `requirements.txt`, `regimecpd[learned]` in `requirements-precompute.
   load/haul/dump/return cycle, not injected, which is what keeps the synthetic comparisons non-circular.
 - **`lanes/`**: one module per measurement. `mechanism.py` (the detector-free effect size),
   `cmapss.py` + `regime_experiment.py` (C-MAPSS loading and the protocol implementation),
-  `synthetic_benchmark.py` (the 12-rung detector ladder), `fleet_traces.py` (per-truck replay records),
+  `synthetic_benchmark.py` (the 14-rung detector ladder), `fleet_traces.py` (per-truck replay records),
   `aps.py` (SCANIA APS cost decision), `componentx.py` (SCANIA Component X failure-window decision).
 - **`jsonio.py`**: the one JSON writer every artifact goes through. It maps NaN to null, refuses
   infinities, and re-parses its own output with browser strictness before it touches disk

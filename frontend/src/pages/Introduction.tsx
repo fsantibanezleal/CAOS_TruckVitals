@@ -374,8 +374,8 @@ export default function Introduction() {
             + 'Onset on Load-Varying Fleet Telemetry'}</em>
         {es ? ' (Zenodo, CC-BY-4.0, 2026). Citar el DOI de concepto ' : ' (Zenodo, CC-BY-4.0, 2026). Cite the concept DOI '}
         <a href="https://doi.org/10.5281/zenodo.22002431" target="_blank" rel="noreferrer">10.5281/zenodo.22002431</a>
-        {es ? '; la v1.0 es ' : '; v1.0 is '}
-        <a href="https://doi.org/10.5281/zenodo.22002432" target="_blank" rel="noreferrer">10.5281/zenodo.22002432</a>.
+        {es ? '; la v1.1 es ' : '; v1.1 is '}
+        <a href="https://doi.org/10.5281/zenodo.22016415" target="_blank" rel="noreferrer">10.5281/zenodo.22016415</a>.
         {es
           ? ' Las tres figuras del informe se regeneran desde los mismos artefactos que renderizan '
             + 'estas páginas (manuscripts/ en el repositorio), y su apéndice es el registro de '

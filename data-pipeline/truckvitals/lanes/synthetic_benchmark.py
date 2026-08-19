@@ -30,7 +30,8 @@ import regimecpd as rc
 
 from ..model.haulcycle import CONTEXT_CHANNELS, MONITORED_CHANNELS, build_fleet
 
-__all__ = ["DETECTOR_LADDER", "FAULT_CHANNELS", "SyntheticArmResult", "run_synthetic_benchmark"]
+__all__ = ["DETECTOR_LADDER", "FAULT_CHANNELS", "RUNG_SHAPE", "SyntheticArmResult",
+           "run_synthetic_benchmark"]
 
 # Every ONLINE rung the engine offers on a multivariate series. Two engine methods are absent on
 # purpose, for the same reason: an online detection metric must never score a method that has already
@@ -65,11 +66,38 @@ DETECTOR_LADDER = {
     "isolation-forest": lambda: rc.IsolationForestDetector(window=10, n_estimators=200, seed=0),
     "one-class-svm": lambda: rc.OneClassSVMDetector(window=10, nu=0.05, gamma="scale"),
     "autoencoder": lambda: rc.AutoencoderDetector(window=10, hidden=(32, 8), epochs=60, seed=0),
+
+    # DEEP rungs, added as a PREREGISTERED test rather than for coverage. The learned tier produced a
+    # counter-example to this product's own thesis: conditioning HURT both boundary-shaped novelty
+    # models and HELPED the reconstruction-shaped one, and the hypothesis is that the SHAPE of the
+    # statistic is what decides it. Two points per side is not a test. These two are one deep detector
+    # of each shape, chosen so neither shares an implementation family with the rungs that generated
+    # the hypothesis, and the prediction was written down before either was trained:
+    # plans/truckvitals/preregistration-deep-tier-2026-08-19.md in the management repo.
+    #
+    # Same window=10 as the rest of the learned tier, so the comparison is not confounded by how much
+    # trajectory each model sees.
+    "deep-svdd": lambda: rc.DeepSVDDDetector(window=10, hidden=(32, 8), epochs=60,
+                                             pretrain_epochs=30, seed=0),
+    "lstm-autoencoder": lambda: rc.LSTMAutoencoderDetector(window=10, hidden=32, epochs=60, seed=0),
 }
 
 #: The rungs that LEARN a model of normal rather than testing a change hypothesis. Reported separately
 #: because "we beat N baselines" means something different when the baselines are all one family.
-LEARNED_RUNGS = ("isolation-forest", "one-class-svm", "autoencoder")
+LEARNED_RUNGS = ("isolation-forest", "one-class-svm", "autoencoder", "deep-svdd", "lstm-autoencoder")
+
+#: The SHAPE of each learned rung's statistic, which is the variable the deep tier exists to test.
+#: A boundary-shaped detector learns where the healthy cloud IS; a reconstruction-shaped one learns
+#: the correlation structure and scores violations of it. The engine reports each detector's own
+#: shape in its detection meta, and the bake ASSERTS these agree, so this table cannot drift away
+#: from the code it describes.
+RUNG_SHAPE = {
+    "isolation-forest": "boundary",
+    "one-class-svm": "boundary",
+    "deep-svdd": "boundary",
+    "autoencoder": "reconstruction",
+    "lstm-autoencoder": "reconstruction",
+}
 
 #: The alarm-budget sweep, in false alarms per truck-month. A single operating point hides whether an
 #: advantage survives changing the budget, so every rung is read off at each of these. The headline
@@ -101,6 +129,15 @@ class SyntheticArmResult:
     attribution_top1: float | None
     regime_coverage: float | None
     note: str = ""
+    #: The compute device a TRAINED rung actually used, read back from the detector's own meta rather
+    #: than assumed from what is installed. None for rungs that train nothing. This exists because the
+    #: docs claimed a GPU lane for months while the product venv held the CPU wheel, and no artifact
+    #: recorded which one ran: an unverifiable claim about how a number was produced.
+    device: str | None = None
+    #: Boundary-shaped or reconstruction-shaped, read from the DETECTOR's own meta rather than from a
+    #: table here. None for rungs that learn no model of normal. The deep tier exists to test whether
+    #: this field predicts the sign of the conditioning effect.
+    shape: str | None = None
 
 
 def _fit_detector(make, series: rc.Series):
@@ -190,6 +227,8 @@ def run_synthetic_benchmark(n_healthy: int = 30, n_faulty: int = 24, n_cycles: i
             continue
         for arm in ("raw", "residual"):
             outcomes, coverages = [], []
+            devices: set[str] = set()
+            shapes: set[str] = set()
             for p in prepared:
                 s = p[arm]
                 cut = p["calib_offset"]
@@ -207,6 +246,21 @@ def run_synthetic_benchmark(n_healthy: int = 30, n_faulty: int = 24, n_cycles: i
                     outcomes = []
                     note = f"{type(exc).__name__}: {exc}"
                     break
+                # Read the device the detector ACTUALLY used out of its own meta. A rung that trains
+                # nothing reports none, and that absence is itself the honest answer.
+                if isinstance(d.meta, dict) and d.meta.get("device"):
+                    devices.add(str(d.meta["device"]))
+                # The detector declares its own shape; this lane only records it. Asserting the
+                # agreement here is what stops RUNG_SHAPE becoming a stale lookup table that says
+                # one thing while the engine computes another: exactly the documented-code-versus-
+                # running-code drift this product has already paid for twice.
+                if isinstance(d.meta, dict) and d.meta.get("shape"):
+                    declared = RUNG_SHAPE.get(det_name)
+                    if declared is not None and declared != d.meta["shape"]:
+                        raise AssertionError(
+                            f"{det_name}: this lane calls it {declared!r}, the engine reports "
+                            f"{d.meta['shape']!r}; the shape table has drifted from the code")
+                    shapes.add(str(d.meta["shape"]))
                 scored = rc.Detection(d.t[cut:], d.statistic[cut:], d.method, d.meta)
                 outcomes.append(rc.UnitOutcome(scored, onset_t=p["onset_t"], unit_id=p["unit_id"]))
                 if arm == "residual":
@@ -269,7 +323,11 @@ def run_synthetic_benchmark(n_healthy: int = 30, n_faulty: int = 24, n_cycles: i
                 median_delay_min=fleet_score.median_delay,
                 onset_error_min=None, attribution_top1=None,
                 regime_coverage=float(np.mean(coverages)) if coverages else None,
-                note=note)))
+                note=note,
+                # Sorted and joined: if a fleet somehow trained on two devices, the artifact says so
+                # rather than reporting whichever unit happened to be last.
+                device=(",".join(sorted(devices)) if devices else None),
+                shape=(",".join(sorted(shapes)) if shapes else None))))
 
     out["ladder_run"] = sorted({a["detector"] for a in out["arms"]})
     out["onset_estimation"] = _onset_estimation(prepared)

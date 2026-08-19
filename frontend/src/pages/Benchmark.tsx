@@ -49,6 +49,7 @@ function Ladder({ es }: { es: boolean }) {
     'pca-spe': 'multivariate', 'pca-t2': 'multivariate',
     bocpd: 'sota', kswin: 'sota', adwin: 'sota',
     'isolation-forest': 'learned', 'one-class-svm': 'learned', autoencoder: 'learned',
+    'deep-svdd': 'deep', 'lstm-autoencoder': 'deep',
   };
   const helped = detectors.filter((d) => {
     const r = byKey.get(`${d}:raw`);
@@ -95,7 +96,7 @@ function Ladder({ es }: { es: boolean }) {
               const res = byKey.get(`${d}:residual`);
               const dead = (raw?.detection_rate ?? 0) === 0 && (res?.detection_rate ?? 0) === 0;
               return (
-                <tr key={d} className={TIER[d] === 'learned' ? 'hl' : undefined}>
+                <tr key={d} className={TIER[d] === 'learned' || TIER[d] === 'deep' ? 'hl' : undefined}>
                   <td className="tv-muted">{TIER[d] ?? '-'}</td>
                   <td>{d}{dead ? ' *' : ''}</td>
                   <td className={(raw?.detection_rate ?? 0) > (res?.detection_rate ?? 0) ? 'win' : undefined}>

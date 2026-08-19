@@ -50,12 +50,15 @@ $0.73$ to $0.24$) when operating conditions go from one to six, and regime-condi
 $0.95$ (and $0.90$), above the single-condition references; discovering the regimes by clustering costs
 nothing over being handed the labels. Three results temper the story. Onset \emph{localisation} is a
 null: chance-corrected skill differs by $-0.08 \pm 0.74$ paired over five seeds. No false-alarm-reduction
-claim survives measurement, and it is withdrawn. And on a twelve-rung detector ladder over a physically
-grounded synthetic fleet, conditioning helps five rungs, leaves five at ceiling, and actively hurts the
-two boundary-shaped learned novelty detectors, with a regime-label coverage of $0.998$ ruling out the
-obvious explanation. The honest sentence the data supports: regime conditioning helps detectors that
-measure position or accumulate evidence, and can hurt detectors that score isolation from the healthy
-cloud. Every number in this report is replayed from committed artifacts, and the engine's own defect
+claim survives measurement, and it is withdrawn. And on a fourteen-rung detector ladder over a
+physically grounded synthetic fleet, conditioning helps six rungs, leaves six at ceiling, and actively
+hurts two learned novelty detectors, with a regime-label coverage of $0.998$ ruling out the obvious
+explanation. Version 1.0 of this report explained that last result by the \emph{shape} of a
+detector's statistic, and version 1.1 \textbf{retracts that explanation}: a preregistered test with two
+deep detectors, one of each shape, refuted it. Deep SVDD is boundary-shaped and conditioning helped
+it. The honest sentence the data still supports is narrower than the one it replaces: regime
+conditioning helps most detectors, hurts some healthy-only novelty models, and no rule established
+here predicts which. Every number in this report is replayed from committed artifacts, and the engine's own defect
 record, ten defects that produced plausible numbers rather than crashes, ships as an appendix because it
 is part of the result.
 \end{abstract}
@@ -220,9 +223,9 @@ $123$ minutes; a ladder that cannot beat it would mean the lane is too easy to b
 \begin{figure}[!t]
 \centering
 \includegraphics[width=\columnwidth]{fig-ladder}
-\caption{The complete ladder at a matched budget, by tier. Conditioning helps five rungs (largest:
-Hotelling $T^2$, $0.06 \to 1.00$), leaves five at ceiling, and hurts two, both boundary-shaped learned
-novelty models. BOCPD detects nothing on either arm (gradual ramps against an abrupt-change model);
+\caption{The complete fourteen-rung ladder at a matched budget, by tier. Conditioning helps six rungs
+(largest: Hotelling $T^2$, $0.06 \to 1.00$), leaves six at ceiling, and hurts two learned novelty
+models. BOCPD detects nothing on either arm (gradual ramps against an abrupt-change model);
 ADWIN's integer statistic leaves it only $d{+}1$ operating points.}
 \label{fig:ladder}
 \end{figure}
@@ -248,9 +251,10 @@ The counter-example is the finding this report exists to publish. Conditioning \
 isolation forest ($0.69 \to 0.06$) and the one-class SVM ($0.75 \to 0.50$ on detection rate; its shorter
 conditioned delay conditions on the half it still catches). The obvious explanation, unassigned regime
 samples destroying the ten-sample feature windows these models score, is ruled out by measurement:
-regime coverage on the residual arm is $0.998$, so there are almost no gaps to blame. The surviving
-explanation, offered explicitly as a hypothesis and not a result: a novelty model learns the
-\emph{shape} of normal. On the raw arm that shape is a few tight regime clusters, and anything
+regime coverage on the residual arm is $0.998$, so there are almost no gaps to blame. The explanation once offered here, that a novelty model
+learns the \emph{shape} of normal and conditioning removes the structure a boundary-shaped one
+uses, was preregistered as a prediction, tested with two deep detectors, and REFUTED; see
+Appendix~B. What follows describes it as the retracted account it is. On the raw arm that shape is a few tight regime clusters, and anything
 off-cluster is easy to isolate; conditioning replaces them with one roughly isotropic cloud, and a
 moderate shift stays inside it. The structure the residual removes is the structure these detectors were
 using. The autoencoder escapes on the same reading: its statistic is reconstruction error through a
@@ -337,8 +341,10 @@ tested on a second regime structure.
 On load-varying telemetry, regime variation alone can destroy budgeted detection, and conditioning on
 regimes learned from context channels recovers it to above single-condition references, with clustering
 as good as declared labels. The same conditioning does not reliably improve onset localisation, earns no
-false-alarm claim, and actively hurts boundary-shaped novelty detectors while helping position and
-accumulation detectors. A practitioner reading this report should condition their control charts and
+false-alarm claim, and actively hurts two learned novelty detectors while helping position and
+accumulation detectors. WHICH detectors it hurts is, on this evidence, predicted by no rule this study
+could confirm: the shape explanation offered in version 1.0 was refuted by its own preregistered test
+(Appendix~B). A practitioner reading this report should condition their control charts and
 $T^2$, keep their novelty detectors on the raw arm or re-validate them after conditioning, and distrust
 any localisation figure not printed beside its chance level.
 
@@ -382,9 +388,58 @@ headline artifact \\
 \end{tabular}
 \end{table}
 
+\section{Retraction of the Shape Explanation (version 1.1)}
+
+Version 1.0 of this report closed its ladder section with an explanation, offered explicitly as a
+hypothesis: that the \emph{shape} of a novelty detector's statistic decides whether regime conditioning
+helps it. Boundary-shaped detectors, which learn where the healthy cloud is, would be hurt, because
+conditioning replaces the tight regime clusters they exploit with one isotropic blob;
+reconstruction-shaped detectors, which learn correlation structure, would not.
+
+That hypothesis has been tested and \textbf{refuted}, by its author, with a test designed in advance to
+be able to fail. The prediction was written down and version-controlled before any model was trained,
+and two deep detectors were added, one of each shape and neither sharing an implementation family with
+the rungs that generated the hypothesis: Deep SVDD~\cite{ruff2018} (boundary-shaped: it learns a
+minimum-volume hypersphere around the healthy representations) and an EncDec-AD LSTM
+encoder-decoder~\cite{malhotra2016} (reconstruction-shaped).
+
+\begin{table}[!h]
+\caption{The preregistered predictions against the measured outcome.}
+\label{tab:prereg}
+\centering
+\small
+\begin{tabular}{lccc}
+\toprule
+Rung & Predicted & Raw & Residual \\
+\midrule
+deep-svdd (boundary) & hurt & 0.812 & \textbf{0.938} \\
+lstm-autoencoder (reconstruction) & not hurt & 1.000 & 1.000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Deep SVDD was \emph{helped}, by $+0.125$, well beyond the $0.01$ margin this study uses to call a
+direction. The LSTM's half is nearly uninformative: it sits at ceiling on both arms and so could not
+have been hurt from there, though its median delay did fall from $170$ to $54$ minutes.
+
+What survives is the observation: isolation forest ($0.688 \to 0.062$) and one-class SVM
+($0.750 \to 0.500$) are still hurt, and those are measurements. What does not survive is the
+explanation built on them. Three boundary-shaped rungs now split two hurt against one helped, which is
+not a rule.
+
+No replacement explanation is offered here. There is a visible candidate difference, that Deep SVDD
+learns its representation while the two hurt rungs partition a fixed input space, but promoting it now
+would be the precise move the preregistration was written to prevent: it is an observation about the
+data that refuted the previous story, and it would need its own prediction, registered first, and its
+own test. It is recorded as an open question.
+
+The honest sentence, and the one a practitioner should carry away: regime conditioning helps most
+detectors and hurts some, the hurt ones so far are healthy-only novelty models, and no rule established
+in this study predicts which.
+
 \balance
 
-\begin{thebibliography}{20}
+\begin{thebibliography}{24}
 
 \bibitem{saxena2008} A.~Saxena, K.~Goebel, D.~Simon, and N.~Eklund, ``Damage propagation modeling for
 aircraft engine run-to-failure simulation,'' in \emph{Proc. Int. Conf. Prognostics and Health Management
@@ -460,6 +515,14 @@ Springer, 2005, doi:10.1007/b106715.
 
 \bibitem{gibbs2021} I.~Gibbs and E.~J. Cand\`es, ``Adaptive conformal inference under distribution
 shift,'' in \emph{Advances in Neural Information Processing Systems}, vol.~34, 2021, pp. 1660--1672.
+
+\bibitem{ruff2018} L.~Ruff, R.~Vandermeulen, N.~Goernitz, L.~Deecke, S.~A. Siddiqui, A.~Binder,
+E.~Mueller, and M.~Kloft, ``Deep one-class classification,'' in \emph{Proc. 35th Int. Conf. Machine
+Learning}, PMLR, vol.~80, 2018, pp. 4393--4402.
+
+\bibitem{malhotra2016} P.~Malhotra, A.~Ramakrishnan, G.~Anand, L.~Vig, P.~Agarwal, and G.~Shroff,
+``LSTM-based encoder-decoder for multi-sensor anomaly detection,'' \emph{ICML 2016 Anomaly Detection
+Workshop}, arXiv:1607.00148, 2016.
 
 \bibitem{carpentier2024} L.~Carpentier, A.~De Temmerman, and M.~Verbeke, ``Towards contextual,
 cost-efficient predictive maintenance in heavy-duty trucks,'' in \emph{Advances in Intelligent Data

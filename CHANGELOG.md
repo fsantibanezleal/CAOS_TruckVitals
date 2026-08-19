@@ -3,6 +3,41 @@
 Newest first, following [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions use the
 `X.XX.XXX` display form. Stays in `0.x` while any lane is synthetic or the at-bar review is open.
 
+## [0.04.000] - 2026-08-19
+
+### Added
+
+**A DEEP tier, GPU-trained, added to test a hypothesis rather than to add coverage.** The ladder goes
+from 12 rungs to 14: `deep-svdd` (Deep SVDD, Ruff et al. ICML 2018) and `lstm-autoencoder` (EncDec-AD,
+Malhotra et al. 2016), both via regimecpd 0.10.1, both trained on the GPU. They are a matched pair,
+one boundary-shaped and one reconstruction-shaped, chosen because the learned tier's counter-example
+split along exactly that line.
+
+**Every trained rung now records the device it actually used**, read from the detector's own meta into
+the artifact (`device`), plus the `shape` it declares. The lane ASSERTS its shape table against what
+each detector reports, so the table cannot drift from the code. Both fields fix a real gap: the GPU
+lane was documented for months while the pipeline venv held the CPU wheel, so every published
+autoencoder number was CPU-trained and no artifact said so. Measured on this fleet, the RTX 4070 is
+about 3.3x faster than the CPU at identical loss.
+
+### Changed
+
+**THE SHAPE HYPOTHESIS IS REFUTED, and the published report is corrected.** The prediction was
+registered before any training: boundary-shaped detectors would be hurt by conditioning,
+reconstruction-shaped ones would not. Deep SVDD is boundary-shaped and conditioning HELPED it, 0.812
+raw to 0.938 residual. The LSTM sat at ceiling on both arms, so its half is nearly uninformative
+(delay did fall, 170 to 54 minutes). The observation survives (isolation forest and one-class SVM are
+still hurt); the explanation does not; no replacement is offered, because the preregistration
+committed in advance to not inventing one after the fact.
+
+Corrected everywhere the claim appeared: the Methodology Learned tab leads with the refutation, the
+README ladder section carries it, and the published report was reissued as **v1.1**
+(10.5281/zenodo.22016415, concept DOI unchanged) with a retraction appendix. The contradicted
+sentences in the Zenodo abstract were corrected in place rather than left standing beside their own
+retraction.
+
+Conditioning now helps 6 rungs, is neutral on 6, and hurts 2.
+
 ## [0.03.002] - 2026-08-18
 
 ### Added

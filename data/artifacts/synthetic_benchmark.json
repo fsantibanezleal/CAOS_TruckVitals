@@ -44,7 +44,9 @@
       "onset_error_min": null,
       "attribution_top1": null,
       "regime_coverage": null,
-      "note": ""
+      "note": "",
+      "device": null,
+      "shape": null
     },
     {
       "detector": "shewhart",
@@ -62,7 +64,9 @@
       "onset_error_min": null,
       "attribution_top1": null,
       "regime_coverage": 0.9981194170192761,
-      "note": ""
+      "note": "",
+      "device": null,
+      "shape": null
     },
     {
       "detector": "cusum",
@@ -80,7 +84,9 @@
       "onset_error_min": null,
       "attribution_top1": null,
       "regime_coverage": null,
-      "note": ""
+      "note": "",
+      "device": null,
+      "shape": null
     },
     {
       "detector": "cusum",
@@ -98,7 +104,9 @@
       "onset_error_min": null,
       "attribution_top1": null,
       "regime_coverage": 0.9981194170192761,
-      "note": ""
+      "note": "",
+      "device": null,
+      "shape": null
     },
     {
       "detector": "ewma",
@@ -116,7 +124,9 @@
       "onset_error_min": null,
       "attribution_top1": null,
       "regime_coverage": null,
-      "note": ""
+      "note": "",
+      "device": null,
+      "shape": null
     },
     {
       "detector": "ewma",
@@ -134,7 +144,9 @@
       "onset_error_min": null,
       "attribution_top1": null,
       "regime_coverage": 0.9981194170192761,
-      "note": ""
+      "note": "",
+      "device": null,
+      "shape": null
     },
     {
       "detector": "page-hinkley",
@@ -152,7 +164,9 @@
       "onset_error_min": null,
       "attribution_top1": null,
       "regime_coverage": null,
-      "note": ""
+      "note": "",
+      "device": null,
+      "shape": null
     },
     {
       "detector": "page-hinkley",
@@ -170,7 +184,9 @@
       "onset_error_min": null,
       "attribution_top1": null,
       "regime_coverage": 0.9981194170192761,
-      "note": ""
+      "note": "",
+      "device": null,
+      "shape": null
     },
     {
       "detector": "pca-spe",
@@ -188,7 +204,9 @@
       "onset_error_min": null,
       "attribution_top1": null,
       "regime_coverage": null,
-      "note": ""
+      "note": "",
+      "device": null,
+      "shape": null
     },
     {
       "detector": "pca-spe",
@@ -206,7 +224,9 @@
       "onset_error_min": null,
       "attribution_top1": null,
       "regime_coverage": 0.9981194170192761,
-      "note": ""
+      "note": "",
+      "device": null,
+      "shape": null
     },
     {
       "detector": "pca-t2",
@@ -224,7 +244,9 @@
       "onset_error_min": null,
       "attribution_top1": null,
       "regime_coverage": null,
-      "note": ""
+      "note": "",
+      "device": null,
+      "shape": null
     },
     {
       "detector": "pca-t2",
@@ -242,7 +264,9 @@
       "onset_error_min": null,
       "attribution_top1": null,
       "regime_coverage": 0.9981194170192761,
-      "note": ""
+      "note": "",
+      "device": null,
+      "shape": null
     },
     {
       "detector": "bocpd",
@@ -260,7 +284,9 @@
       "onset_error_min": null,
       "attribution_top1": null,
       "regime_coverage": null,
-      "note": ""
+      "note": "",
+      "device": null,
+      "shape": null
     },
     {
       "detector": "bocpd",
@@ -278,7 +304,9 @@
       "onset_error_min": null,
       "attribution_top1": null,
       "regime_coverage": 0.9981194170192761,
-      "note": ""
+      "note": "",
+      "device": null,
+      "shape": null
     },
     {
       "detector": "kswin",
@@ -296,7 +324,9 @@
       "onset_error_min": null,
       "attribution_top1": null,
       "regime_coverage": null,
-      "note": ""
+      "note": "",
+      "device": null,
+      "shape": null
     },
     {
       "detector": "kswin",
@@ -314,7 +344,9 @@
       "onset_error_min": null,
       "attribution_top1": null,
       "regime_coverage": 0.9981194170192761,
-      "note": ""
+      "note": "",
+      "device": null,
+      "shape": null
     },
     {
       "detector": "adwin",
@@ -332,7 +364,9 @@
       "onset_error_min": null,
       "attribution_top1": null,
       "regime_coverage": null,
-      "note": ""
+      "note": "",
+      "device": null,
+      "shape": null
     },
     {
       "detector": "adwin",
@@ -350,7 +384,9 @@
       "onset_error_min": null,
       "attribution_top1": null,
       "regime_coverage": 0.9981194170192761,
-      "note": ""
+      "note": "",
+      "device": null,
+      "shape": null
     },
     {
       "detector": "isolation-forest",
@@ -368,7 +404,9 @@
       "onset_error_min": null,
       "attribution_top1": null,
       "regime_coverage": null,
-      "note": ""
+      "note": "",
+      "device": null,
+      "shape": "boundary"
     },
     {
       "detector": "isolation-forest",
@@ -386,7 +424,9 @@
       "onset_error_min": null,
       "attribution_top1": null,
       "regime_coverage": 0.9981194170192761,
-      "note": ""
+      "note": "",
+      "device": null,
+      "shape": "boundary"
     },
     {
       "detector": "one-class-svm",
@@ -404,7 +444,9 @@
       "onset_error_min": null,
       "attribution_top1": null,
       "regime_coverage": null,
-      "note": ""
+      "note": "",
+      "device": null,
+      "shape": "boundary"
     },
     {
       "detector": "one-class-svm",
@@ -422,14 +464,16 @@
       "onset_error_min": null,
       "attribution_top1": null,
       "regime_coverage": 0.9981194170192761,
-      "note": ""
+      "note": "",
+      "device": null,
+      "shape": "boundary"
     },
     {
       "detector": "autoencoder",
       "arm": "raw",
       "n_units": 36,
       "n_faulty": 16,
-      "threshold": 0.2920615625883147,
+      "threshold": 0.29206158116250763,
       "fa_per_truck_month": 0.0,
       "fa_ci": [
         0.0,
@@ -440,7 +484,9 @@
       "onset_error_min": null,
       "attribution_top1": null,
       "regime_coverage": null,
-      "note": ""
+      "note": "",
+      "device": "cuda",
+      "shape": "reconstruction"
     },
     {
       "detector": "autoencoder",
@@ -458,7 +504,89 @@
       "onset_error_min": null,
       "attribution_top1": null,
       "regime_coverage": 0.9981194170192761,
-      "note": ""
+      "note": "",
+      "device": "cuda",
+      "shape": "reconstruction"
+    },
+    {
+      "detector": "deep-svdd",
+      "arm": "raw",
+      "n_units": 36,
+      "n_faulty": 16,
+      "threshold": 0.5299114369916056,
+      "fa_per_truck_month": 0.0,
+      "fa_ci": [
+        0.0,
+        0.0
+      ],
+      "detection_rate": 0.8125,
+      "median_delay_min": 220.0,
+      "onset_error_min": null,
+      "attribution_top1": null,
+      "regime_coverage": null,
+      "note": "",
+      "device": "cuda",
+      "shape": "boundary"
+    },
+    {
+      "detector": "deep-svdd",
+      "arm": "residual",
+      "n_units": 36,
+      "n_faulty": 16,
+      "threshold": 2.7365419448974855,
+      "fa_per_truck_month": 0.0,
+      "fa_ci": [
+        0.0,
+        0.0
+      ],
+      "detection_rate": 0.9375,
+      "median_delay_min": 96.0,
+      "onset_error_min": null,
+      "attribution_top1": null,
+      "regime_coverage": 0.9981194170192761,
+      "note": "",
+      "device": "cuda",
+      "shape": "boundary"
+    },
+    {
+      "detector": "lstm-autoencoder",
+      "arm": "raw",
+      "n_units": 36,
+      "n_faulty": 16,
+      "threshold": 41.545850540553346,
+      "fa_per_truck_month": 0.0,
+      "fa_ci": [
+        0.0,
+        0.0
+      ],
+      "detection_rate": 1.0,
+      "median_delay_min": 170.0,
+      "onset_error_min": null,
+      "attribution_top1": null,
+      "regime_coverage": null,
+      "note": "",
+      "device": "cuda",
+      "shape": "reconstruction"
+    },
+    {
+      "detector": "lstm-autoencoder",
+      "arm": "residual",
+      "n_units": 36,
+      "n_faulty": 16,
+      "threshold": 54.12953316740685,
+      "fa_per_truck_month": 0.0,
+      "fa_ci": [
+        0.0,
+        0.0
+      ],
+      "detection_rate": 1.0,
+      "median_delay_min": 53.5,
+      "onset_error_min": null,
+      "attribution_top1": null,
+      "regime_coverage": 0.9981194170192761,
+      "note": "",
+      "device": "cuda",
+      "shape": "reconstruction"
     }
   ],
   "onset_estimation": {
@@ -2016,7 +2144,7 @@
         {
           "budget_per_truck_month": 0.1,
           "reachable": true,
-          "threshold": 0.2920615625883147,
+          "threshold": 0.29206158116250763,
           "detection_rate": 0.75,
           "det_ci": [
             0.5,
@@ -2027,7 +2155,7 @@
         {
           "budget_per_truck_month": 0.25,
           "reachable": true,
-          "threshold": 0.2920615625883147,
+          "threshold": 0.29206158116250763,
           "detection_rate": 0.75,
           "det_ci": [
             0.5,
@@ -2038,7 +2166,7 @@
         {
           "budget_per_truck_month": 0.5,
           "reachable": true,
-          "threshold": 0.2920615625883147,
+          "threshold": 0.29206158116250763,
           "detection_rate": 0.75,
           "det_ci": [
             0.5,
@@ -2049,7 +2177,7 @@
         {
           "budget_per_truck_month": 1.0,
           "reachable": true,
-          "threshold": 0.2920615625883147,
+          "threshold": 0.29206158116250763,
           "detection_rate": 0.75,
           "det_ci": [
             0.5,
@@ -2060,7 +2188,7 @@
         {
           "budget_per_truck_month": 2.0,
           "reachable": true,
-          "threshold": 0.2667256133231464,
+          "threshold": 0.2667256209081062,
           "detection_rate": 0.75,
           "det_ci": [
             0.5,
@@ -2071,7 +2199,7 @@
         {
           "budget_per_truck_month": 4.0,
           "reachable": true,
-          "threshold": 0.2667256133231464,
+          "threshold": 0.2667256209081062,
           "detection_rate": 0.75,
           "det_ci": [
             0.5,
@@ -2128,7 +2256,7 @@
         {
           "budget_per_truck_month": 2.0,
           "reachable": true,
-          "threshold": 2.4791345128076565,
+          "threshold": 2.4791347512262356,
           "detection_rate": 1.0,
           "det_ci": [
             1.0,
@@ -2139,7 +2267,283 @@
         {
           "budget_per_truck_month": 4.0,
           "reachable": true,
-          "threshold": 1.772227658537437,
+          "threshold": 1.772227492743355,
+          "detection_rate": 1.0,
+          "det_ci": [
+            1.0,
+            1.0
+          ],
+          "fa_per_truck_month": 3.3845189595738012
+        }
+      ]
+    },
+    "deep-svdd": {
+      "raw": [
+        {
+          "budget_per_truck_month": 0.1,
+          "reachable": true,
+          "threshold": 0.5299114369916056,
+          "detection_rate": 0.8125,
+          "det_ci": [
+            0.5752100840336134,
+            1.0
+          ],
+          "fa_per_truck_month": 0.0
+        },
+        {
+          "budget_per_truck_month": 0.25,
+          "reachable": true,
+          "threshold": 0.5299114369916056,
+          "detection_rate": 0.8125,
+          "det_ci": [
+            0.5752100840336134,
+            1.0
+          ],
+          "fa_per_truck_month": 0.0
+        },
+        {
+          "budget_per_truck_month": 0.5,
+          "reachable": true,
+          "threshold": 0.5299114369916056,
+          "detection_rate": 0.8125,
+          "det_ci": [
+            0.5752100840336134,
+            1.0
+          ],
+          "fa_per_truck_month": 0.0
+        },
+        {
+          "budget_per_truck_month": 1.0,
+          "reachable": true,
+          "threshold": 0.5299114369916056,
+          "detection_rate": 0.8125,
+          "det_ci": [
+            0.5752100840336134,
+            1.0
+          ],
+          "fa_per_truck_month": 0.0
+        },
+        {
+          "budget_per_truck_month": 2.0,
+          "reachable": true,
+          "threshold": 0.4910853654444806,
+          "detection_rate": 0.8125,
+          "det_ci": [
+            0.5752100840336134,
+            1.0
+          ],
+          "fa_per_truck_month": 1.6922594797869006
+        },
+        {
+          "budget_per_truck_month": 4.0,
+          "reachable": true,
+          "threshold": 0.47913679122208114,
+          "detection_rate": 0.8125,
+          "det_ci": [
+            0.5752100840336134,
+            1.0
+          ],
+          "fa_per_truck_month": 3.3845189595738012
+        }
+      ],
+      "residual": [
+        {
+          "budget_per_truck_month": 0.1,
+          "reachable": true,
+          "threshold": 2.7365419448974855,
+          "detection_rate": 0.9375,
+          "det_ci": [
+            0.819385026737968,
+            1.0
+          ],
+          "fa_per_truck_month": 0.0
+        },
+        {
+          "budget_per_truck_month": 0.25,
+          "reachable": true,
+          "threshold": 2.7365419448974855,
+          "detection_rate": 0.9375,
+          "det_ci": [
+            0.819385026737968,
+            1.0
+          ],
+          "fa_per_truck_month": 0.0
+        },
+        {
+          "budget_per_truck_month": 0.5,
+          "reachable": true,
+          "threshold": 2.7365419448974855,
+          "detection_rate": 0.9375,
+          "det_ci": [
+            0.819385026737968,
+            1.0
+          ],
+          "fa_per_truck_month": 0.0
+        },
+        {
+          "budget_per_truck_month": 1.0,
+          "reachable": true,
+          "threshold": 2.7365419448974855,
+          "detection_rate": 0.9375,
+          "det_ci": [
+            0.819385026737968,
+            1.0
+          ],
+          "fa_per_truck_month": 0.0
+        },
+        {
+          "budget_per_truck_month": 2.0,
+          "reachable": true,
+          "threshold": 2.5696735850316936,
+          "detection_rate": 0.9375,
+          "det_ci": [
+            0.819385026737968,
+            1.0
+          ],
+          "fa_per_truck_month": 1.6922594797869006
+        },
+        {
+          "budget_per_truck_month": 4.0,
+          "reachable": true,
+          "threshold": 2.481709042627485,
+          "detection_rate": 0.9375,
+          "det_ci": [
+            0.819385026737968,
+            1.0
+          ],
+          "fa_per_truck_month": 3.3845189595738012
+        }
+      ]
+    },
+    "lstm-autoencoder": {
+      "raw": [
+        {
+          "budget_per_truck_month": 0.1,
+          "reachable": true,
+          "threshold": 41.545850540553346,
+          "detection_rate": 1.0,
+          "det_ci": [
+            1.0,
+            1.0
+          ],
+          "fa_per_truck_month": 0.0
+        },
+        {
+          "budget_per_truck_month": 0.25,
+          "reachable": true,
+          "threshold": 41.545850540553346,
+          "detection_rate": 1.0,
+          "det_ci": [
+            1.0,
+            1.0
+          ],
+          "fa_per_truck_month": 0.0
+        },
+        {
+          "budget_per_truck_month": 0.5,
+          "reachable": true,
+          "threshold": 41.545850540553346,
+          "detection_rate": 1.0,
+          "det_ci": [
+            1.0,
+            1.0
+          ],
+          "fa_per_truck_month": 0.0
+        },
+        {
+          "budget_per_truck_month": 1.0,
+          "reachable": true,
+          "threshold": 41.545850540553346,
+          "detection_rate": 1.0,
+          "det_ci": [
+            1.0,
+            1.0
+          ],
+          "fa_per_truck_month": 0.0
+        },
+        {
+          "budget_per_truck_month": 2.0,
+          "reachable": true,
+          "threshold": 33.65271390399745,
+          "detection_rate": 1.0,
+          "det_ci": [
+            1.0,
+            1.0
+          ],
+          "fa_per_truck_month": 1.6922594797869006
+        },
+        {
+          "budget_per_truck_month": 4.0,
+          "reachable": true,
+          "threshold": 32.80138378445706,
+          "detection_rate": 1.0,
+          "det_ci": [
+            1.0,
+            1.0
+          ],
+          "fa_per_truck_month": 3.3845189595738012
+        }
+      ],
+      "residual": [
+        {
+          "budget_per_truck_month": 0.1,
+          "reachable": true,
+          "threshold": 54.12953316740685,
+          "detection_rate": 1.0,
+          "det_ci": [
+            1.0,
+            1.0
+          ],
+          "fa_per_truck_month": 0.0
+        },
+        {
+          "budget_per_truck_month": 0.25,
+          "reachable": true,
+          "threshold": 54.12953316740685,
+          "detection_rate": 1.0,
+          "det_ci": [
+            1.0,
+            1.0
+          ],
+          "fa_per_truck_month": 0.0
+        },
+        {
+          "budget_per_truck_month": 0.5,
+          "reachable": true,
+          "threshold": 54.12953316740685,
+          "detection_rate": 1.0,
+          "det_ci": [
+            1.0,
+            1.0
+          ],
+          "fa_per_truck_month": 0.0
+        },
+        {
+          "budget_per_truck_month": 1.0,
+          "reachable": true,
+          "threshold": 54.12953316740685,
+          "detection_rate": 1.0,
+          "det_ci": [
+            1.0,
+            1.0
+          ],
+          "fa_per_truck_month": 0.0
+        },
+        {
+          "budget_per_truck_month": 2.0,
+          "reachable": true,
+          "threshold": 29.60741862788203,
+          "detection_rate": 1.0,
+          "det_ci": [
+            1.0,
+            1.0
+          ],
+          "fa_per_truck_month": 1.6922594797869006
+        },
+        {
+          "budget_per_truck_month": 4.0,
+          "reachable": true,
+          "threshold": 28.725623531200696,
           "detection_rate": 1.0,
           "det_ci": [
             1.0,
@@ -2171,16 +2575,20 @@
     "adwin",
     "isolation-forest",
     "one-class-svm",
-    "autoencoder"
+    "autoencoder",
+    "deep-svdd",
+    "lstm-autoencoder"
   ],
   "ladder_run": [
     "adwin",
     "autoencoder",
     "bocpd",
     "cusum",
+    "deep-svdd",
     "ewma",
     "isolation-forest",
     "kswin",
+    "lstm-autoencoder",
     "one-class-svm",
     "page-hinkley",
     "pca-spe",
@@ -2225,8 +2633,8 @@
     "note": "a hit means a channel the fault was actually injected into appears in the top two PCA SPE contributions at the peak. Contributions smear onto correlated channels, so this narrows a candidate set and does not identify a cause."
   },
   "schema": "truckvitals.synthetic-benchmark/v1",
-  "generated_utc": "2026-08-18T03:56:10+00:00",
-  "regimecpd_version": "0.09.006",
+  "generated_utc": "2026-08-19T17:55:36+00:00",
+  "regimecpd_version": "0.10.001",
   "python": "3.13.14",
   "numpy": "2.5.2",
   "honest_limits": [

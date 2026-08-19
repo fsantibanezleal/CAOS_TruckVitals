@@ -100,6 +100,12 @@ export interface SyntheticArm {
   attribution_top1: number | null;
   regime_coverage: number | null;
   note: string;
+  /** The compute device a TRAINED rung actually used, read from the detector's own meta. Null for
+   *  rungs that train nothing. Present since 0.04.000; older artifacts omit it. */
+  device?: string | null;
+  /** "boundary" or "reconstruction", declared by the detector itself. The deep tier exists to test
+   *  whether this predicts the sign of the conditioning effect. Null for rungs that learn no model. */
+  shape?: string | null;
 }
 
 export interface SyntheticBenchmark {

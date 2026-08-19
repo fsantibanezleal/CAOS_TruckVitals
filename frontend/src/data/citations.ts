@@ -183,6 +183,31 @@ export const CITATIONS: Citation[] = [
     doi: '10.1007/978-3-031-58553-1_21',
   },
   {
+    id: 'ruff2018',
+    label: 'Ruff et al. 2018',
+    citation: 'Ruff, L., Vandermeulen, R., Goernitz, N., Deecke, L., Siddiqui, S. A., Binder, A., '
+      + 'Mueller, E., Kloft, M. "Deep One-Class Classification." Proceedings of the 35th '
+      + 'International Conference on Machine Learning, PMLR 80, 4393-4402 (2018). Deep SVDD: learn a '
+      + 'network mapping under which normal data falls inside a minimum-volume hypersphere. Section '
+      + '3.3 proves the failure mode this implementation guards against: with any bias term, the '
+      + 'collapsed constant map is an OPTIMAL solution, so hypersphere collapse is the objective\'s '
+      + 'own minimum rather than a training accident.',
+    url: 'https://proceedings.mlr.press/v80/ruff18a.html',
+  },
+  {
+    id: 'malhotra2016',
+    label: 'Malhotra et al. 2016',
+    citation: 'Malhotra, P., Ramakrishnan, A., Anand, G., Vig, L., Agarwal, P., Shroff, G. '
+      + '"LSTM-based Encoder-Decoder for Multi-sensor Anomaly Detection." ICML 2016 Anomaly '
+      + 'Detection Workshop, arXiv:1607.00148. EncDec-AD reconstructs the window in REVERSE order '
+      + 'and scores a Mahalanobis distance on the element-wise error vector. Not to be confused with '
+      + 'the same group\'s ESANN 2015 LSTM-AD, which is a PREDICTION model; citing that one for a '
+      + 'reconstruction autoencoder would be a factual error. Honest limit of the source: every '
+      + 'experiment in it is effectively univariate, so it offers no evidence for the full '
+      + 'covariance at realistic sensor counts.',
+    url: 'https://arxiv.org/abs/1607.00148',
+  },
+  {
     id: 'hendrickx2020',
     label: 'Hendrickx et al. 2020',
     citation: 'Hendrickx, K., Meert, W., Mollet, Y., Gyselinck, J., Cornelis, B., Gryllias, K., '
