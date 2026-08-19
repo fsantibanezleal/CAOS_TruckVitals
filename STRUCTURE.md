@@ -1,117 +1,70 @@
-# Template blueprint, the authoritative structure (align here BEFORE mass-generating)
+# Repository structure, as built
 
-This is the agreed shape of a REAL product repo. Every requirement Felipe raised is captured here. Nothing is
-built against it until the shape is approved, so we don't build-then-redo.
+The instantiated shape of this product. The template's generic blueprint stood here until 2026-08-18;
+it described stages, contracts and paths this repo never had, and the `check_doc_paths` gate now fails
+on any path a document names that does not exist. Everything below is the shipped tree.
 
-> **Blueprint names → shipped tree (read this first).** This blueprint predates the built template and uses
-> generic names. In the tree actually shipped: **`productlab/` = `data-pipeline/truckvitals/`** (the Python
-> package lives INSIDE `data-pipeline/`; on instantiation rename `pipeline` → `pipeline`), **`web/` =
-> `frontend/`**, and **`api/` = `app/`** (the dormant FastAPI module). The stage/contract/lane semantics below
-> are unchanged, only the paths differ. When in doubt, the shipped tree + `docs/guides/00_instantiate.md` win.
-
-## Three execution lanes + a replay fallback, SEPARATE dependencies AND implementation
-
-A product can run in up to three lanes. They do **not** share one engine by default: the offline engine is the
-heavy SOTA one; the live engine is often a **reduced / surrogate / small-Pyodide** model; the web always has a
-**replay fallback** (the baked artifact). The clean separation of *dependencies* and *implementation* per lane is
-mandatory, never let a heavy native dep leak into the live lane, never let the live toy masquerade as the SOTA.
+## Three lanes and a fallback, separate dependencies AND implementations
 
 | Lane | Dependencies | Implementation | Notes |
 |---|---|---|---|
-| **Offline (precompute)** | `requirements-precompute.txt` (+ `-gpu`) | `productlab/stages/` (heavy SOTA engine) | bakes the committed artifacts; native libs OK (Yade/OR-Tools/…) |
-| **Live (client-side)** | `requirements.txt` (Pyodide-safe wheels) **or** web npm deps | `productlab/live/` (Pyodide-safe Python) **or** `web/src/engine/` (TS) | small sims / surrogate / analytic core, runs in the browser, like SimLab's Pyodide live lane. **May be a DIFFERENT, lighter model than offline.** |
-| **API / backend** *(optional)* | `requirements-api.txt` | `api/` (FastAPI) over `productlab/model/` | only on an ADR-0002 trigger; thin layer over the shared core, never a re-implementation |
-| **Replay fallback** |, (none) | `web/src/engine/replay` loads `data/artifacts` + manifest | always present; first paint + when live unavailable |
+| **Offline (precompute)** | `requirements-precompute.txt` (+ `requirements-gpu.txt` for the autoencoder rung) | `data-pipeline/truckvitals/` driven by eight `run_*.py` runners | bakes the committed artifacts in `data/artifacts/`; pins `regimecpd` exactly, and every artifact records the version that baked it |
+| **Live (client-side)** | frontend npm deps only | `frontend/src/engine/` (TypeScript) | the App's workbench: a REDUCED engine (classical detectors, PCA, k-means regimes, a small autoencoder) recomputing on every control change; gated against the Python engine by the parity fixture, in CI |
+| **API / backend** (dormant) | `requirements-api.txt` | `app/` (FastAPI) | not required: the product is static replay plus the client-side live lane; activate only on an ADR-0002 trigger |
+| **Replay fallback** | none | `frontend/src/lib/artifacts.ts` | every page renders the committed artifacts; nothing canonical is computed in the browser, and data fetches are cache-busted with `?v=<version>` |
 
-- **`productlab/model/`**, the pure-Python analytic/physics core that is **shared and Pyodide-safe**, usable by the
-  offline stages, the live lane, and the api. The *only* code that may run in more than one lane.
-- **`productlab/stages/`**, the OFFLINE pipeline (heavy engines), never imported by the live lane.
-- **`productlab/live/`**, the LIVE-lane engine (reduced/surrogate/small), importing only `model/` + Pyodide-safe deps.
-- **`web/`**, the app; runs the live lane (Pyodide importing `productlab.live`, or a TS engine in `src/engine/`) and
-  always falls back to **replaying** committed artifacts.
-- **`api/`** *(optional, dormant)*, a thin FastAPI layer over `productlab/model/`; imports it, never re-implements.
+The one-class SVM deliberately does NOT run live: fitting it in the browser would need an SMO solver,
+and an approximation would be a third implementation the parity gate cannot check.
 
-The lane each case actually uses is decided by `productlab/core/gate.py` (pure-python ∧ runtime ∧ trace-size gate,
-ADR-0054), exactly SimLab's `classify_lane`.
-
-## The pipeline is SEPARATED BY NAMED STAGES
-
-`productlab/stages/`, each stage is a pure, deterministic, **seeded**, typed, independently-tested function with an
-explicit **input→output contract** to the next stage. Not a monolith.
-
-| Order | Stage module | Input | Output | Notes |
-|---|---|---|---|---|
-| 1 | `ingest.py` | raw dataset (via `io/contract.py`) | validated source records | applies the ingestion contract, provenance, and outlier policy |
-| 2 | `preprocess.py` | validated source records | calibrated/cleaned records | domain normalization with fitted-state persistence |
-| 3 | `dataset.py` | records + source/seed/site/time groups | versioned train/val/calibration/test splits | blocks leakage before fitting |
-| 4 | `features.py` | split records | feature tensors/tables | deterministic; fitted transforms use train only |
-| 5 | `train.py` | train/val features + labels | checkpoint(s) + training manifest | one real implementation per learned method; resumable |
-| 6 | `infer.py` | method + checkpoint + held-out cases | predictions + timings | executes every promised method, including offline-only engines |
-| 7 | `evaluate.py` | predictions vs held-out truth | complete method × case metric matrix | missing cells fail; includes parity and robustness |
-| 8 | `export.py` | predictions + metrics | compact web artifacts + manifests | processing→web contract; canonical results are immutable |
-| 9 | `validate.py` | registry + checkpoints + manifests + artifacts | signed/checksummed release report | final completeness, schema, provenance, and drift gate |
-
-`pipeline.py` orchestrates these (an ordered `STAGES` list); `python -m productlab.pipeline <case>` runs them and
-persists artifact + manifest. Add domain stages as needed (e.g. `calibrate.py`, `decimate.py`), same rules.
-
-## The TWO data contracts (were missing everywhere)
-
-1. **Ingestion `raw → processing`**, `productlab/io/contract.py`: required schema (columns, units, ranges) + an
-   explicit outlier policy (reject/clip/flag). The *bring-your-own-data* gate. Doc: `docs/data-contract.md`.
-2. **Artifact `processing → web`**, `manifests/<case>.json` + the compact artifact schema; the web has a TS type
-   mirroring it (`web/src/contract.ts`) so a drift fails the build; `web/copy-data.mjs` copies canonical artifacts.
-
-## Standard formats end-to-end
-
-`productlab/io/formats.py`: domain-standard readers/writers, CSV (sieve-series / tabular), parquet (heavy full
-dataset, gitignored/LFS), npz/JSON (compact committed artifact), and per-product `.vtk/.vtu`, `.h5`, `.mat`,
-GeoTIFF. The compact committed artifacts in `data/artifacts/` ARE the standardized synthetic datasets.
-
-## Full tree
+## The real tree
 
 ```
-<producto>/
-├─ README.md · CHANGELOG.md (X.XX.XXX + tags) · LICENSE · LICENSES.md · ATTRIBUTION.md
-├─ pyproject.toml · .env.example · .gitignore · .gitattributes
-├─ requirements.txt (live) · -dev · -precompute (SOTA engines) · -gpu · -api
-├─ scripts/  setup.{sh,ps1} · precompute.{sh,ps1} · fetch-data.{sh,ps1} · serve-api.{sh,ps1}
-├─ productlab/                      # the engine + staged pipeline
-│  ├─ __init__.py (version) · pipeline.py (orchestrator+CLI) · registry.py (cases, grouped by CATEGORY)
-│  ├─ io/     contract.py (ingestion contract+outliers) · formats.py (std readers/writers) · schema.py (types)
-│  ├─ core/   rng.py (seed→determinism) · trace.py (artifact) · manifest.py · gate.py (lane gate)
-│  ├─ model/  shared pure-Python analytic core, Pyodide-safe; used by stages + live + api (the ONLY shared code)
-│  ├─ stages/ OFFLINE pipeline (heavy SOTA engine): preprocess · features · train · infer · evaluate · export
-│  ├─ live/   LIVE-lane engine (reduced/surrogate/small), imports model/ + Pyodide-safe deps only; ≠ offline
-│  └─ cases/  one module per case; each carries id, CATEGORY, params, expected band, real/synthetic, anchor
-├─ models/                          # trained model artifacts (small→committed e.g. .onnx; heavy→gitignored)
+CAOS_TruckVitals/
+├─ README.md · CHANGELOG.md (X.XX.XXX + tags) · LICENSE · STRUCTURE.md (this file)
+├─ requirements.txt (regimecpd pin) · -dev (pytest/ruff/matplotlib) · -precompute · -gpu · -api
+├─ data-pipeline/
+│  ├─ run_cmapss_contrast.py · run_synthetic_benchmark.py · run_onset_seeds.py · run_mechanism.py
+│  ├─ run_aps_cost.py · run_componentx.py · run_fleet_traces.py · run_parity.py     # the eight bakers
+│  └─ truckvitals/
+│     ├─ jsonio.py            # strict JSON: NaN -> null on write, infinities RAISE, loads_strict re-parse
+│     ├─ model/haulcycle.py   # the synthetic fleet: 12 channels = 9 monitored + 3 context, emergent confound
+│     └─ lanes/               # cmapss · regime_experiment · synthetic_benchmark · mechanism · aps · componentx · fleet_traces
 ├─ data/
-│  ├─ raw/ (gitignored)  · examples/ (tiny committed sample input, std format) · artifacts/<case>/ (committed compact)
-│  └─ README.md                     # the data contract: formats, schema, units, provenance, license, outliers
-├─ manifests/<case>.json            # ADR-0054 contract per case (+ a top-level index)
-├─ tests/  test_contract · test_determinism · test_stages · test_gate · test_parity
-├─ docs/                            # the wiki (ADR-0056), authored AS you build
-│  ├─ README.md (landing)
-│  ├─ architecture/  overview · determinism+trace · the-gate · data-contracts · staged-pipeline · api-backend · deploy
-│  ├─ frameworks/<tool>/            # 1 per research-chosen engine: what/why · install · configure · runnable example
-│  ├─ cases/                        # ← CASES + CATEGORIES: README (category taxonomy + coverage matrix) + 1 md/case
-│  ├─ guides/  00_instantiate · 01_precompute-pipeline · 02_bring-your-own-data · 03_gpu-lane · 04_run-the-api
-│  └─ data-contract.md
-├─ api/                             # OPTIONAL backend (dormant): main.py · routes/ · deps over productlab
-├─ web/  src/ (App/Intro/Methodology/Implementation/Experiments/Benchmark) · contract.ts · copy-data.mjs · vite/pkg
-└─ .github/workflows/  ci.yml (install reqs · ruff · pytest · pipeline smoke · guards) · deploy-pages.yml
+│  ├─ artifacts/              # the seven committed artifacts + fleet/ traces; the site's whole payload
+│  ├─ raw/ (gitignored) · examples/ · samples/ · demo/
+│  └─ README.md               # per-lane provenance, licences, and the artifact contract
+├─ frontend/
+│  ├─ src/pages/              # App(Tool) · Introduction · Methodology (9 tabs) · Implementation · Experiments · Benchmark · Focus
+│  ├─ src/engine/             # the live TS engine: rng · haulcycle · scaling · regimes · detectors · learned · metrics · live
+│  ├─ src/viz/ · src/lib/ · src/data/citations.ts (primary-source verified registry)
+│  ├─ test/parity.test.ts     # recomputes the parity fixture in TS and asserts the match (CI)
+│  └─ prerender-routes.mjs · spa-404.mjs · copy-data.mjs
+├─ manuscripts/regime-conditioning-benchmark/   # the published report (DOI 10.5281/zenodo.22002431)
+├─ scripts/  check_artifacts.py · check_content_standards.py · check_template_residue.py · check_doc_paths.py
+├─ tests/    test_lanes.py · test_artifacts_are_browser_json.py
+├─ docs/     architecture/ · guides/ · frameworks/ · cases.md   # the ADR-0056 wiki, code-verified 2026-08-18
+├─ app/      # dormant FastAPI lane
+└─ .github/workflows/  ci.yml · deploy-pages.yml
 ```
 
-## Cases & categories (explicit)
+## The contracts that hold it together
 
-- Each case in `productlab/cases/` declares a **`category`** (the domain taxonomy of problem types) + params +
-  expected output band + real/synthetic flag + validation anchor.
-- `registry.py` groups cases by category; the App tab shows **one selected case**, while Experiments/Benchmark
-  show **cross-case summaries grouped by category** (never mixed into App).
-- `docs/cases/README.md` is the category taxonomy + the coverage matrix; `docs/cases/<id>.md` documents each case.
+1. **Strict browser JSON** (`data-pipeline/truckvitals/jsonio.py`): NaN becomes null, an infinity
+   raises, and every file is re-parsed with a browser's strictness before it reaches disk.
+   `scripts/check_artifacts.py` re-verifies presence, parseability and fleet-index consistency in CI.
+2. **Engine parity** (`data-pipeline/run_parity.py` + `frontend/test/parity.test.ts`): Python bakes
+   inputs and its outputs; TypeScript recomputes and must match. What is deliberately not compared bit
+   for bit (the simulator's RNG stream, k-means seeding) is documented in the fixture itself.
+3. **Doc-path truth** (`scripts/check_doc_paths.py`): any repo path a tracked markdown file names must
+   exist. Written after a 73-finding audit showed the residue gate cannot see residue that names
+   plausible-but-nonexistent files.
 
-## What CI enforces (so we can't regress to demos)
+## What CI enforces
 
-`ruff` · `pytest` · **sandboxed pipeline smoke** (regenerate one case under a temporary output root) ·
-**guards** (no real `.env`, no raw/heavy data tracked, no incomplete method/case matrix, no "live"-tagged
-stage that breaches the gate, manifest⇄artifact contract holds). The release bake is an explicit command;
-the web build and deployment only verify/copy committed artifacts and never run canonical science.
+`ruff` · `pytest` (39) · the TS-vs-Python **parity gate** · a **sandboxed pipeline smoke** (canonical
+artifacts are read-only in CI) · artifact presence + browser-parseability · base-integrity guards (no
+real `.env`, no venvs or heavy data tracked, no leaked local paths) · no template residue · no em-dash
+or emoji (ADR-0067) · doc-path truth. The release bake is an explicit local command; the deploy
+workflow only verifies and copies committed artifacts, never runs canonical science. Browser gates
+(canvas ink, layout floor, at-rest, focus routes, method tabs) run from the management toolbox against
+the LIVE site at every deploy.

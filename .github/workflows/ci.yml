@@ -66,3 +66,8 @@ jobs:
         run: python scripts/check_template_residue.py
       - name: No em-dash or emoji in product content (ADR-0067)
         run: python scripts/check_content_standards.py
+      # The residue gate greps for known tokens, so residue naming PLAUSIBLE but nonexistent files
+      # sails through it; that class survived for weeks until a code-opening audit caught it. This
+      # gate closes it mechanically: every repo path a tracked markdown file names must exist.
+      - name: Every repo path the docs name exists
+        run: python scripts/check_doc_paths.py

@@ -16,6 +16,9 @@ one live lane whose right to disagree with the pipeline is removed by a parity g
   own data, the GPU lane, the in-app Architecture modal.
 - **[cases.md](cases.md)**: what stands in for a case registry here: the four data lanes, the 14-truck
   baked fleet with per-truck focus pages, and the live workbench's URL-carried configurations.
+- **[../manuscripts/README.md](../manuscripts/README.md)**: the published technical report ("Regime
+  Conditioning Recovers Detection, Not Localisation", Zenodo, CC-BY-4.0, concept DOI
+  10.5281/zenodo.22002431), its LaTeX source and the artifact-derived figures pipeline.
 
 ## The web surface these docs describe
 

@@ -1,46 +1,54 @@
-# data/, the data contract + layout
+# data/, the artifacts and where they come from
 
-This folder is governed by the **two data contracts** of ADR-0057. Replace the EXAMPLE (SIR) schema below with
-your product's real contract when you instantiate.
+The committed artifacts under `data/artifacts/` are the product's entire payload: every number on the
+web surface replays from them, and the manuscript's figures regenerate from them. Nothing canonical is
+computed at request time.
 
 ## Layout
 
 | Path | What | Git |
 |---|---|---|
-| `raw/` | private/large source inputs | **git-ignored** (never committed; staged via `scripts/fetch-data`) |
-| `examples/` | a tiny standard-format sample that PASSES Contract 1 (clone-verify) | committed |
-| `derived/<case>/` | the compact, standard-format artifacts the web replays | committed |
-| `derived/manifests/` | per-case `<case>.json` (Contract 2) + the flat `index.json` inventory | committed |
-| `demo/` | small deterministic payload for smoke | committed |
+| `raw/` | the downloaded source datasets (C-MAPSS, SCANIA APS, SCANIA Component X) | **git-ignored**, never committed; see per-lane provenance below |
+| `artifacts/` | the seven baked JSON artifacts plus `artifacts/fleet/` (fourteen per-truck traces + index) | committed |
+| `examples/`, `samples/`, `demo/` | small committed inputs for smoke runs and tests | committed |
 
-## CONTRACT 1, ingestion (raw → pipeline), the *bring-your-own-data* gate
+## The artifact contract
 
-Defined in `data-pipeline/truckvitals/io/contract.py`. A parameter row is **accepted** iff it satisfies the schema;
-**rejected** with a reason otherwise (never silently coerced); plausible-but-suspicious rows are **flagged**.
+Every artifact is written through `data-pipeline/truckvitals/jsonio.py`: NaN becomes `null` (a reader
+must see "not measured"), an infinity RAISES (an infinite metric is a bug in the metric, not a missing
+value), and `loads_strict` re-parses each file with a browser's strictness before it reaches disk,
+because Python's `json.loads` happily accepts the bare `NaN` every browser rejects. That guard exists
+because the failure happened: a legitimately-NaN `regime_coverage` once made the headline artifact
+unparseable by the site built to display it.
 
-EXAMPLE schema (an SIR parameterization, `examples/params.csv`):
+Each artifact carries a schema string (`truckvitals.<name>/v1`), the `regimecpd` version, Python and
+numpy versions that baked it, and its own honest-limits block. `scripts/check_artifacts.py` verifies
+presence, browser-parseability and fleet-index consistency, in CI and before every deploy. The
+frontend fetches artifacts with `?v=<app version>`, so a release that changes an artifact's shape also
+invalidates every CDN-cached copy.
 
-| Column | Unit | Range | Notes |
-|---|---|---|---|
-| `case_id` | n/a | non-empty | identifier |
-| `beta` | 1/day (contact rate) | (1e-6, 5.0] | outside → reject |
-| `gamma` | 1/day (recovery rate) | (1e-6, 2.0] | outside → reject |
-| `N` | individuals | [1, 1e9] | population |
-| `I0` | individuals | [0, N] | `I0 > N` → reject |
-| `days` | days | ≥1 (default 160) | horizon |
+| Artifact | Baked by | What it holds |
+|---|---|---|
+| `artifacts/cmapss_mechanism.json` | `run_mechanism.py` | the detector-free effect size, with the single-condition ratio-1.00 negative controls |
+| `artifacts/cmapss_regime_contrast.json` | `run_cmapss_contrast.py` | the controlled 1-vs-6 detection contrast, all arms, bootstrap-over-units intervals |
+| `artifacts/onset_seed_sweep.json` | `run_onset_seeds.py` | the paired onset-localisation NULL with chance levels per seed |
+| `artifacts/synthetic_benchmark.json` | `run_synthetic_benchmark.py` | the 12-rung ladder, both arms, budget curves with intervals, skipped-rung ledger, attribution |
+| `artifacts/aps_cost.json` | `run_aps_cost.py` | the APS decision table under the primary-verified 10/500 cost matrix |
+| `artifacts/componentx.json` | `run_componentx.py` | the graded 5x5 cost results over 23,550 real vehicles |
+| `artifacts/fleet/` (+ `parity.json`) | `run_fleet_traces.py`, `run_parity.py` | the fixed 14-truck replay traces; the TS-vs-Python parity fixture |
 
-**Outlier policy:** missing/empty column → reject · non-numeric → reject · NaN/Inf → reject · out-of-range → reject ·
-`I0 > N` → reject · `R0 = beta/gamma > 20` → **flag** (accepted; the flag is recorded in the manifest).
+## Provenance and licences, per lane
 
-## CONTRACT 2, artifact (pipeline → web)
+- **NASA C-MAPSS** (Saxena et al. 2008): public and redistributable; downloaded to `raw/`, never
+  committed. Structure (4 subsets x conditions x fault modes x units) is ASSERTED at load against the
+  declared table in `data-pipeline/truckvitals/lanes/cmapss.py`.
+- **SCANIA APS** (UCI, doi:10.24432/C51S51): public; the cost matrix (FP 10 / FN 500) and the IDA 2016
+  winner score are primary-verified in the dataset's own description file.
+- **SCANIA Component X** (SND, doi:10.5878/jvb5-d390, CC BY): 11 files, ~1.65 GB, downloadable
+  anonymously; the 1,122,452 x 107 structure is verified against the downloaded bytes
+  (2 identifiers + 97 histogram bins + 8 counters).
+- **The synthetic fleet**: ours, MIT, generated by `data-pipeline/truckvitals/model/haulcycle.py`;
+  physically plausible for a large rigid hauler and labelled synthetic on every surface. It is the
+  only lane where the true onset instant exists, because it was put there.
 
-Each pipeline run writes a compact trace (`derived/<case>/trace.json`, schema `example.trace/v1`) and a manifest
-(`derived/manifests/<case>.json`, schema `example.manifest/v2`) recording params, seed, engine+version, the
-artifact byte size, the measured **lane/gate** verdict, Contract-1 flags, and the evaluation metrics.
-`frontend/src/lib/contract.types.ts` mirrors these schemas so any drift fails the web build. The web loads ONLY
-these committed artifacts, it never recomputes (except the optional live lane, which uses the same trace schema).
-
-## Provenance / license
-
-EXAMPLE data is **synthetic** (generated by the SIR engine). A real product documents here: source, license,
-redistribution terms (public derived artifacts only; raw/private sources stay in the vault per ADR-0055).
+No raw dataset is ever re-hosted; only the compact derived artifacts are committed and served.
