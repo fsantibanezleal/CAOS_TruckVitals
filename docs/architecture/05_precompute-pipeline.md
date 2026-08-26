@@ -42,7 +42,7 @@ The rule exists because the committed artifacts are the product's results. A smo
 experiment that silently overwrites `data/artifacts/` replaces measured evidence with whatever the
 smoke happened to compute, and `git diff` on a 400 kB JSON is not where that should be discovered.
 
-`--quick` exists only on `run_synthetic_benchmark.py` (the 12-rung ladder over both arms is the
+`--quick` exists only on `run_synthetic_benchmark.py` (the 14-rung ladder over both arms is the
 expensive bake); the other generators are cheap enough that their fleet-size flags
 (`--n-healthy/--n-faulty/--n-cycles`, or `--seeds`) serve the same purpose.
 
@@ -79,7 +79,7 @@ the table. `truckvitals/lanes/synthetic_benchmark.py` implements the contract:
   and never fired once.
 - A missing backend (`ImportError` at fit time) records the rung and the reason string into
   `skipped_rungs` and drops the rung from the run.
-- The artifact carries `ladder_declared` (all 12 rungs) alongside `ladder_run` (the rungs that actually
+- The artifact carries `ladder_declared` (all 14 rungs) alongside `ladder_run` (the rungs that actually
   produced rows), so a partial ladder is a visible statement in the data, never a shorter list that
   reads as a ladder that never had more. The web surface renders the gap from these fields.
 
