@@ -14,7 +14,7 @@ The unit of coverage is the data lane, and each lane supports exactly the claim 
 | Regime contrast, NASA C-MAPSS | `cmapss_mechanism.json`, `cmapss_regime_contrast.json` | the central claim, measured under a controlled contrast |
 | Failure window, SCANIA Component X | `componentx.json` | graded 5-class time-window prediction and its cost decision |
 | Cost, SCANIA APS | `aps_cost.json` | the threshold decision against a published cost matrix |
-| Synthetic haul-cycle fleet | `synthetic_benchmark.json`, `onset_seed_sweep.json`, `fleet/` | the 12-rung ladder, onset error against chance |
+| Synthetic haul-cycle fleet | `synthetic_benchmark.json`, `onset_seed_sweep.json`, `fleet/` | the 14-rung ladder, onset error against chance |
 
 ## The baked fleet, 14 trucks
 

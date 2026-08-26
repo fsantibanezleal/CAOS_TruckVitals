@@ -13,7 +13,7 @@ exists rather than a template that no longer does.
    runner.
 3. **Replace the example engine with the real method ladder.** Here the engine is a separate
    published package, `regimecpd==0.9.6` (a product declares no package of its own), and the ladder is
-   12 rungs from Shewhart to a trained autoencoder, each an ADR-0069 vertical unit: pin, provenance
+   14 rungs from Shewhart to a GPU-trained deep tier, each an ADR-0069 vertical unit: pin, provenance
    and licence, fit/calibrate, held-out evaluation, tests, docs, an honest lane. No rung stays an
    example or a no-op.
 4. **Define the ingestion boundary for YOUR data.** Here that is the lane adapter contract of

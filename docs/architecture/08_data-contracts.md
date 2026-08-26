@@ -60,7 +60,7 @@ Details worth knowing per artifact:
   `_best` with their arm names, `eligible_arms`, and `non_regime_arms` reported beside them but
   excluded from any recovery claim. The headline recovery number is `regime_conditioned_worst` by
   construction, so it cannot depend on choosing the more flattering regime definition.
-- **`synthetic_benchmark.json`**: the full ladder. `arms` holds 24 rows, 12 rungs times two arms, each
+- **`synthetic_benchmark.json`**: the full ladder. `arms` holds 28 rows, 14 rungs times two arms, each
   with `detector`, `arm`, `threshold`, `fa_per_truck_month` with `fa_ci`, `detection_rate`,
   `median_delay_min`, `regime_coverage` and a `note` that carries the reason when a rung could not
   operate. `budget_curves` maps rung to arm to one point per budget in `budget_grid_per_truck_month`
@@ -77,7 +77,7 @@ Details worth knowing per artifact:
   `ladder_run` is computed AFTER the run from the rows actually produced, because a rung can only be
   found unavailable at fit time. Declared minus run minus skipped must be empty, so a silent partial
   ladder is unrepresentable: the web surface shows the gap instead of a shorter list. In the committed
-  artifact `skipped_rungs` is `{}` and both lists carry the same 12 rungs.
+  artifact `skipped_rungs` is `{}` and both lists carry the same 14 rungs.
 - **`parity.json`**: the only artifact the site does not read. It is the CI fixture for
   `frontend/test/parity.test.ts`: input arrays (`baseline`, `monitored`, `t`) plus the outputs the
   Python engine computed from them (per-detector `statistic` series; `metrics` with fleet scores at

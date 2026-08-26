@@ -32,7 +32,7 @@ invalidates every CDN-cached copy.
 | `artifacts/cmapss_mechanism.json` | `run_mechanism.py` | the detector-free effect size, with the single-condition ratio-1.00 negative controls |
 | `artifacts/cmapss_regime_contrast.json` | `run_cmapss_contrast.py` | the controlled 1-vs-6 detection contrast, all arms, bootstrap-over-units intervals |
 | `artifacts/onset_seed_sweep.json` | `run_onset_seeds.py` | the paired onset-localisation NULL with chance levels per seed |
-| `artifacts/synthetic_benchmark.json` | `run_synthetic_benchmark.py` | the 12-rung ladder, both arms, budget curves with intervals, skipped-rung ledger, attribution |
+| `artifacts/synthetic_benchmark.json` | `run_synthetic_benchmark.py` | the 14-rung ladder, both arms, budget curves with intervals, skipped-rung ledger, attribution |
 | `artifacts/aps_cost.json` | `run_aps_cost.py` | the APS decision table under the primary-verified 10/500 cost matrix |
 | `artifacts/componentx.json` | `run_componentx.py` | the graded 5x5 cost results over 23,550 real vehicles |
 | `artifacts/fleet/` (+ `parity.json`) | `run_fleet_traces.py`, `run_parity.py` | the fixed 14-truck replay traces; the TS-vs-Python parity fixture |
