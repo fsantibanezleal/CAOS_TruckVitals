@@ -344,7 +344,7 @@ the fault.
 
 ## Status
 
-**0.03.001, released 2026-08-18. Live at [truckvitals.fasl-work.com](https://truckvitals.fasl-work.com/).**
+**0.04.000, released 2026-08-19. Live at [truckvitals.fasl-work.com](https://truckvitals.fasl-work.com/).**
 
 The study is also a published technical report: **Regime Conditioning Recovers Detection, Not
 Localisation** (Zenodo, CC-BY-4.0). Cite the concept DOI
@@ -364,7 +364,7 @@ All four lanes are baked and committed:
   the method ladder on both arms, onset error against chance, a deliberately generous trivial baseline,
   and scored attribution.
 
-What 0.02.000 and 0.03.000 shipped on top of the measurements (the CHANGELOG carries the split):
+What 0.02.000 through 0.04.000 shipped on top of the measurements (the CHANGELOG carries the split):
 
 - **A live, parity-gated workbench.** The engine is ported to TypeScript (`frontend/src/engine/`) and
   every control on the App recomputes the whole pipeline in the browser. The port's right to exist is a
