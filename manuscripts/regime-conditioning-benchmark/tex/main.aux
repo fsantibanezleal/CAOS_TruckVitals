@@ -12,11 +12,11 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-B}}The five protocol rules}{2}{subsection.2.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-C}}Metrics}{2}{subsection.2.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {III}The Mechanism, With No Detector In It}{2}{section.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {IV}Detection Under Regime Variation}{2}{section.4}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces The detector-free effect size. Median (p10--p90 over channels) fault signature per C-MAPSS subset, measured in pooled sigma (blue) and within-regime sigma (orange). Single-condition subsets (FD001, FD003) return a ratio of exactly $1.00$, the built-in negative control; six-condition subsets return $90.2$ and $62.3$.}}{2}{figure.1}\protected@file@percent }
 \newlabel{fig:mechanism}{{1}{2}{The detector-free effect size. Median (p10--p90 over channels) fault signature per C-MAPSS subset, measured in pooled sigma (blue) and within-regime sigma (orange). Single-condition subsets (FD001, FD003) return a ratio of exactly $1.00$, the built-in negative control; six-condition subsets return $90.2$ and $62.3$}{figure.1}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {I}{\ignorespaces C-MAPSS detection at a matched false-alarm budget. Arms conditioned on a regime are bold. \emph  {global-regr} is a single global context regression (no segmentation), reported separately because an earlier version of this study wrongly credited its result to ``regime conditioning''.}}{2}{table.1}\protected@file@percent }
-\newlabel{tab:contrast}{{I}{2}{C-MAPSS detection at a matched false-alarm budget. Arms conditioned on a regime are bold. \emph {global-regr} is a single global context regression (no segmentation), reported separately because an earlier version of this study wrongly credited its result to ``regime conditioning''}{table.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {I}{\ignorespaces C-MAPSS detection at a matched false-alarm budget (CUSUM, one false alarm per $1000$ cycles). Arms conditioned on a regime are bold. Units: faulty units scored. Global-regr is a single global context regression without segmentation: it conditions on context but is not a regime model, so it is reported separately.}}{2}{table.1}\protected@file@percent }
+\newlabel{tab:contrast}{{I}{2}{C-MAPSS detection at a matched false-alarm budget (CUSUM, one false alarm per $1000$ cycles). Arms conditioned on a regime are bold. Units: faulty units scored. Global-regr is a single global context regression without segmentation: it conditions on context but is not a regime model, so it is reported separately}{table.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {IV}Detection Under Regime Variation}{2}{section.4}\protected@file@percent }
 \citation{shewhart1931}
 \citation{page1954}
 \citation{roberts1959}
@@ -31,15 +31,20 @@
 \citation{liu2008}
 \citation{scholkopf2001}
 \citation{sakurada2014}
+\citation{ruff2018}
+\citation{malhotra2016}
 \citation{killick2012}
 \citation{yeh2017}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces The complete fourteen-rung ladder at a matched budget, by tier. Conditioning helps six rungs (largest: Hotelling $T^2$, $0.06 \to 1.00$), leaves six at ceiling, and hurts two learned novelty models. BOCPD detects nothing on either arm (gradual ramps against an abrupt-change model); ADWIN's integer statistic leaves it only $d{+}1$ operating points.}}{3}{figure.2}\protected@file@percent }
-\newlabel{fig:ladder}{{2}{3}{The complete fourteen-rung ladder at a matched budget, by tier. Conditioning helps six rungs (largest: Hotelling $T^2$, $0.06 \to 1.00$), leaves six at ceiling, and hurts two learned novelty models. BOCPD detects nothing on either arm (gradual ramps against an abrupt-change model); ADWIN's integer statistic leaves it only $d{+}1$ operating points}{figure.2}{}}
+\citation{ruff2018}
+\citation{malhotra2016}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces The fourteen-rung ladder at a matched budget, by tier. Conditioning helps six rungs (largest: Hotelling $T^2$, $0.06 \to 1.00$), leaves the detection rate of six unchanged (four at ceiling, SPE at $0.75$, BOCPD at zero) and hurts two learned novelty models. BOCPD detects nothing on either arm (gradual ramps against an abrupt-change model); ADWIN's integer statistic leaves it only $d{+}1$ operating points.}}{3}{figure.2}\protected@file@percent }
+\newlabel{fig:ladder}{{2}{3}{The fourteen-rung ladder at a matched budget, by tier. Conditioning helps six rungs (largest: Hotelling $T^2$, $0.06 \to 1.00$), leaves the detection rate of six unchanged (four at ceiling, SPE at $0.75$, BOCPD at zero) and hurts two learned novelty models. BOCPD detects nothing on either arm (gradual ramps against an abrupt-change model); ADWIN's integer statistic leaves it only $d{+}1$ operating points}{figure.2}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {V}The Ladder, and a Counter-Example}{3}{section.5}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {II}{\ignorespaces Onset localisation via nearest retrospective changepoint (36 units; medians). Skill is chance/error; $1.0$ means no better than random cut placement.}}{3}{table.2}\protected@file@percent }
-\newlabel{tab:onset}{{II}{3}{Onset localisation via nearest retrospective changepoint (36 units; medians). Skill is chance/error; $1.0$ means no better than random cut placement}{table.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {VI}Localisation Is a Null}{3}{section.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {VII}Two Findings Not About Regimes}{3}{section.7}\protected@file@percent }
+\newlabel{sec:ladder}{{V}{3}{The Ladder, and a Counter-Example}{section.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {II}{\ignorespaces The prediction recorded before training, against the measured detection rates.}}{3}{table.2}\protected@file@percent }
+\newlabel{tab:prereg}{{II}{3}{The prediction recorded before training, against the measured detection rates}{table.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {VI}Testing an Explanation of the Counter-Example}{3}{section.6}\protected@file@percent }
+\newlabel{sec:test}{{VI}{3}{Testing an Explanation of the Counter-Example}{section.6}{}}
 \citation{shewhart1931}
 \citation{page1954}
 \citation{roberts1959}
@@ -58,14 +63,14 @@
 \citation{vovk2005}
 \citation{gibbs2021}
 \citation{carpentier2024}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Baked alarm-budget curves with bootstrap-over-units intervals for a rung conditioning helps (Hotelling $T^2$), a rung already at ceiling (CUSUM), and a rung conditioning hurts (isolation forest). The single-point ladder of Fig.~\ref {fig:ladder} is one slice of these curves; a method that wins only at one budget has not won.}}{4}{figure.3}\protected@file@percent }
-\newlabel{fig:budget}{{3}{4}{Baked alarm-budget curves with bootstrap-over-units intervals for a rung conditioning helps (Hotelling $T^2$), a rung already at ceiling (CUSUM), and a rung conditioning hurts (isolation forest). The single-point ladder of Fig.~\ref {fig:ladder} is one slice of these curves; a method that wins only at one budget has not won}{figure.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {VIII}Related Work}{4}{section.8}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {IX}Limitations}{4}{section.9}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {X}Conclusion}{4}{section.10}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{Appendix\nobreakspace  A: The Defect Record}{4}{section*.1}\protected@file@percent }
-\citation{ruff2018}
-\citation{malhotra2016}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Alarm-budget curves with bootstrap-over-units intervals for a rung conditioning helps (Hotelling $T^2$), a rung already at ceiling (CUSUM), and a rung conditioning hurts (isolation forest). The single-point ladder of Fig.~\ref {fig:ladder} is one slice of these curves; a method that wins only at one budget has not won.}}{4}{figure.3}\protected@file@percent }
+\newlabel{fig:budget}{{3}{4}{Alarm-budget curves with bootstrap-over-units intervals for a rung conditioning helps (Hotelling $T^2$), a rung already at ceiling (CUSUM), and a rung conditioning hurts (isolation forest). The single-point ladder of Fig.~\ref {fig:ladder} is one slice of these curves; a method that wins only at one budget has not won}{figure.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {III}{\ignorespaces Onset localisation via nearest retrospective changepoint (36 units, seed 0; medians). Skill is chance/error; $1.0$ means no better than random cut placement.}}{4}{table.3}\protected@file@percent }
+\newlabel{tab:onset}{{III}{4}{Onset localisation via nearest retrospective changepoint (36 units, seed 0; medians). Skill is chance/error; $1.0$ means no better than random cut placement}{table.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {VII}Localisation Is a Null}{4}{section.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {VIII}Two Findings Not About Regimes}{4}{section.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {IX}Related Work}{4}{section.9}\protected@file@percent }
+\citation{bifet2007}
 \bibcite{saxena2008}{1}
 \bibcite{aps2016}{2}
 \bibcite{componentx2024}{3}
@@ -83,15 +88,16 @@
 \bibcite{killick2012}{15}
 \bibcite{yeh2017}{16}
 \bibcite{liu2008}{17}
-\@writefile{lot}{\contentsline {table}{\numberline {III}{\ignorespaces Defects found while building this study (release where fixed; measured effect).}}{5}{table.3}\protected@file@percent }
-\newlabel{tab:defects}{{III}{5}{Defects found while building this study (release where fixed; measured effect)}{table.3}{}}
-\@writefile{toc}{\contentsline {section}{Appendix\nobreakspace  B: Retraction of the Shape Explanation (version 1.1)}{5}{section*.2}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {IV}{\ignorespaces The preregistered predictions against the measured outcome.}}{5}{table.4}\protected@file@percent }
-\newlabel{tab:prereg}{{IV}{5}{The preregistered predictions against the measured outcome}{table.4}{}}
-\@writefile{toc}{\contentsline {section}{References}{5}{section*.3}\protected@file@percent }
 \bibcite{scholkopf2001}{18}
 \bibcite{sakurada2014}{19}
 \bibcite{vovk2005}{20}
+\@writefile{toc}{\contentsline {section}{\numberline {X}Limitations}{5}{section.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {XI}Conclusion}{5}{section.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{Appendix\nobreakspace  A: Implementation Safeguards}{5}{section*.1}\protected@file@percent }
+\newlabel{app:safeguards}{{A}{5}{\appendixname \nobreakspace \thesectiondis \\* Implementation Safeguards}{section*.1}{}}
+\@writefile{toc}{\contentsline {section}{Appendix\nobreakspace  B: Reproduction}{5}{section*.2}\protected@file@percent }
+\newlabel{app:repro}{{B}{5}{\appendixname \nobreakspace \thesectiondis \\* Reproduction}{section*.2}{}}
+\@writefile{toc}{\contentsline {section}{References}{5}{section*.3}\protected@file@percent }
 \bibcite{gibbs2021}{21}
 \bibcite{ruff2018}{22}
 \bibcite{malhotra2016}{23}
