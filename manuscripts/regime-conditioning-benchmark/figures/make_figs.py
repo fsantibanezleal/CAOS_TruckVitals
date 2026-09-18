@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""Regenerate the figures for the TruckVitals regime-conditioning benchmark report, from the COMMITTED
+"""Regenerate the figures for the TruckVitals regime-conditioning benchmark report, from the repository
 artifacts (no recompute). Three figures:
 
   fig-mechanism.pdf - the detector-free effect size: the median fault signature measured in pooled
                       standard deviations against within-regime standard deviations, per C-MAPSS
                       subset, with the single-condition subsets returning exactly 1.00 as the
-                      negative control nobody designed.
+                      built-in negative control.
   fig-ladder.pdf    - the complete 14-rung ladder on the synthetic fleet, detection rate on the raw
                       and the residual arm at the same 1.0 false-alarm-per-truck-month budget,
-                      grouped by tier. The two rungs conditioning HURTS are both learned, and the
-                      deep tier is what refuted the explanation once offered for that.
+                      grouped by tier. The two rungs conditioning hurts are both learned; the deep
+                      tier tests, and refutes, the statistic-shape explanation proposed for that.
   fig-budget.pdf    - the baked alarm-budget curves with bootstrap-over-units intervals for one rung
                       conditioning helps (pca-t2), one it leaves at ceiling (cusum) and one it hurts
                       (isolation-forest). An unreachable budget is a gap, not a zero.
@@ -62,8 +62,8 @@ def fig_mechanism() -> None:
         err = np.array([[s[key] - s[lo] for _, s in subsets], [s[hi] - s[key] for _, s in subsets]])
         ax.errorbar(x + dx, vals, yerr=err, fmt="o", ms=4, color=color, capsize=2, lw=1, label=label, zorder=3)
     for i, (name, s) in enumerate(subsets):
-        ax.annotate(f"ratio {s['ratio']:.2f}" if s["ratio"] != 1.0 else "ratio 1.00 (control)",
-                    (i, 0.045), ha="center", fontsize=6.5, color="0.35")
+        # the single-condition controls are named in the caption; a longer label here collides with its neighbour
+        ax.annotate(f"ratio {s['ratio']:.2f}", (i, 0.045), ha="center", fontsize=6.5, color="0.35")
     ax.set_yscale("log")
     ax.set_ylim(0.03, 60)
     ax.set_xticks(x, [n for n, _ in subsets])
@@ -100,12 +100,13 @@ def fig_ladder() -> None:
         if TIER[d] != prev:
             if i:
                 ax.axhline(i - 0.5, color="0.75", lw=0.6)
-            ax.text(1.02, i, TIER[d], transform=ax.get_yaxis_transform(),
-                    fontsize=6.5, color="0.35", va="center")
+            ax.text(1.03, i, TIER[d], fontsize=6.5, color="0.35", va="center")
             prev = TIER[d]
     ax.set_yticks(y, rungs)
     ax.invert_yaxis()
-    ax.set_xlim(0, 1.0)
+    ax.set_xlim(0, 1.3)
+    ax.set_xticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
+    ax.spines["bottom"].set_bounds(0, 1.0)
     ax.set_xlabel("detection rate at 1.0 false alarm per truck-month")
     ax.grid(axis="x", color="0.85", lw=0.6, zorder=0)
     # Below the axes, not inside them: at 14 rungs every in-axes corner now has a bar in it, and a
@@ -140,7 +141,7 @@ def fig_budget() -> None:
         ax.grid(**GRID)
     axes[0].set_ylabel("detection rate")
     axes[0].set_ylim(-0.03, 1.03)
-    axes[0].legend(frameon=False, loc="upper left")
+    axes[0].legend(frameon=False, loc="center left")
     fig.savefig(HERE / "fig-budget.pdf")
     plt.close(fig)
 
