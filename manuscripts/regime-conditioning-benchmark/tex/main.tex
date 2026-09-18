@@ -19,53 +19,87 @@
 \renewcommand{\textfraction}{0.08}
 \renewcommand{\floatpagefraction}{0.80}
 
+% IEEEtran hard-codes an em-dash after the abstract and index-terms names; the CAOS
+% content standard (ADR-0067) excludes em-dashes, so the separator is a full stop.
+\makeatletter
+\def\abstract{\normalfont
+    \if@twocolumn
+      \@IEEEabskeysecsize\bfseries\textit{\abstractname}.\ \relax
+    \else
+      \bgroup\par\addvspace{0.5\baselineskip}\centering\vspace{-1.78ex}\@IEEEabskeysecsize\textbf{\abstractname}\par\addvspace{0.5\baselineskip}\egroup\quotation\@IEEEabskeysecsize
+    \fi\@IEEEgobbleleadPARNLSP}
+\def\IEEEkeywords{\normalfont
+    \if@twocolumn
+      \@IEEEabskeysecsize\bfseries\textit{\IEEEkeywordsname}.\ \relax
+    \else
+      \bgroup\par\addvspace{0.5\baselineskip}\centering\@IEEEabskeysecsize\textbf{\IEEEkeywordsname}\par\addvspace{0.5\baselineskip}\egroup\quotation\@IEEEabskeysecsize
+    \fi\@IEEEgobbleleadPARNLSP}
+\makeatother
+
+% Page-1 header block (conventions/manuscript-header-standard.md). The four document
+% macros are set by the publishing tool when the version DOI is reserved.
+\newcommand{\doctype}{Technical report}
+\newcommand{\docversion}{v1.2}
+\newcommand{\docdate}{18 September 2026}
+\newcommand{\versiondoi}{10.5281/zenodo.22824879}
+\newcommand{\conceptdoi}{10.5281/zenodo.22002431}
+\newcommand{\docrepo}{github.com/fsantibanezleal/CAOS\_TruckVitals}
+\newcommand{\headerblock}{%
+\begin{center}
+\fbox{\parbox{0.94\textwidth}{\small\raggedright
+\textbf{\doctype} \quad$\cdot$\quad \docversion, \docdate \quad$\cdot$\quad Licence CC BY 4.0\\[2pt]
+CAOS open-research programme \quad$\cdot$\quad CAOS\_TruckVitals, regime-conditioned fault detection on fleet telemetry\\[2pt]
+Version DOI \href{https://doi.org/\versiondoi}{\texttt{\versiondoi}} \quad$\cdot$\quad
+concept DOI (always latest) \href{https://doi.org/\conceptdoi}{\texttt{\conceptdoi}}\\[2pt]
+Not peer reviewed. Source code, data and computational records: \href{https://\docrepo}{\texttt{\docrepo}}
+}}
+\end{center}}
+
 \begin{document}
 
-\title{Regime Conditioning Recovers Detection,\\ Not Localisation: An Honest Benchmark for Fault\\ Onset on Load-Varying Fleet Telemetry}
+\title{Regime Conditioning Recovers Detection,\\ Not Localisation: A Benchmark for Fault Onset\\ on Load-Varying Fleet Telemetry}
 
 \author{Felipe~Santiba\~nez-Leal~\orcidlink{0000-0002-0150-3246}%
 \thanks{F. Santiba\~nez-Leal is with the CAOS open-research programme, Santiago, Chile
 (e-mail: fsantibanez@gmail.com; ORCID 0000-0002-0150-3246).}%
-\thanks{Technical report, 2026. Interactive study and reproducible pipeline (MIT) at
-\url{https://github.com/fsantibanezleal/CAOS_TruckVitals}; live at
+\thanks{Interactive study and reproducible pipeline (MIT) at
+\url{https://github.com/fsantibanezleal/CAOS_TruckVitals}; the study is available at
 \url{https://truckvitals.fasl-work.com}. The detection engine is the separate PyPI package
 \texttt{regimecpd} (\url{https://github.com/fsantibanezleal/CAOS_RegimeCPD}).}}
 
-\markboth{Technical Report, 2026}%
+% The leading {} lets IEEEtran's \MakeUppercase reach \doctype, so the whole head is set in capitals.
+\markboth{{}\doctype\ \docversion, 2026}%
 {Santiba\~nez-Leal: Regime conditioning recovers detection, not localisation}
+
+\IEEEaftertitletext{\vspace{-0.6\baselineskip}\headerblock\vspace{0.2\baselineskip}}
 
 \maketitle
 
 \begin{abstract}
 A change detector on raw haul-truck telemetry spends most of its time detecting the haul cycle: strut
 pressure jumps when the tray is loaded, brake temperature climbs on every descent, fuel rate tracks the
-grade. The standard remedy, condition on the operating regime and monitor within-regime residuals, is
-usually asserted rather than measured. This report measures it, and reports everything the measurement
-returned, including the parts that argue against the method. A detector-free effect size on NASA C-MAPSS
-shows the mechanism directly: on six-operating-condition subsets the median fault signature is $0.16$
-pooled standard deviations but $11.95$ within-regime standard deviations (ratios $90.2$ and $62.3$ on
-the two subset pairs), and single-condition subsets return exactly $1.00$, a negative control nobody
-designed. At a matched event-counted false-alarm budget, detection falls from $0.93$ to $0.17$ (and
-$0.73$ to $0.24$) when operating conditions go from one to six, and regime-conditional residuals recover
-$0.95$ (and $0.90$), above the single-condition references; discovering the regimes by clustering costs
-nothing over being handed the labels. Three results temper the story. Onset \emph{localisation} is a
-null: chance-corrected skill differs by $-0.08 \pm 0.74$ paired over five seeds. No false-alarm-reduction
-claim survives measurement, and it is withdrawn. And on a fourteen-rung detector ladder over a
-physically grounded synthetic fleet, conditioning helps six rungs, leaves six at ceiling, and actively
-hurts two learned novelty detectors, with a regime-label coverage of $0.998$ ruling out the obvious
-explanation. Version 1.0 of this report explained that last result by the \emph{shape} of a
-detector's statistic, and version 1.1 \textbf{retracts that explanation}: a preregistered test with two
-deep detectors, one of each shape, refuted it. Deep SVDD is boundary-shaped and conditioning helped
-it. The honest sentence the data still supports is narrower than the one it replaces: regime
-conditioning helps most detectors, hurts some healthy-only novelty models, and no rule established
-here predicts which. Every number in this report is replayed from committed artifacts, and the engine's own defect
-record, ten defects that produced plausible numbers rather than crashes, ships as an appendix because it
-is part of the result.
+grade. The standard remedy, conditioning on the operating regime and monitoring within-regime residuals,
+is usually asserted rather than measured. It is measured here, with the confounds removed and the results
+that argue against it reported beside those that support it. A detector-free effect size on NASA C-MAPSS
+shows the mechanism directly: on the six-operating-condition subset FD002 the median fault signature is
+$0.16$ pooled standard deviations but $11.95$ within-regime standard deviations (ratios $90.2$ on FD002 and
+$62.3$ on FD004), and the single-condition subsets return exactly $1.00$, a built-in negative control. At a
+matched event-counted false-alarm budget, detection falls from $0.93$ to $0.17$ (and $0.73$ to $0.24$) when
+operating conditions go from one to six, and regime-conditional residuals recover $0.95$ (and $0.90$),
+above the single-condition references; discovering the regimes by clustering recovers as much as being
+handed the labels. Three results temper this. Onset \emph{localisation} is a null: chance-corrected skill
+differs by $-0.08 \pm 0.74$, paired over five seeds. No false-alarm reduction is found. And on a
+fourteen-rung detector ladder over a physically grounded synthetic fleet, conditioning helps six rungs,
+leaves six unchanged and hurts two learned novelty detectors, with a regime-label coverage of $0.998$ ruling
+out missing regime labels as the cause. A prediction stated before two deep detectors were trained, that
+the shape of a detector's statistic decides whether conditioning hurts it, is refuted: the boundary-shaped
+Deep SVDD is helped. Regime conditioning helps most detectors and hurts some healthy-only novelty models,
+and no rule established here predicts which.
 \end{abstract}
 
 \begin{IEEEkeywords}
 Condition monitoring, change-point detection, operating regimes, fleet telemetry, haul trucks,
-statistical process control, novelty detection, honest benchmarking.
+statistical process control, novelty detection, pre-registration.
 \end{IEEEkeywords}
 
 \section{Introduction}
@@ -73,42 +107,40 @@ statistical process control, novelty detection, honest benchmarking.
 \IEEEPARstart{A}{haul} truck loaded on an uphill ramp and the same truck empty on the way down are not
 the same machine as far as a detector is concerned. Every monitored channel moves with payload, grade
 and speed, and none of that movement is a fault. Raise the alarm threshold until the haul cycle stops
-firing and the fault you wanted sits under the threshold too. The remedy this report examines is the
-standard one from multivariate statistical process control: learn the operating regimes from
-\emph{context} channels (payload, grade, speed), and monitor each telemetry channel as a within-regime
-residual,
+firing and the fault you wanted sits under the threshold too. The remedy examined here is the standard
+one from multivariate statistical process control: learn the operating regimes from \emph{context}
+channels (payload, grade, speed), and monitor each telemetry channel as a within-regime residual,
 \begin{equation}
 r_t \;=\; \frac{x_t - \hat{\mu}_{k(t)}}{\hat{\sigma}_{k(t)}},
 \label{eq:residual}
 \end{equation}
 with $k(t)$ the regime at time $t$, the statistics estimated only on the unit's own healthy baseline,
 and samples outside every seen regime left \emph{unassigned} rather than snapped to the nearest one,
-because snapping is how a detector talks itself into calling a new operating condition a fault.
+because snapping lets a detector call a new operating condition a fault.
 
-The idea is plausible enough to be sold without evidence, which is the problem. This report's
-contribution is not a new method; it is a controlled measurement of an old one, with the confounds
-removed, the nulls printed, one claim withdrawn, and one genuine counter-example reported at the same
-volume as the successes. The companion web application replays every number in this report from
-committed, versioned artifacts, and the detection engine is a separately published, MIT-licensed package
-(\texttt{regimecpd}) whose defect record is public and summarised in Appendix~A.
+The contribution is a controlled measurement of this remedy rather than a new method: the confounds are
+removed by design, the null results are reported, and a counter-example is examined with a test whose
+prediction was stated before it was run. The detection engine is the separately published, MIT-licensed
+package \texttt{regimecpd}, and the conditions its implementation enforces are listed in
+Appendix~\ref{app:safeguards}.
 
 \section{Data, Protocol, Metrics}
 
 \subsection{Four data lanes, with declared limits}
 
-No public, redistributable dataset of continuous haul-truck telemetry with labelled faults was found;
-that absence shapes the design and is a limitation, not a footnote. Four lanes stand in, each supporting
-a different part of the claim and none over-stretched. \emph{(i)} NASA C-MAPSS turbofan
-data~\cite{saxena2008} supplies the controlled experiment: subsets FD001/FD003 run one operating
-condition, FD002/FD004 run six, with the condition declared per sample, so regime variation can be
-switched on and off while everything else is held fixed. \emph{(ii)} The SCANIA APS
-dataset~\cite{aps2016} supplies a decision problem under a published cost matrix (false positive 10,
-false negative 500). \emph{(iii)} SCANIA Component~X~\cite{componentx2024} supplies 23{,}550 real
-vehicles with a graded $5\times5$ cost matrix. \emph{(iv)} A physically grounded synthetic haul fleet
-(resistance-driven cycle, strut pressure from payload, TKPH-style tyre heating; the regime confound
-\emph{emerges} from the cycle rather than being injected) supplies the only lane where the true onset
-instant exists by construction. Nothing here is calibrated against a real truck, and the report never
-claims otherwise.
+No public, redistributable dataset of continuous haul-truck telemetry with labelled faults was found; that
+absence shapes the design and is the main limitation. Four lanes stand in, each supporting a different
+part of the claim. \emph{(i)} NASA C-MAPSS turbofan data~\cite{saxena2008} supplies the controlled
+experiment: subsets FD001/FD003 run one operating condition, FD002/FD004 run six, with the condition
+declared per sample, so regime variation can be switched on and off while everything else is held fixed.
+C-MAPSS records no onset instant; the onset of a unit is taken as the cycle at which its remaining useful
+life falls to $125$ cycles, the usual cap in the prognostics literature, which is a convention rather than a
+measurement. \emph{(ii)} The SCANIA APS dataset~\cite{aps2016} supplies a decision problem under a published
+cost matrix (false positive 10, false negative 500). \emph{(iii)} SCANIA Component~X~\cite{componentx2024}
+supplies 23{,}550 real vehicles with a graded $5\times5$ cost matrix. \emph{(iv)} A physically grounded
+synthetic haul fleet (resistance-driven cycle, strut pressure from payload, TKPH-style tyre heating; the
+regime confound \emph{emerges} from the cycle rather than being injected) supplies the only lane where the
+true onset instant exists by construction. Nothing in this lane is calibrated against a real truck.
 
 \subsection{The five protocol rules}
 
@@ -117,12 +149,12 @@ cannot know which it is scoring. (2)~Arms are compared at a matched \emph{false-
 matched threshold: a z-scored residual and a raw channel in bar live on different scales.
 (3)~Alarms are \emph{events} (rising edges of the thresholded statistic), not samples: a statistic that
 sits above threshold for an hour is one alarm an operator answers, not sixty. The event-counted rate is
-not monotone in the threshold, and the threshold search must descend from the never-fires end; the first
-implementation ascended and selected a permanently-alarming detector whose single rising edge looked
-like a perfect rate. (4)~Uncertainty is bootstrapped over \emph{units}, never over samples, which would
-manufacture significance by raising the sample rate. (5)~Nothing is fitted on the record it judges:
-regime model and residual statistics fit on a healthy baseline window, the threshold is chosen on a
-disjoint calibration window as a \emph{fleet} quantity, and detection is scored on the remainder.
+not monotone in the threshold, so the threshold search descends from the never-fires end; an ascending
+search can select a permanently alarming detector whose single rising edge looks like a perfect rate.
+(4)~Uncertainty is bootstrapped over \emph{units}, never over samples, which would manufacture
+significance by raising the sample rate. (5)~Nothing is fitted on the data it is scored on: regime model
+and residual statistics fit on a healthy baseline window, the threshold is chosen on a disjoint calibration
+window as a \emph{fleet} quantity, and detection is scored on the remainder.
 
 \subsection{Metrics}
 
@@ -141,11 +173,11 @@ fault signature measured in pooled standard deviations, and the same signature m
 standard deviations, on the healthy fleet baseline; the per-unit fault shift cancels in the ratio, so
 the ratio is a property of the operating-regime structure alone.
 
-Fig.~\ref{fig:mechanism} shows the result. On the multi-condition subsets the same physical fault is
-worth $0.16$ pooled sigma, invisible, and $11.95$ within-regime sigma, unmissable: ratios $90.2$ (FD002)
-and $62.3$ (FD004). The single-condition subsets return a ratio of exactly $1.00$: with one regime,
-pooled and within-regime spreads are the same number, and the measurement says so to the last digit. That
-is a negative control nobody designed, and it is the reason to trust the instrument.
+Fig.~\ref{fig:mechanism} shows the result. On FD002 the same physical fault is worth $0.16$ pooled sigma,
+invisible, and $11.95$ within-regime sigma, unmissable; on FD004, $0.17$ and $10.17$. The ratios are $90.2$
+and $62.3$. The single-condition subsets return a ratio of exactly $1.00$: with one regime, pooled and
+within-regime spreads are the same number. This built-in negative control confirms that the ratio measures
+the regime structure and nothing else.
 
 \begin{figure}[!t]
 \centering
@@ -160,35 +192,36 @@ return $90.2$ and $62.3$.}
 \section{Detection Under Regime Variation}
 
 Table~\ref{tab:contrast} gives the controlled contrast: the same CUSUM detector ($k{=}0.5$), the same
-healthy data per arm, thresholds cross-fitted over units, and only the informative channels common to
-both subsets of a pair. Two confounds were found and removed before any number was believed: FD002
-carries more informative channels than FD001 (and the statistic is a max across channels, so more
-channels raise the false-alarm rate on their own), hence the common-channel restriction; and
-fraction-based fit windows dropped units systematically differently per subset (38 versus 30 of 100),
-hence absolute cycle counts.
+healthy data per arm, thresholds cross-fitted over units, a budget of one false alarm per $1000$ cycles,
+and two confounds removed by design. FD002 carries more informative channels than FD001, and the statistic
+is a maximum across channels, so more channels raise the false-alarm rate on their own; only the channels
+informative in both subsets of a pair are used ($15$ and $16$ on the two pairs). Fraction-based fit windows
+drop units at different rates in different subsets, so the fit and calibration windows are absolute cycle
+counts ($60$ and $30$ cycles); units whose onset falls inside them are not scored.
 
 \begin{table}[!t]
-\caption{C-MAPSS detection at a matched false-alarm budget. Arms conditioned on a regime are bold.
-\emph{global-regr} is a single global context regression (no segmentation), reported separately because
-an earlier version of this study wrongly credited its result to ``regime conditioning''.}
+\caption{C-MAPSS detection at a matched false-alarm budget (CUSUM, one false alarm per $1000$ cycles).
+Arms conditioned on a regime are bold. Units: faulty units scored. Global-regr is a single global
+context regression without segmentation: it conditions on context but is not a regime model, so it is
+reported separately.}
 \label{tab:contrast}
 \centering
-\small
-\begin{tabular}{llcc}
+\footnotesize
+\begin{tabular}{@{}llccc@{}}
 \toprule
-Pair & Arm & Detection & Regimes \\
+Pair & Arm & Detection & Regimes & Units \\
 \midrule
-FD001 vs FD002 & raw, 1 condition (ref.) & 0.93 & 1 \\
- & raw, 6 conditions & 0.17 & -- \\
- & \textbf{residual, observed} & \textbf{0.95} & 6 \\
- & \textbf{residual, clustered} & \textbf{0.95} & 6 \\
- & global-regr, no segmentation & 0.89 & 1 \\
+FD001/FD002 & raw, 1 condition (ref.) & 0.93 & 1 & 28 \\
+ & raw, 6 conditions & 0.17 & -- & 87 \\
+ & \textbf{residual, observed} & \textbf{0.95} & 6 & 87 \\
+ & \textbf{residual, clustered} & \textbf{0.95} & 6 & 87 \\
+ & global-regr & 0.89 & 1 & 87 \\
 \midrule
-FD003 vs FD004 & raw, 1 condition (ref.) & 0.73 & 1 \\
- & raw, 6 conditions & 0.24 & -- \\
- & \textbf{residual, observed} & \textbf{0.90} & 6 \\
- & \textbf{residual, clustered} & \textbf{0.90} & 6 \\
- & global-regr, no segmentation & 0.88 & 1 \\
+FD003/FD004 & raw, 1 condition (ref.) & 0.73 & 1 & 52 \\
+ & raw, 6 conditions & 0.24 & -- & 146 \\
+ & \textbf{residual, observed} & \textbf{0.90} & 6 & 146 \\
+ & \textbf{residual, clustered} & \textbf{0.90} & 6 & 146 \\
+ & global-regr & 0.88 & 1 & 146 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -199,41 +232,40 @@ realised false-alarm rate than the raw arm. Second, \emph{discovering} the regim
 context channels recovers exactly as much as being handed the declared condition labels ($0.954$ equals
 $0.954$ to three decimals): the labels carry no information the context channels do not. Third, a global
 context regression with no segmentation at all recovers most of the gap ($0.89$; $0.88$); on FD004 the
-margin between conditioning and plain regression is $0.02$, which a careless report would round into a
-victory. These recovery figures moved from an earlier $0.98/0.70$ when an engine review found that a NaN
-gap inside a sustained excursion was counted as a second alarm, a bias that fell on the residual arm by
-design; the artifacts were re-baked the same day and the earlier figures are not to be quoted.
+margin between conditioning and plain regression is $0.02$, too small to count as an advantage.
 
-\section{The Ladder, and a Counter-Example}
+\section{The Ladder, and a Counter-Example}\label{sec:ladder}
 
-On the synthetic fleet (36 units, 16 faulty, four fault families injected with known onset), twelve
-online detectors run on both arms at the same budget of $1.0$ false alarm per truck-month:
-Shewhart~\cite{shewhart1931}, CUSUM~\cite{page1954}, EWMA~\cite{roberts1959},
+On the synthetic fleet (36 units, 16 faulty, four fault families injected with known onset), fourteen
+online detectors run on both arms at the same budget of $1.0$ false alarm per truck-month. Twelve form the
+ladder proper: Shewhart~\cite{shewhart1931}, CUSUM~\cite{page1954}, EWMA~\cite{roberts1959},
 Page-Hinkley~\cite{page1954,hinkley1971} (reported as a CUSUM variant, not an independent baseline; at
 equal allowance the two correlate above $0.98$), Hotelling $T^2$ and PCA
 SPE~\cite{hotelling1947,jackson1979,kourti1996}, BOCPD~\cite{adams2007}, KSWIN~\cite{raab2020},
 ADWIN~\cite{bifet2007}, isolation forest~\cite{liu2008}, one-class SVM~\cite{scholkopf2001} and a dense
-autoencoder~\cite{sakurada2014}. PELT~\cite{killick2012} and the multidimensional matrix
-profile~\cite{yeh2017} are deliberately \emph{excluded}: both are retrospective (the profile value at a
-window is computed against matches anywhere in the record, including after it), and an online delay
-metric must never score a method that has read the future. A deliberately generous trivial baseline, a
-fixed threshold on the single channel each fault moves first, \emph{told the answer}, scores $0.75$ at
+autoencoder~\cite{sakurada2014}. Two deep detectors, Deep SVDD~\cite{ruff2018} and an LSTM
+encoder-decoder~\cite{malhotra2016}, test an explanation of the counter-example below
+(Section~\ref{sec:test}). PELT~\cite{killick2012} and the multidimensional matrix
+profile~\cite{yeh2017} are \emph{excluded}: both are retrospective (the profile value at a window is
+computed against matches anywhere in the record, including after it), and an online delay metric must
+never score a method that has read the future. A deliberately generous trivial baseline, a fixed
+threshold on the single channel each fault moves first, \emph{told the answer}, scores $0.75$ at
 $123$ minutes; a ladder that cannot beat it would mean the lane is too easy to be informative.
 
 \begin{figure}[!t]
 \centering
 \includegraphics[width=\columnwidth]{fig-ladder}
-\caption{The complete fourteen-rung ladder at a matched budget, by tier. Conditioning helps six rungs
-(largest: Hotelling $T^2$, $0.06 \to 1.00$), leaves six at ceiling, and hurts two learned novelty
-models. BOCPD detects nothing on either arm (gradual ramps against an abrupt-change model);
-ADWIN's integer statistic leaves it only $d{+}1$ operating points.}
+\caption{The fourteen-rung ladder at a matched budget, by tier. Conditioning helps six rungs (largest:
+Hotelling $T^2$, $0.06 \to 1.00$), leaves the detection rate of six unchanged (four at ceiling, SPE at
+$0.75$, BOCPD at zero) and hurts two learned novelty models. BOCPD detects nothing on either arm (gradual
+ramps against an abrupt-change model); ADWIN's integer statistic leaves it only $d{+}1$ operating points.}
 \label{fig:ladder}
 \end{figure}
 
 \begin{figure*}[!t]
 \centering
 \includegraphics[width=\textwidth]{fig-budget}
-\caption{Baked alarm-budget curves with bootstrap-over-units intervals for a rung conditioning helps
+\caption{Alarm-budget curves with bootstrap-over-units intervals for a rung conditioning helps
 (Hotelling $T^2$), a rung already at ceiling (CUSUM), and a rung conditioning hurts (isolation forest).
 The single-point ladder of Fig.~\ref{fig:ladder} is one slice of these curves; a method that wins only
 at one budget has not won.}
@@ -247,36 +279,67 @@ structure looks like a load change; the same statistic on residuals detects $16$
 shorter delay. SPE sits at $0.75$ on both arms, and its gain is delay ($210.5 \to 86$ minutes): the
 quarter of faults it misses never breaks the correlation structure at this severity.
 
-The counter-example is the finding this report exists to publish. Conditioning \emph{hurts} the
-isolation forest ($0.69 \to 0.06$) and the one-class SVM ($0.75 \to 0.50$ on detection rate; its shorter
-conditioned delay conditions on the half it still catches). The obvious explanation, unassigned regime
-samples destroying the ten-sample feature windows these models score, is ruled out by measurement:
-regime coverage on the residual arm is $0.998$, so there are almost no gaps to blame. The explanation once offered here, that a novelty model
-learns the \emph{shape} of normal and conditioning removes the structure a boundary-shaped one
-uses, was preregistered as a prediction, tested with two deep detectors, and REFUTED; see
-Appendix~B. What follows describes it as the retracted account it is. On the raw arm that shape is a few tight regime clusters, and anything
-off-cluster is easy to isolate; conditioning replaces them with one roughly isotropic cloud, and a
-moderate shift stays inside it. The structure the residual removes is the structure these detectors were
-using. The autoencoder escapes on the same reading: its statistic is reconstruction error through a
-rank-limited map, so a fault that breaks cross-channel structure produces error regardless of how
-isotropic the healthy cloud looks, and it is the only learned rung conditioning helps ($0.75 \to 1.00$,
-$174 \to 90$ minutes) and the only one that beats the trivial baseline outright.
+The main negative finding is a counter-example. Conditioning \emph{hurts} the isolation forest
+($0.69 \to 0.06$) and the one-class SVM ($0.75 \to 0.50$ on detection rate; its shorter conditioned delay
+is measured on the half it still catches). Unassigned regime samples destroying the ten-sample feature
+windows these models score would explain it, but regime coverage on the residual arm is $0.998$, so there
+are almost no gaps to blame. Other learned rungs are helped: the dense autoencoder ($0.75 \to 1.00$,
+$174 \to 90$ minutes) and Deep SVDD ($0.81 \to 0.94$), while the LSTM encoder-decoder is at ceiling on both
+arms.
+
+\section{Testing an Explanation of the Counter-Example}\label{sec:test}
+
+A candidate explanation is that the \emph{shape} of a novelty detector's statistic decides whether
+conditioning helps it. A boundary-shaped detector learns where the healthy cloud is: on the raw arm that
+cloud is a few tight regime clusters, and anything off-cluster is easy to isolate, while conditioning
+replaces them with one roughly isotropic cloud inside which a moderate shift stays. A
+reconstruction-shaped detector scores error through a rank-limited map, so a fault that breaks
+cross-channel structure produces error however isotropic the healthy cloud looks. The explanation
+predicts that conditioning hurts boundary-shaped detectors and does not hurt reconstruction-shaped ones.
+
+The prediction was recorded before two deep detectors were trained, one of each shape and neither from
+the implementation families of the rungs that suggested it: Deep SVDD~\cite{ruff2018}, boundary-shaped
+(it learns a minimum-volume hypersphere around the healthy representations), and an LSTM
+encoder-decoder~\cite{malhotra2016}, reconstruction-shaped. Table~\ref{tab:prereg} gives the outcome.
+Deep SVDD is \emph{helped}, by $0.125$, well beyond the $0.01$ margin used here to call a direction, which
+refutes the prediction. The LSTM result is nearly uninformative: it sits at ceiling on both arms and could
+not have been hurt from there, although its median delay falls from $170$ to $54$ minutes.
+
+\begin{table}[!t]
+\caption{The prediction recorded before training, against the measured detection rates.}
+\label{tab:prereg}
+\centering
+\small
+\begin{tabular}{lccc}
+\toprule
+Rung & Predicted & Raw & Residual \\
+\midrule
+deep-svdd (boundary) & hurt & 0.812 & \textbf{0.938} \\
+lstm-autoencoder (reconstruction) & not hurt & 1.000 & 1.000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The measurements stand: the isolation forest ($0.688 \to 0.062$) and the one-class SVM ($0.750 \to 0.500$)
+are hurt. The explanation does not: three boundary-shaped rungs split two hurt against one helped, which is
+not a rule. One visible difference, that Deep SVDD learns its representation while the two hurt rungs
+partition a fixed input space, would need its own prediction, recorded before its own test, and remains an
+open question.
 
 \section{Localisation Is a Null}
 
 Retrospective PELT segmentation estimates the onset instant on both arms; Table~\ref{tab:onset} shows
-why the chance column is the number to read. The conditioned arm has the smaller absolute error on
-every seed, by factors of two to seven, and all of that advantage is explained by producing 12--14
-changepoints against 2--3: at thirteen cuts the chance level is already $50.6$ minutes. Chance-corrected,
-the paired skill difference over five seeds is $-0.08 \pm 0.74$, with conditioning ahead in two of five,
-and the ordering is not stable to fleet size (a 20-unit run puts conditioning at $2.40\times$ and the
-raw arm at $1.08\times$; the 36-unit run reverses it). An earlier version of this study shipped the
-20-unit reading as a win; the chance baseline is what caught it. The claim ships as a null: regime
-conditioning does not reliably improve onset \emph{localisation}, and this does not touch the detection
-result, which is a different measurement on different data, stable across detectors and subset pairs.
+why the chance column is the number to read. The conditioned arm has the smaller absolute error on every
+one of five seeds, by factors of $2.3$ to $6.8$, and all of that advantage is explained by producing $11.5$
+to $14$ changepoints against $2$ to $3$: at thirteen cuts the chance level is already $50.6$ minutes.
+Chance-corrected, the paired skill difference is
+$-0.08 \pm 0.74$, with conditioning ahead in two of five seeds, and the per-seed skill ranges from $0.87$ to
+$1.94$ on the raw arm and from $0.86$ to $1.75$ on the residual arm. Regime conditioning does not reliably
+improve onset \emph{localisation}; this does not touch the detection result, which is a different
+measurement on different data, stable across detectors and subset pairs.
 
 \begin{table}[!t]
-\caption{Onset localisation via nearest retrospective changepoint (36 units; medians). Skill is
+\caption{Onset localisation via nearest retrospective changepoint (36 units, seed 0; medians). Skill is
 chance/error; $1.0$ means no better than random cut placement.}
 \label{tab:onset}
 \centering
@@ -291,22 +354,22 @@ residual & 52.5 & 13 & 50.6 & 0.96$\times$ \\
 \end{tabular}
 \end{table}
 
-A withdrawal belongs beside the null: no false-alarm-reduction claim is made anywhere in this study.
-C-MAPSS measures detection at a \emph{fixed} false-alarm budget, and on the synthetic lane the raw arm
-reaches the better false-alarm rate outright.
+No false-alarm reduction is found. C-MAPSS measures detection at a \emph{fixed} false-alarm budget. On the
+synthetic lane neither arm raises a false alarm on the scored data at budgets up to $1.0$ per truck-month,
+and at $4.0$ the residual arm realises more false alarms than the raw arm on six rungs and fewer on two.
 
 \section{Two Findings Not About Regimes}
 
-The cost lanes produced two results worth reporting even though no regime enters either. On SCANIA APS,
-with the dataset's own primary-verified cost matrix (FP~10, FN~500) and thresholds chosen out-of-fold,
-the F1-optimal decision rule attains the best F1 ($0.807$) and a total cost of $47{,}890$, while the
-cost-optimal rule attains $11{,}670$ at a worse F1 ($0.652$): optimising the metric almost everyone
-reports selects a decision $4.1\times$ more expensive than optimising the one the operator pays. On
-Component~X, minimising expected cost under the graded matrix helps an unweighted model and degenerates
-to flagging every vehicle on a class-weighted one: class weights and a cost matrix encode the same
-asymmetry through two mechanisms, and applying both double-counts it, because an expected-cost decision
-needs calibrated probabilities and a class-weighted model's are not. Never flagging anything scores
-$97.3\%$ accuracy and the worst cost of all, which is the same lesson from the other side.
+The cost lanes produced two results even though no regime enters either. On SCANIA APS, with the dataset's
+own cost matrix (FP~10, FN~500) and thresholds chosen out-of-fold, the F1-optimal decision rule attains the
+best F1 ($0.807$) and a total cost of $47{,}890$, while the cost-optimal rule attains $11{,}670$ at a worse
+F1 ($0.652$): optimising the metric almost everyone reports selects a decision $4.1\times$ more expensive
+than optimising the one the operator pays. On Component~X, minimising expected cost under the graded matrix
+helps an unweighted model and degenerates to flagging every vehicle on a class-weighted one: class weights
+and a cost matrix encode the same asymmetry through two mechanisms, and applying both double-counts it,
+because an expected-cost decision needs calibrated probabilities and a class-weighted model's are not.
+Never flagging anything scores $97.3\%$ accuracy and the worst cost of all, which is the same lesson from
+the other side.
 
 \section{Related Work}
 
@@ -315,127 +378,62 @@ extensions~\cite{shewhart1931,page1954,roberts1959,hotelling1947,jackson1979,kou
 Bayesian and windowed online change detection~\cite{adams2007,bifet2007,raab2020}, retrospective
 segmentation~\cite{killick2012}, matrix profiles~\cite{yeh2017}, healthy-only novelty
 models~\cite{liu2008,scholkopf2001,sakurada2014}, and conformal calibration as the engine-level route to
-budget-comparable scores~\cite{vovk2005,gibbs2021} (implemented in the engine; the published numbers
-here run through direct event-counted threshold search instead, and the report says so rather than
-borrowing the guarantee). Closest in intent, Carpentier et al.~\cite{carpentier2024} model heavy-duty
-trucks ``contextually'', but their context is a per-vehicle \emph{cohort}: the fleet is clustered by
-specification and one model is trained per cohort, assigned once per vehicle. There is no per-timestep
-regime label and no residual channel. Their approach partitions the fleet; this one partitions the
-timeline. The two compose without interacting, and the full text was read before this paragraph was
-written.
+budget-comparable scores~\cite{vovk2005,gibbs2021}. Conformal calibration is implemented in the engine, but
+the numbers here use a direct event-counted threshold search, so no conformal guarantee applies to them.
+Closest in intent, Carpentier et al.~\cite{carpentier2024} model heavy-duty trucks ``contextually'', but
+their context is a per-vehicle \emph{cohort}: the fleet is clustered by specification and one model is
+trained per cohort, assigned once per vehicle. There is no per-timestep regime label and no residual
+channel. Their approach partitions the fleet; this one partitions the timeline, and the two compose without
+interacting.
 
 \section{Limitations}
 
 The truck-specific results are synthetic: magnitudes are physically plausible for a large rigid hauler
 and are not measurements, and the missing real lane is the study's largest limitation. The controlled
 detection experiment lives on turbofans, chosen because the regime structure is declared and
-switchable, not because turbofans resemble trucks. The ladder runs at one severity and one seed (the
-seed sensitivity of the localisation null is exactly why it is a null); the budget sweep covers
-$0.1$--$4.0$ alarms per truck-month. ADWIN's integer statistic makes it structurally ill-suited to a
-common budget, and its rows understate what a confidence sweep might show. The learned-tier
-counter-example is one lane and one feature contract; its explanation remains a hypothesis until it is
-tested on a second regime structure.
+switchable, not because turbofans resemble trucks, and its onset is a convention. The ladder runs at one
+severity and one seed (the seed sensitivity of the localisation result is why it is a null); the budget
+sweep covers $0.1$--$4.0$ alarms per truck-month. ADWIN's integer statistic makes it structurally
+ill-suited to a common budget, and its rows understate what a confidence sweep might show. The learned-tier
+counter-example rests on one lane and one feature contract, and no explanation of it is established.
 
 \section{Conclusion}
 
 On load-varying telemetry, regime variation alone can destroy budgeted detection, and conditioning on
 regimes learned from context channels recovers it to above single-condition references, with clustering
-as good as declared labels. The same conditioning does not reliably improve onset localisation, earns no
-false-alarm claim, and actively hurts two learned novelty detectors while helping position and
-accumulation detectors. WHICH detectors it hurts is, on this evidence, predicted by no rule this study
-could confirm: the shape explanation offered in version 1.0 was refuted by its own preregistered test
-(Appendix~B). A practitioner reading this report should condition their control charts and
-$T^2$, keep their novelty detectors on the raw arm or re-validate them after conditioning, and distrust
-any localisation figure not printed beside its chance level.
+as good as declared labels. The same conditioning does not reliably improve onset localisation, yields no
+false-alarm reduction, and hurts two learned novelty detectors while helping position and accumulation
+detectors. Which detectors it hurts is predicted by no rule established here: the statistic-shape
+explanation was refuted by a test whose prediction was recorded before it was run
+(Section~\ref{sec:test}). In practice, control charts and $T^2$ should be run on the residual arm, novelty
+detectors kept on the raw arm or re-validated after conditioning, and a localisation figure trusted only
+beside its chance level.
 
 \appendices
 
-\section{The Defect Record}
+\section{Implementation Safeguards}\label{app:safeguards}
 
-Every defect below produced a plausible number, not a crash, against a green test suite, and each is
-released and regression-tested in the public engine or product history. They are part of the result:
-a benchmark's honesty budget is set by the defects it went looking for.
+The numbers above are sensitive to implementation details that, when wrong, produce plausible numbers
+rather than errors. The engine (\texttt{regimecpd}) and the product pipeline enforce the following
+conditions, each covered by a regression test. A channel constant to within numerical noise is not
+standardised by that noise, in the regime residuals and in the linear residual branch alike, since a
+noise-scale denominator lets a single unit set the fleet threshold. The threshold search descends from the
+never-fires end and considers every candidate threshold, because the event-counted false-alarm rate is not
+monotone in the threshold. A missing-value gap inside a sustained excursion does not start a new alarm,
+which would otherwise bias the residual arm. The scale floor of the novelty detectors uses an unsigned
+scale, since residual means are zero by construction. ADWIN's cut threshold follows the bound
+of~\cite{bifet2007}. Both arms receive the same healthy data, and thresholds are chosen on a calibration
+window disjoint from the scored data.
 
-\begin{table}[!h]
-\caption{Defects found while building this study (release where fixed; measured effect).}
-\label{tab:defects}
-\centering
-\scriptsize
-\begin{tabular}{p{0.58\columnwidth}p{0.32\columnwidth}}
-\toprule
-Defect & Fixed; effect \\
-\midrule
-A channel constant to within float noise ($\sigma{=}7\mathrm{e}{-15}$) standardised by that noise; one
-unit set the fleet threshold & 0.09.001; detection $0.79 \to 0.07$ before fix \\
-ADWIN cut threshold matched neither the paper nor MOA while the docs said it did & 0.09.002; one sample
-of median delay \\
-Threshold search stopped at the first budget violation, blind to qualifying thresholds below & 0.09.003;
-14 thresholds unreachable, $0.046$ vs $0.276$ available \\
-Degenerate-scale hole reopened in the linear residual branch (intercept forces the mean to zero) &
-0.09.004; dead channel drove 552/1199 samples \\
-A NaN gap inside one sustained excursion counted as a second alarm, biasing the residual arm & 0.09.005;
-recovery figures $0.98/0.70 \to 0.95/0.90$ \\
-Novelty scale floor referenced a signed mean, zero by construction on residuals & 0.09.006; third module
-with the same defect class \\
-ADWIN docstring still showed the pre-0.09.002 bound (found by equation-vs-code extraction) & 0.09.007;
-docs-only \\
-Raw arm given a third of the residual arm's healthy data & product; FD002 raw $0.046 \to 0.161$ \\
-Threshold chosen on the data it scored, while an unused \texttt{calibration} argument existed & product;
-no change in conclusion, real leak \\
-Artifacts written with bare \texttt{NaN}, which is not JSON & product; the site could not parse its own
-headline artifact \\
-\bottomrule
-\end{tabular}
-\end{table}
+\section{Reproduction}\label{app:repro}
 
-\section{Retraction of the Shape Explanation (version 1.1)}
-
-Version 1.0 of this report closed its ladder section with an explanation, offered explicitly as a
-hypothesis: that the \emph{shape} of a novelty detector's statistic decides whether regime conditioning
-helps it. Boundary-shaped detectors, which learn where the healthy cloud is, would be hurt, because
-conditioning replaces the tight regime clusters they exploit with one isotropic blob;
-reconstruction-shaped detectors, which learn correlation structure, would not.
-
-That hypothesis has been tested and \textbf{refuted}, by its author, with a test designed in advance to
-be able to fail. The prediction was written down and version-controlled before any model was trained,
-and two deep detectors were added, one of each shape and neither sharing an implementation family with
-the rungs that generated the hypothesis: Deep SVDD~\cite{ruff2018} (boundary-shaped: it learns a
-minimum-volume hypersphere around the healthy representations) and an EncDec-AD LSTM
-encoder-decoder~\cite{malhotra2016} (reconstruction-shaped).
-
-\begin{table}[!h]
-\caption{The preregistered predictions against the measured outcome.}
-\label{tab:prereg}
-\centering
-\small
-\begin{tabular}{lccc}
-\toprule
-Rung & Predicted & Raw & Residual \\
-\midrule
-deep-svdd (boundary) & hurt & 0.812 & \textbf{0.938} \\
-lstm-autoencoder (reconstruction) & not hurt & 1.000 & 1.000 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Deep SVDD was \emph{helped}, by $+0.125$, well beyond the $0.01$ margin this study uses to call a
-direction. The LSTM's half is nearly uninformative: it sits at ceiling on both arms and so could not
-have been hurt from there, though its median delay did fall from $170$ to $54$ minutes.
-
-What survives is the observation: isolation forest ($0.688 \to 0.062$) and one-class SVM
-($0.750 \to 0.500$) are still hurt, and those are measurements. What does not survive is the
-explanation built on them. Three boundary-shaped rungs now split two hurt against one helped, which is
-not a rule.
-
-No replacement explanation is offered here. There is a visible candidate difference, that Deep SVDD
-learns its representation while the two hurt rungs partition a fixed input space, but promoting it now
-would be the precise move the preregistration was written to prevent: it is an observation about the
-data that refuted the previous story, and it would need its own prediction, registered first, and its
-own test. It is recorded as an open question.
-
-The honest sentence, and the one a practitioner should carry away: regime conditioning helps most
-detectors and hurts some, the hurt ones so far are healthy-only novelty models, and no rule established
-in this study predicts which.
+Every number is reproduced from the repository artifacts under \path{data/artifacts/}:
+\path{cmapss_mechanism.json} and \path{cmapss_regime_contrast.json} (the C-MAPSS mechanism and contrast),
+\path{synthetic_benchmark.json} (the ladder, the budget curves and the trivial baseline),
+\path{onset_seed_sweep.json} (localisation over five seeds), \path{aps_cost.json} and
+\path{componentx.json} (the cost lanes). They are produced by the pipeline under \path{data-pipeline/} with
+the \texttt{regimecpd} engine, and the figure script under
+\path{manuscripts/regime-conditioning-benchmark/figures/} reads them.
 
 \balance
 
@@ -446,8 +444,8 @@ aircraft engine run-to-failure simulation,'' in \emph{Proc. Int. Conf. Prognosti
 (PHM)}, 2008, doi:10.1109/PHM.2008.4711414.
 
 \bibitem{aps2016} ``IDA 2016 Industrial Challenge: APS failure at Scania trucks,'' UCI Machine Learning
-Repository, 2016, doi:10.24432/C51S51. The cost matrix (FP\,=\,10, FN\,=\,500) is primary-verified in
-the dataset's own description file.
+Repository, 2016, doi:10.24432/C51S51. The cost matrix (FP\,=\,10, FN\,=\,500) is stated in the dataset's
+own description file.
 
 \bibitem{componentx2024} ``SCANIA Component X: a multivariate time-series dataset for predictive
 maintenance,'' Swedish National Data Service, 2024, doi:10.5878/jvb5-d390.
