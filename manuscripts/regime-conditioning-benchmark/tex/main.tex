@@ -39,9 +39,9 @@
 % Page-1 header block (conventions/manuscript-header-standard.md). The four document
 % macros are set by the publishing tool when the version DOI is reserved.
 \newcommand{\doctype}{Technical report}
-\newcommand{\docversion}{v1.2}
+\newcommand{\docversion}{v1.3}
 \newcommand{\docdate}{18 September 2026}
-\newcommand{\versiondoi}{10.5281/zenodo.22824879}
+\newcommand{\versiondoi}{10.5281/zenodo.22825204}
 \newcommand{\conceptdoi}{10.5281/zenodo.22002431}
 \newcommand{\docrepo}{github.com/fsantibanezleal/CAOS\_TruckVitals}
 \newcommand{\headerblock}{%
@@ -226,7 +226,7 @@ FD003/FD004 & raw, 1 condition (ref.) & 0.73 & 1 & 52 \\
 \end{tabular}
 \end{table}
 
-Three readings. First, regime variation alone destroys detection ($0.93 \to 0.17$; $0.73 \to 0.24$), and
+Three readings. First, regime variation alone destroys detection (from $0.93$ to $0.17$; from $0.73$ to $0.24$), and
 conditioning recovers it to \emph{above} the single-condition references ($0.95$; $0.90$), at a lower
 realised false-alarm rate than the raw arm. Second, \emph{discovering} the regimes by $k$-means on the
 context channels recovers exactly as much as being handed the declared condition labels ($0.954$ equals
@@ -256,7 +256,7 @@ $123$ minutes; a ladder that cannot beat it would mean the lane is too easy to b
 \centering
 \includegraphics[width=\columnwidth]{fig-ladder}
 \caption{The fourteen-rung ladder at a matched budget, by tier. Conditioning helps six rungs (largest:
-Hotelling $T^2$, $0.06 \to 1.00$), leaves the detection rate of six unchanged (four at ceiling, SPE at
+Hotelling $T^2$, from $0.06$ to $1.00$), leaves the detection rate of six unchanged (four at ceiling, SPE at
 $0.75$, BOCPD at zero) and hurts two learned novelty models. BOCPD detects nothing on either arm (gradual
 ramps against an abrupt-change model); ADWIN's integer statistic leaves it only $d{+}1$ operating points.}
 \label{fig:ladder}
@@ -276,15 +276,15 @@ Fig.~\ref{fig:ladder} and Fig.~\ref{fig:budget} carry the result. The largest ef
 the mechanism made visible: raw $T^2$ detects $1$ of $16$ faulty trucks, because the retained principal
 subspace of a haul truck is dominated by the duty cycle, and a fault that moves the machine within that
 structure looks like a load change; the same statistic on residuals detects $16$ of $16$ at a $3.6\times$
-shorter delay. SPE sits at $0.75$ on both arms, and its gain is delay ($210.5 \to 86$ minutes): the
+shorter delay. SPE sits at $0.75$ on both arms, and its gain is delay (from $210.5$ to $86$ minutes): the
 quarter of faults it misses never breaks the correlation structure at this severity.
 
 The main negative finding is a counter-example. Conditioning \emph{hurts} the isolation forest
-($0.69 \to 0.06$) and the one-class SVM ($0.75 \to 0.50$ on detection rate; its shorter conditioned delay
+(from $0.69$ to $0.06$) and the one-class SVM (from $0.75$ to $0.50$ on detection rate; its shorter conditioned delay
 is measured on the half it still catches). Unassigned regime samples destroying the ten-sample feature
 windows these models score would explain it, but regime coverage on the residual arm is $0.998$, so there
-are almost no gaps to blame. Other learned rungs are helped: the dense autoencoder ($0.75 \to 1.00$,
-$174 \to 90$ minutes) and Deep SVDD ($0.81 \to 0.94$), while the LSTM encoder-decoder is at ceiling on both
+are almost no gaps to blame. Other learned rungs are helped: the dense autoencoder (from $0.75$ to $1.00$,
+from $174$ to $90$ minutes) and Deep SVDD (from $0.81$ to $0.94$), while the LSTM encoder-decoder is at ceiling on both
 arms.
 
 \section{Testing an Explanation of the Counter-Example}\label{sec:test}
@@ -320,7 +320,7 @@ lstm-autoencoder (reconstruction) & not hurt & 1.000 & 1.000 \\
 \end{tabular}
 \end{table}
 
-The measurements stand: the isolation forest ($0.688 \to 0.062$) and the one-class SVM ($0.750 \to 0.500$)
+The measurements stand: the isolation forest (from $0.688$ to $0.062$) and the one-class SVM (from $0.750$ to $0.500$)
 are hurt. The explanation does not: three boundary-shaped rungs split two hurt against one helped, which is
 not a rule. One visible difference, that Deep SVDD learns its representation while the two hurt rungs
 partition a fixed input space, would need its own prediction, recorded before its own test, and remains an
