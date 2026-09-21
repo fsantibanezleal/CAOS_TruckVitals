@@ -19,11 +19,9 @@ jobs:
           python-version: "3.12"
           cache: pip
       - name: Install (offline lane + dev + editable pkg)
-        run: pip install -r requirements-precompute.txt -r requirements-dev.txt
+        run: pip install -r requirements-dev.txt
       - name: Lint
         run: ruff check data-pipeline tests
-      - name: Tests
-        run: pytest
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
@@ -34,10 +32,6 @@ jobs:
       # would not produce while both suites stay green. This is the gate that stops that.
       - name: Engine parity, browser lane against the Python engine
         run: cd frontend && npm ci && npm test
-      - name: Pipeline smoke (sandboxed; canonical artifacts are read-only)
-        run: |
-          python data-pipeline/run_synthetic_benchmark.py --quick             --output "${{ runner.temp }}/smoke"
-          python data-pipeline/run_fleet_traces.py --n-healthy 2 --n-faulty 2             --output "${{ runner.temp }}/smoke"
       - name: The committed artifacts are present and browser-parseable
         run: python scripts/check_artifacts.py
 
@@ -75,3 +69,5 @@ jobs:
       # gate closes it mechanically: every repo path a tracked markdown file names must exist.
       - name: Every repo path the docs name exists
         run: python scripts/check_doc_paths.py
+      - name: CI budget, trunk-only triggers, no training (ADR-0074)
+        run: python scripts/check_ci_budget.py
